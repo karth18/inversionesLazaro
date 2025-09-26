@@ -2,7 +2,7 @@
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>ISIL DAE II</title>
+    <title>Inversiones Lazaro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -40,13 +40,13 @@
                 <li class="nav-item"><a class="nav-link" href="/">Catalogo</a></li>
                 <li class="nav-item"><a class="nav-link" href="/">Personaliza</a></li>
 
-                <li class="nav-item" authorize="hasRole('ROLE_ADMIN')">
+                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="nav-link" href="/admin/usuarios">
-                        Admnistración
+                        Usuarios
                     </a>
                 </li>
             </ul>
-            <div authorize="!isAuthenticated()">
+            <div sec:authorize="!isAuthenticated()">
                 <a class="btn btn-outline-primary" href="/login">
                     Iniciar sesión
                 </a>
@@ -54,10 +54,10 @@
                     Regístrate
                 </a>
             </div>
-            <div class="dropdown" authorize="isAuthenticated()">
+            <div class="dropdown" sec:authorize="isAuthenticated()">
                 <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                    data-bs-toggle="dropdown" aria-expanded="false"
-                   authentication="principal.nombre">
+                   sec:authentication="principal.nombre">
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end"  aria-labelledby="dropdownMenuLink">

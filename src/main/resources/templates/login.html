@@ -19,8 +19,8 @@
                     El email o la contraseña son incorrectas
                 </div>
 
-                <div class="alert alert-success my-3" th:if="${param.registroExitoso}">
-                    Te has registrado correctamente
+                <div id="alert-exito" class="alert alert-success my-3" th:if="${registroExitoso}">
+                    <strong th:text="${registroExitoso}"></strong>
                 </div>
 
                 <form th:action="@{''}" method="post" class="mt-5">
@@ -40,6 +40,17 @@
             </div>
         </div>
     </div>
+    <script>
+
+        setTimeout(() => {
+            const alerta = document.getElementById("alert-exito");
+            if (alerta) {
+                alerta.style.transition = "opacity 0.3s ease";
+                alerta.style.opacity = "0";
+                setTimeout(() => alerta.remove(), 500); // lo elimina del DOM
+            }
+        }, 5000);
+    </script>
 </div>
 </body>
 </html>

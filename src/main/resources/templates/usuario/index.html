@@ -5,13 +5,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>usuario</title>
+    <title>Lista de Usuarios</title>
 </head>
 <body>
-<div class="container mt-5" layout:fragment="contents">
+<div class="container mt-5" layout:fragment="content">
 
-    <table>
-        <thead>
+    <form action="" class="my-3" >
+        <div class="row">
+            <div class="col-md-6 col-lg-4">
+                <div class="input-group">
+                    <input type="search" name="dni" class="form-control" placeholder="Buscar usuario por DNI"
+                           th:value="${param.dni}">
+                    <button class="btn btn-primary">Buscar</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-responsive table-hover">
+        <thead class="table">
         <tr>
             <th>DNI</th>
             <th>Nombres</th>
@@ -19,11 +31,18 @@
             <th>Celular</th>
             <th>Direccion</th>
             <th>Email</th>
+            <th>Rol</th>
         </tr>
         </thead>
         <tbody>
-        <tr >
-            <td></td>
+        <tr th:each="usuario : ${usu}" >
+            <td th:text="${usuario.dni}"></td>
+            <td th:text="${usuario.nombres}"></td>
+            <td th:text="${usuario.apellidos}"></td>
+            <td th:text="${usuario.celular}"></td>
+            <td th:text="${usuario.direccion}"></td>
+            <td th:text="${usuario.email}"></td>
+            <td th:text="${usuario.rol}"></td>
         </tr>
 
         </tbody>

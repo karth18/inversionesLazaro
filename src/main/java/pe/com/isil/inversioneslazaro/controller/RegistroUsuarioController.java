@@ -69,7 +69,7 @@ public class RegistroUsuarioController {
         usuario.setRol(Usuario.Rol.CLIENTE);
         //grabamos el usuario en base de datos
         usuarioRepository.save(usuario);
-        ra.addFlashAttribute("registroExitoso", "");
+        ra.addFlashAttribute("registroExitoso", "Registro de Usuario exitoso");
         return "redirect:/login";
     }
 }
