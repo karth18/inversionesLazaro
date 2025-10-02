@@ -22,6 +22,7 @@
         </div>
     </form>
 
+    <a href="">Nuevo</a>
     <table class="table table-responsive table-hover">
         <thead class="table">
         <tr>
@@ -32,6 +33,8 @@
             <th>Direccion</th>
             <th>Email</th>
             <th>Rol</th>
+            <th></th>
+
         </tr>
         </thead>
         <tbody>
@@ -43,6 +46,9 @@
             <td th:text="${usuario.direccion}"></td>
             <td th:text="${usuario.email}"></td>
             <td th:text="${usuario.rol}"></td>
+            <td >Editar</td>
+            <td >Eliminar</td>
+
         </tr>
 
         </tbody>
