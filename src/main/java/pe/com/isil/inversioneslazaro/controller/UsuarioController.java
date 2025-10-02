@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/usuarios")
