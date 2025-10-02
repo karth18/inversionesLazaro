@@ -40,25 +40,4 @@ public class UsuarioController {
         //3. retornamos la vista o HTML a mostrar
         return "usuario/index"; //al archivo: index.html
     }
-
-
-    @GetMapping("/editar/{id}")
-    public String editarUsuario(Model model, @PathVariable String id){
-        Optional<Usuario> usuario = usuarioRepository.findById(id);
-        model.addAttribute("usuario", usuario);
-        return "usuario/userdashboard";
-    }
-
-    @PostMapping("/editar/{id}")
-    public String actualizar(Usuario usuario){
-        usuarioRepository.save(usuario);
-        return "redirect:/admin/usuarios/userdashboard";
-    }
-
-
-    //dashboard
-    @GetMapping("/userdashboard")
-    public String userDashboard() {
-        return "usuario/userdashboard"; // busca userdashboard.html en /templates
-    }
 }

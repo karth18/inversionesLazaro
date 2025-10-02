@@ -12,27 +12,18 @@
 
 <body>
 <div class="container" layout:fragment="content">
-    <form class="row g-3" th:action="@{/usuario/editar/{id}(id=${usuario.dni})}" th:object="${usuario}" method="post">
+    <form class="row g-3" th:action="@{/cuenta/editar}" th:object="${usuario}" method="post">
         <div class="col-md-4">
-            <label for="validationServer01" class="form-label">First name</label>
-            <input type="text" class="form-control is-valid" id="validationServer01" value="Mark" th:field="*{dni}">
+            <label class="form-label">DNI</label>
+            <span class="form-control readonly-span"  th:field="*{dni}" ></span>
         </div>
         <div class="col-md-4">
-            <label for="validationServer02" class="form-label">Last name</label>
-            <input type="text" class="form-control is-valid" id="validationServer02" value="Otto" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
+            <label for="validationServer02" class="form-label">Nombres</label>
+            <input type="text" class="form-control" id="validationServer02" required>
         </div>
         <div class="col-md-4">
-            <label for="validationServerUsername" class="form-label">Username</label>
-            <div class="input-group has-validation">
-                <span class="input-group-text" id="inputGroupPrepend3">@</span>
-                <input type="text" class="form-control is-invalid" id="validationServerUsername" aria-describedby="inputGroupPrepend3 validationServerUsernameFeedback" required>
-                <div id="validationServerUsernameFeedback" class="invalid-feedback">
-                    Please choose a username.
-                </div>
-            </div>
+            <label class="form-label">Email</label>
+            <span class="form-control readonly-span" th:text="*{email}"></span>
         </div>
         <div class="col-md-6">
             <label for="validationServer03" class="form-label">City</label>
