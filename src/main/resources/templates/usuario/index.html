@@ -46,7 +46,7 @@
             <td th:text="${usuario.direccion}"></td>
             <td th:text="${usuario.email}"></td>
             <td th:text="${usuario.rol}"></td>
-            <td ><a href="">Editar</a></td>
+            <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/editar/{id}(id=*{usuario.dni})}">Editar</a></td>
             <td ><a href="">Eliminar</a></td>
 
         </tr>
