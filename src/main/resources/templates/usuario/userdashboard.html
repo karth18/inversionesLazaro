@@ -11,58 +11,51 @@
 
 
 <body>
-<div class="container" layout:fragment="content">
-    <form class="row g-3" th:action="@{/cuenta/editar}" th:object="${usuario}" method="post">
-        <div class="col-md-4">
-            <label class="form-label">DNI</label>
-            <span class="form-control readonly-span"  th:field="*{dni}" ></span>
+<div class="container mt-5" layout:fragment="content" >
+
+    <form id="form-usuario" class="row g-3" th:action="@{/cuenta/editar}" th:object="${usuario}" method="post">
+        <div th:if="${mensaje}" class="alert alert-success" role="alert">
+            <span th:text="${mensaje}"></span>
         </div>
         <div class="col-md-4">
-            <label for="validationServer02" class="form-label">Nombres</label>
-            <input type="text" class="form-control" id="validationServer02" required>
+            <label class="form-label">DNI</label>
+            <span class="form-control readonly-span" th:text="*{dni}" ></span>
+            <input type="hidden" th:field="*{dni}">
+        </div>
+        <div class="col-md-4">
+            <label for="nombres" class="form-label">Nombres</label>
+            <div class="d-flex align-items-center">
+                <input type="text" class="form-control me-2" id="nombres" th:field="*{nombres}" readonly required>
+                <small class="text-primary editar-link" style="cursor:pointer" data-target="nombres">Editar</small>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="lastName" class="form-label">Apellidos</label>
+            <div class="d-flex align-items-center">
+            <input type="text" class="form-control me-2" id="lastName" th:field="*{apellidos}" readonly required>
+            <small class="text-primary editar-link" style="cursor:pointer" data-target="lastName">Editar</small>
+            </div>
         </div>
         <div class="col-md-4">
             <label class="form-label">Email</label>
             <span class="form-control readonly-span" th:text="*{email}"></span>
         </div>
-        <div class="col-md-6">
-            <label for="validationServer03" class="form-label">City</label>
-            <input type="text" class="form-control is-invalid" id="validationServer03" aria-describedby="validationServer03Feedback" required>
-            <div id="validationServer03Feedback" class="invalid-feedback">
-                Please provide a valid city.
+        <div class="col-md-4">
+            <label for="celphone" class="form-label">Celular</label>
+            <div class="d-flex align-items-center">
+            <input type="text" class="form-control me-2" id="celphone" th:field="*{celular}" readonly required>
+            <small class="text-primary editar-link" style="cursor:pointer" data-target="celphone">Editar</small>
             </div>
         </div>
-        <div class="col-md-3">
-            <label for="validationServer04" class="form-label">State</label>
-            <select class="form-select is-invalid" id="validationServer04" aria-describedby="validationServer04Feedback" required>
-                <option selected disabled value="">Choose...</option>
-                <option>...</option>
-            </select>
-            <div id="validationServer04Feedback" class="invalid-feedback">
-                Please select a valid state.
+        <div class="col-md-4">
+            <label for="address" class="form-label">Dirección</label>
+            <div class="d-flex align-items-center">
+            <input type="text" class="form-control me-2" id="address" th:field="*{direccion}" readonly required>
+            <small class="text-primary editar-link" style="cursor:pointer" data-target="address">Editar</small>
             </div>
         </div>
-        <div class="col-md-3">
-            <label for="validationServer05" class="form-label">Zip</label>
-            <input type="text" class="form-control is-invalid" id="validationServer05" aria-describedby="validationServer05Feedback" required>
-            <div id="validationServer05Feedback" class="invalid-feedback">
-                Please provide a valid zip.
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="form-check">
-                <input class="form-check-input is-invalid" type="checkbox" value="" id="invalidCheck3" aria-describedby="invalidCheck3Feedback" required>
-                <label class="form-check-label" for="invalidCheck3">
-                    Agree to terms and conditions
-                </label>
-                <div id="invalidCheck3Feedback" class="invalid-feedback">
-                    You must agree before submitting.
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <button class="btn btn-primary" type="submit">Submit form</button>
-        </div>
+
     </form>
 
     <style>
@@ -92,6 +85,34 @@
             border-bottom: 2px solid #28a745 !important; /* Verde valid */
         }
     </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("form-usuario");
+
+            document.querySelectorAll(".editar-link").forEach(link => {
+                link.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const targetId = this.dataset.target;
+                    const input = document.getElementById(targetId);
+
+                    if (!input) return;
+
+                    if (this.textContent === "Editar") {
+                        // Desbloquear campo
+                        input.removeAttribute("readonly");
+                        input.focus();
+                        this.textContent = "Guardar";
+                        this.classList.remove("text-primary");
+                        this.classList.add("text-success");
+                    } else if (this.textContent === "Guardar") {
+                        // Enviar formulario directamente
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 
 </div>
 

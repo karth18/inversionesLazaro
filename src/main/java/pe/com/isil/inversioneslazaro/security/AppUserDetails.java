@@ -56,7 +56,8 @@ public class AppUserDetails implements UserDetails {
         return true;
     }
 
-    public String getNombre() {
+
+    public String getNombre(){
         return nombre;
     }
 }
