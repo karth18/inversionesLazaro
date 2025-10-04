@@ -27,8 +27,8 @@ public class WebSecurityConfig {
                 .formLogin(form -> form
                         .loginProcessingUrl("/login")            // URL a la que apunta el form del modal
                         .defaultSuccessUrl("/", true)            // Redirige al inicio si login es correcto
-//                        .failureUrl("/?error=true")
-                        .failureHandler(authenticationFailureHandler())
+                        .failureUrl("/?error=true")
+//                        .failureHandler(authenticationFailureHandler())
                         .permitAll()
                 )
                 // Configuración de permisos

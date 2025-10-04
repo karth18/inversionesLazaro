@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
@@ -27,26 +28,64 @@ public class UsuarioController {
     private PasswordEncoder passwordEncoder;
 
 
+
     @GetMapping("")
-    String index(Model model, @PageableDefault(size=5) Pageable pageable, @RequestParam(required = false) String dni)
-    {
-        //1. listado tipo Page de todos usuarios registrados en la base de datos
+    public String index(Model model,
+                        @PageableDefault(size = 10) Pageable pageable,
+                        @RequestParam(required = false) String busqueda) {
+
         Page<Usuario> usu;
-        if (dni != null && !dni.trim().isEmpty())
-        {
-            usu = usuarioRepository.findByDniContainingIgnoreCase(dni, pageable);
-        }
-        else
-        {
+
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            // Buscar por todos los campos
+            usu = usuarioRepository
+                    .findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
+                            busqueda, busqueda, busqueda, busqueda, pageable);
+        } else {
             usu = usuarioRepository.findAll(pageable);
         }
 
-        //2. creamos un atributo en el model a enviar a la vista
         model.addAttribute("usu", usu);
+        model.addAttribute("busqueda", busqueda); // para mantener el valor en el input
+        model.addAttribute("totalRegistros", usu.getTotalElements());
 
-        //3. retornamos la vista o HTML a mostrar
-        return "usuario/index"; //al archivo: index.html
+        return "usuario/index";
     }
+
+    @GetMapping("/eliminar/{id}")
+    public String eliminar(@PathVariable String id, RedirectAttributes ra) {
+        // Opcional: verificar si existe antes de eliminar
+        if (usuarioRepository.existsById(id)) {
+            usuarioRepository.deleteById(id);
+            ra.addFlashAttribute("mensajeExito", "Usuario eliminado correctamente");
+        } else {
+            ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
+        }
+        return "redirect:/admin/usuarios";
+    }
+
+
+//    @GetMapping("")
+//    String index(Model model, @PageableDefault(size=10) Pageable pageable, @RequestParam(required = false) String dni)
+//    {
+//        //1. listado tipo Page de todos usuarios registrados en la base de datos
+//        Page<Usuario> usu;
+//        if (dni != null && !dni.trim().isEmpty())
+//        {
+//            usu = usuarioRepository.findByDniContainingIgnoreCase(dni, pageable);
+//        }
+//        else
+//        {
+//            usu = usuarioRepository.findAll(pageable);
+//        }
+//
+//        //2. creamos un atributo en el model a enviar a la vista
+//        model.addAttribute("usu", usu);
+//        model.addAttribute("dni", dni);
+//
+//        //3. retornamos la vista o HTML a mostrar
+//        return "usuario/index"; //al archivo: index.html
+//    }
 
     @GetMapping("/editar/{id}")
     public String editar(Model model, @PathVariable String id){
@@ -86,4 +125,5 @@ public class UsuarioController {
         usuarioRepository.save(usuario);
         return "redirect:/admin/usuarios";
     }
+
 }

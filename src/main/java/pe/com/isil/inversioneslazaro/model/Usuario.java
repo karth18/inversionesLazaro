@@ -49,7 +49,7 @@ public class Usuario {
 
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Debe seleccionar un rol")
+//    @NotNull(message = "Debe seleccionar un rol")
     private Rol rol;
 
     public enum Rol {

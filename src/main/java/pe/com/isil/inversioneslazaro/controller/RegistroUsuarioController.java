@@ -71,6 +71,6 @@ public class RegistroUsuarioController {
         //grabamos el usuario en base de datos
         usuarioRepository.save(usuario);
         ra.addFlashAttribute("registroExitoso", "Registro de Usuario exitoso");
-        return "redirect:/login";
+        return "redirect:/";
     }
 }

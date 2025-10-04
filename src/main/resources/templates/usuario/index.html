@@ -10,19 +10,26 @@
 <body>
 <div class="container mt-5" layout:fragment="content" >
 
+    <div th:if="${mensajeExito}" class="alert alert-success" role="alert">
+        <span th:text="${mensajeExito}"></span>
+    </div>
+
+    <div th:if="${mensajeError}" class="alert alert-danger" role="alert">
+        <span th:text="${mensajeError}"></span>
+    </div>
+
     <form action="" class="my-3" >
         <div class="row">
             <div class="col-md-6 col-lg-4">
                 <div class="input-group">
-                    <input type="search" name="dni" class="form-control" placeholder="Buscar usuario por DNI"
-                           th:value="${param.dni}">
+                    <input type="search" name="busqueda" class="form-control" placeholder="Buscar usuario por DNI, nombres, apellidos o email"
+                           th:value="${busqueda}">
                     <button class="btn btn-primary">Buscar</button>
                 </div>
             </div>
         </div>
     </form>
 
-    <a href="">Nuevo</a>
     <table class="table table-responsive table-hover">
         <thead class="table">
         <tr>
@@ -47,12 +54,37 @@
             <td th:text="${usuario.email}"></td>
             <td th:text="${usuario.rol}"></td>
             <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/editar/{id}(id=*{usuario.dni})}">Editar</a></td>
-            <td ><a href="">Eliminar</a></td>
+            <td ><a th:href="@{/admin/usuarios/eliminar/{id}(id=${usuario.dni})}"
+                    class="btn btn-danger btn-sm"
+                    onclick="return confirm('¿Seguro que deseas eliminar este usuario?');">
+                    Eliminar
+                </a>
+            </td>
 
         </tr>
 
         </tbody>
     </table>
+    <nav th:if="${usu.totalPages > 1}">
+        <div class="d-flex justify-content-center my-3">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${usu.first}? 'disabled'">
+                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number-1})}">Anterior</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, usu.totalPages-1)}"
+                th:classappend="${usu.number == i}? 'active'">
+                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${i})}" th:text="${i+1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${usu.last}? 'disabled'">
+                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number+1})}">Siguiente</a>
+            </li>
+        </ul>
+        </div>
+        <div class="d-flex justify-content-end my-3">
+            <div>Total de registros: <span th:text="${totalRegistros}">0</span></div>
+        </div>
+    </nav>
+
 
 
 </div>
