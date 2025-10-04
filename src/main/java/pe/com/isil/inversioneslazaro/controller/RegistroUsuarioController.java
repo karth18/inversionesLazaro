@@ -1,5 +1,6 @@
 package pe.com.isil.inversioneslazaro.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -31,37 +32,37 @@ public class RegistroUsuarioController {
     }
 
     @PostMapping("/registro")
-    public String crear(@Validated Usuario usuario, BindingResult bindingResult, RedirectAttributes ra, Model model)
+    public String crear(@Valid Usuario usuario, BindingResult bindingResult, RedirectAttributes ra, Model model)
     {
-        if (bindingResult.hasErrors())
-        {
-            model.addAttribute("usuario", usuario);
-            return "/usuario/form";
-        }
+
         //Validar si existe un email, tiene que ser unico
         String email = usuario.getEmail();
+        String dni = usuario.getDni();
         boolean usuarioExiste = usuarioRepository.existsByEmail(email);
-        boolean dniExists = usuarioRepository.existsById(usuario.getDni());
+        boolean dniExists = usuarioRepository.existsByDni(dni);
         if (usuarioExiste)
         {
-            bindingResult.rejectValue("email", "EmailAlredayExists");
+            bindingResult.rejectValue("email", "EmailAlredayExists.usuario.email");
         }
+        //Validar si existe DNI, tiene que ser unico
+        if (dniExists) {
+            bindingResult.rejectValue("dni", "DniAlreadyExists.usuario.dni");
+        }
+
         //Validar la coincidencia de contraseñas
         if(! usuario.getPassword1().equals(usuario.getPassword2()))
         {
             bindingResult.rejectValue("password1", "PasswordNotEquals");
         }
+
         if (usuario.getPassword1() == null || usuario.getPassword1().isBlank()) {
             bindingResult.rejectValue("password1", "PasswordEmpty", "La contraseña no puede estar vacía");
         }
+
         if (bindingResult.hasErrors())
         {
             model.addAttribute("usuario", usuario);
-            return "usuario/form";
-        }
-        if (dniExists) {
-            bindingResult.rejectValue("dni", "DniAlreadyExists");
-            return "usuario/form";
+            return "/usuario/form";
         }
         //asignamos el password encryptado
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword1()));

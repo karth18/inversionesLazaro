@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -40,19 +41,16 @@ public class Usuario {
 
     private String password;
 
-
     @Transient
     private String password1;
-
 
     @Transient
     private String password2;
 
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Debe seleccionar un rol")
     private Rol rol;
-
-
 
     public enum Rol {
         ADMIN,

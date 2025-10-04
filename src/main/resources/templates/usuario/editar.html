@@ -18,15 +18,8 @@
                 <form th:action="@{/admin/usuarios/editar/{id}(id=${usuario.dni})}" method="post" class="mt-5" th:object="${usuario}">
                     <div class="mb-2">
                         <label for="dni">Documento de Identidad</label>
-                        <input type="text" id="dni"
-                               placeholder="Documento de Identidad"
-                               th:field="*{dni}"
-                               class="form-control"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{dni}" th:if="${#fields.hasErrors('dni')}"
-                        >
-                        </div>
+                        <span class="form-control readonly-span" th:text="*{dni}" ></span>
+                        <input type="hidden" id="dni" th:field="*{dni}">
                     </div>
                     <div class="mb-2">
                         <label for="nombres">Nombres</label>

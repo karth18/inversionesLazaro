@@ -1,5 +1,6 @@
 package pe.com.isil.inversioneslazaro.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
@@ -60,14 +62,26 @@ public class UsuarioController {
     public String actualizar(@PathVariable String id,
                              @RequestParam String password1,
                              @RequestParam String password2,
-                             @ModelAttribute("usuario") Usuario usuario) {
+                             @Valid @ModelAttribute("usuario") Usuario usuario, BindingResult result, Model model) {
 
+
+
+        if (password1 == null || password1.isBlank() ||
+                password2 == null || password2.isBlank()) {
+            result.rejectValue("password1", "NotBlank");
+            result.rejectValue("password2", "NotBlank");
+        }
         if (!password1.isEmpty()) {
             if (!password1.equals(password2)) {
                 // Manejar error: las contraseñas no coinciden
-                return "usuario/editar";
+                result.rejectValue("password1", "PasswordNotEquals");
             }
             usuario.setPassword(passwordEncoder.encode(password1)); // <-- aquí actualizas la contraseña real
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("usuario", usuario);
+            return "usuario/editar"; // vuelve al formulario
         }
 
         usuario.setDni(id);
