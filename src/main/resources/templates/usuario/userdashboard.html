@@ -19,13 +19,13 @@
         </div>
         <div class="col-md-4">
             <label class="form-label">DNI</label>
-            <span class="form-control readonly-span" th:text="*{dni}" ></span>
+            <span class="form-control form-underline readonly-span" th:text="*{dni}" ></span>
             <input type="hidden" th:field="*{dni}">
         </div>
         <div class="col-md-4">
             <label for="nombres" class="form-label">Nombres</label>
             <div class="d-flex align-items-center">
-                <input type="text" class="form-control me-2" id="nombres" th:field="*{nombres}" readonly required>
+                <input type="text" class="form-control form-underline me-2" id="nombres" th:field="*{nombres}" readonly required>
                 <small class="text-primary editar-link" style="cursor:pointer" data-target="nombres">Editar</small>
 
             </div>
@@ -33,58 +33,31 @@
         <div class="col-md-4">
             <label for="lastName" class="form-label">Apellidos</label>
             <div class="d-flex align-items-center">
-            <input type="text" class="form-control me-2" id="lastName" th:field="*{apellidos}" readonly required>
+            <input type="text" class="form-control form-underline me-2" id="lastName" th:field="*{apellidos}" readonly required>
             <small class="text-primary editar-link" style="cursor:pointer" data-target="lastName">Editar</small>
             </div>
         </div>
         <div class="col-md-4">
             <label class="form-label">Email</label>
-            <span class="form-control readonly-span" th:text="*{email}"></span>
+            <span class="form-control form-underline readonly-span" th:text="*{email}"></span>
         </div>
         <div class="col-md-4">
             <label for="celphone" class="form-label">Celular</label>
             <div class="d-flex align-items-center">
-            <input type="text" class="form-control me-2" id="celphone" th:field="*{celular}" readonly required>
+            <input type="text" class="form-control form-underline me-2" id="celphone" th:field="*{celular}" readonly required>
             <small class="text-primary editar-link" style="cursor:pointer" data-target="celphone">Editar</small>
             </div>
         </div>
         <div class="col-md-4">
             <label for="address" class="form-label">Dirección</label>
             <div class="d-flex align-items-center">
-            <input type="text" class="form-control me-2" id="address" th:field="*{direccion}" readonly required>
+            <input type="text" class="form-control form-underline me-2" id="address" th:field="*{direccion}" readonly required>
             <small class="text-primary editar-link" style="cursor:pointer" data-target="address">Editar</small>
             </div>
         </div>
 
     </form>
 
-    <style>
-        /* Aplica a todos los inputs de tipo texto, email, password, etc */
-        .form-control {
-            border: none !important;
-            border-bottom: 2px solid #ccc !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            outline: none !important;
-            transition: border-color 0.3s ease-in-out !important;
-        }
-
-        /* Color al hacer focus */
-        .form-control:focus {
-            border-bottom: 2px solid #007bff !important; /* Azul Bootstrap */
-            box-shadow: none !important;
-        }
-
-        /* Si está en error */
-        .form-control.is-invalid {
-            border-bottom: 2px solid #dc3545 !important; /* Rojo error */
-        }
-
-        /* Si está válido */
-        .form-control.is-valid {
-            border-bottom: 2px solid #28a745 !important; /* Verde valid */
-        }
-    </style>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
