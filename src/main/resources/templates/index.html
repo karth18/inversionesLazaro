@@ -6,12 +6,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <style>
+        .hero {
+            background: url('/img/imagenFondoCocina.png') no-repeat center center;
+            background-size: cover;
+            height: 80vh; /* altura que quieras darle */
+            display: flex;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); /* capa oscura para mejor contraste */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5" layout:fragment="content" >
+<div class="container-fluid p-0" layout:fragment="content">
 
-    <h1> hola mundo</h1>
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <!-- Texto a la izquierda -->
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold">Bienvenido</h1>
+                    <p class="lead">Realizamos trabajos en acero inox de uso industrial o domestico a medida</p>
+                    <a href="#" class="btn btn-primary btn-lg mt-3">Personaliza</a>
+                </div>
+
+<!--                &lt;!&ndash; Imagen a la derecha &ndash;&gt;-->
+<!--                <div class="col-md-6 text-center">-->
+<!--                    <img src="/img/karate.png" alt="Imagen derecha" class="hero-img">-->
+<!--                </div>-->
+            </div>
+        </div>
+    </section>
+
+    <!-- Aquí después puedes poner otras secciones -->
+    <section class="py-5 text-center">
+        <h2>Otra sección futura</h2>
+        <p>Contenido que aún no he pensado</p>
+    </section>
+
 </div>
-
 </body>
 </html>
