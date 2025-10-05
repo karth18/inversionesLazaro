@@ -50,7 +50,6 @@
             </ul>
 
             <div sec:authorize="!isAuthenticated()">
-                <div th:replace="~{_loginModal :: loginModal}"></div>
                     <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
                         Iniciar Sesión
                     </a>
@@ -100,9 +99,6 @@
 <div layout:fragment="scripts" th:remove="tag">
 
 
-
-
-
 </div>
 <footer class="bg-dark text-light mt-5">
     <div class="container py-4">
@@ -142,80 +138,85 @@
 </footer>
 
 
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="error-modal" class="alert alert-danger my-3 d-none"></div>
+                    <form id="fakeLoginForm">
+                        <div class="mb-3">
+                            <label for="emailModal" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control form-underline" id="emailModal" placeholder="Ingresa tu correo electrónico" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordModal" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control form-underline" placeholder="Ingresa tu contraseña" id="passwordModal" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fakeForm = document.getElementById("fakeLoginForm");
 
+      // Cuando se envía el modal
+      fakeForm?.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-<!--<script>-->
-<!--    document.addEventListener("DOMContentLoaded", function () {-->
-<!--        /* Si hay error de login, abrir el modal automáticamente */-->
-<!--        /* Thymeleaf reemplazará esto por true/false */-->
-<!--        var loginError = /*[[${session.loginError != null}]]*/ false;-->
-<!--        if (loginError) {-->
-<!--            var myModal = new bootstrap.Modal(document.getElementById('loginModal'));-->
-<!--            myModal.show();-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
+        const email = document.getElementById("emailModal").value;
+        const pass = document.getElementById("passwordModal").value;
 
-<!-- v1 funciona pero se abre todo el tiempo -->
-<!-- Script para abrir automáticamente el modal si hay error -->
-<!--<script th:if="${session.loginError}">-->
-<!--    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));-->
-<!--    loginModal.show();-->
-<!--</script>-->
+        // Crea el formulario real y lo envía a /login (Spring Security)
+        const realForm = document.createElement("form");
+        realForm.method = "post";
+        realForm.action = "/login";
 
-<!--v2 estamos por ahi pero aun sigue con errores salta solo el modal-->
-<!--<script th:if="${session.loginError}">-->
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--        var loginModalEl = document.getElementById('loginModal');-->
-<!--        if (loginModalEl) {-->
+        const userInput = document.createElement("input");
+        userInput.type = "hidden";
+        userInput.name = "username";
+        userInput.value = email;
 
-<!--            var loginModal3 = new bootstrap.Modal(loginModalEl);-->
-<!--            loginModal3.show();-->
+        const passInput = document.createElement("input");
+        passInput.type = "hidden";
+        passInput.name = "password";
+        passInput.value = pass;
 
-<!--        }-->
-<!--&lt;!&ndash;        agregado recientemente&ndash;&gt;-->
-<!--        fetch('/login-error-clear', { method: 'POST' });-->
-<!--    });-->
-<!--</script>-->
+        realForm.appendChild(userInput);
+        realForm.appendChild(passInput);
+        document.body.appendChild(realForm);
 
-<!--<script>-->
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--        const loginError = /*[[${session.loginError}]]*/ false; // Thymeleaf lo reemplaza-->
-<!--        if (loginError) {-->
-<!--            const loginModalEl = document.getElementById('loginModal');-->
-<!--            if (loginModalEl) {-->
-<!--                const loginModal = new bootstrap.Modal(loginModalEl);-->
-<!--                loginModal.show();-->
-<!--            }-->
-<!--            // Limpiamos la sesión inmediatamente para que no vuelva a ejecutarse-->
-<!--            fetch('/login-error-clear', { method: 'POST' });-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
+        realForm.submit();
+      });
 
-<!--<script>-->
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--        // Capturamos si hay error en sesión-->
-<!--        var loginError = /*[[${session.loginError}]]*/ false;-->
-
-<!--        if (loginError) {-->
-<!--            // Mostramos modal-->
-<!--            var loginModalEl = document.getElementById('loginModal');-->
-<!--            if (loginModalEl) {-->
-<!--                var loginModal = new bootstrap.Modal(loginModalEl);-->
-<!--                loginModal.show();-->
-<!--            }-->
-
-<!--            // Limpiamos la sesión para que no se vuelva a mostrar automáticamente-->
-<!--            fetch('/login-error-clear', { method: 'POST' });-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
-
-
-
-
+      // Si Spring Security redirige con ?error
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("error")) {
+        const modal = document.getElementById("loginModal");
+        const errorDiv = document.getElementById("error-modal");
+        if (errorDiv) {
+          errorDiv.textContent = "Correo o contraseña incorrectos";
+          errorDiv.classList.remove("d-none");
+        }
+        if (modal) {
+          const loginModal = new bootstrap.Modal(modal);
+          loginModal.show();
+        }
+      }
+    });
+    document.getElementById("loginModal")
+      ?.addEventListener("hidden.bs.modal", () => {
+        const errorDiv = document.getElementById("error-modal");
+        if (errorDiv) errorDiv.classList.add("d-none");
+     });
+</script>
 
 
 <style>
