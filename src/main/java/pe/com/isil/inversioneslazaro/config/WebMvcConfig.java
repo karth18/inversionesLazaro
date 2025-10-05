@@ -14,4 +14,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
         //error 403
         registry.addViewController("/403").setViewName("403");
     }
+
 }

@@ -15,7 +15,8 @@
             <div class="bg-white shadow rounded p-5">
                 <h3>Actualizar usuario</h3>
 
-                <form id="form-usuario" th:action="@{/admin/usuarios/editar/{id}(id=${usuario.dni})}" method="post" class="mt-5" th:object="${usuario}">
+                <form id="form-usuario" th:action="@{/admin/usuarios/editar/{id}(id=${usuario.id})}" method="post" class="mt-5" th:object="${usuario}">
+                    <input type="hidden" th:field="*{id}">
                     <div class="mb-2">
                         <label for="dni">Documento de Identidad</label>
                         <span class="form-control readonly-span" th:text="*{dni}" ></span>

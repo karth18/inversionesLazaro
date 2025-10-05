@@ -64,5 +64,37 @@
     </section>
 
 </div>
+<!-- esta seccion es el modal-->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-danger my-3" th:if="${session.loginError}">
+                    [[${session.loginError}]]
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control form-underline" id="username" name="username"   required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control form-underline" id="password" name="password"  required>
+                    </div>
+                    <div th:if="${session.loginError}" class="alert alert-warning" role="alert">
+                        <span th:text="${session.loginError}"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -13,15 +13,12 @@
 <body>
 <div class="container mt-5" layout:fragment="content" >
 
-    <form id="form-usuario" class="row g-3" th:action="@{/cuenta/editar}" th:object="${usuario}" method="post">
+    <form id="form-usuario" class="row g-3" th:action="@{/cliente/account/editar}" th:object="${usuario}" method="post">
         <div th:if="${mensaje}" class="alert alert-success" role="alert">
             <span th:text="${mensaje}"></span>
         </div>
-        <div class="col-md-4">
-            <label class="form-label">DNI</label>
-            <span class="form-control form-underline readonly-span" th:text="*{dni}" ></span>
-            <input type="hidden" th:field="*{dni}">
-        </div>
+        <input type="hidden" th:field="*{id}">
+
         <div class="col-md-4">
             <label for="nombres" class="form-label">Nombres</label>
             <div class="d-flex align-items-center">

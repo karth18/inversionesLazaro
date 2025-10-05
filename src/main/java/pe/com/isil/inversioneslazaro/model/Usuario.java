@@ -14,8 +14,12 @@ public class Usuario {
 
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idusuario")
+    private Integer id;
+
     @NotBlank
-    @Column(nullable = false, unique = true, length = 8)
+    @Column(nullable = false, length = 8)
     private String dni;
 
 

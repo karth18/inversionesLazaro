@@ -50,13 +50,11 @@
             </ul>
 
             <div sec:authorize="!isAuthenticated()">
-                    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <div th:replace="~{_loginModal :: loginModal}"></div>
+                    <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
                         Iniciar Sesión
                     </a>
-
-
-<!--                <a class="btn btn-outline-primary" href="/login">Iniciar sesión</a>-->
-                <a class="btn btn-primary" href="/registroUsu/registro">Regístrate</a>
+                <a class="btn btn-primary" href="/registrar/registro">Regístrate</a>
             </div>
 
             <div class="dropdown" sec:authorize="isAuthenticated()">
@@ -66,7 +64,7 @@
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end"  aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="/cuenta/editar">Mi cuenta</a></li>
+                    <li><a class="dropdown-item" href="/cliente/account/editar">Mi cuenta</a></li>
                     <li><a class="dropdown-item" href="/admin/usuarios">Mis Compras</a></li>
                     <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
                 </ul>
@@ -100,6 +98,11 @@
 
 </script>
 <div layout:fragment="scripts" th:remove="tag">
+
+
+
+
+
 </div>
 <footer class="bg-dark text-light mt-5">
     <div class="container py-4">
@@ -138,41 +141,81 @@
     </div>
 </footer>
 
-<!-- esta seccion es el modal-->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-4">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="alert alert-danger my-3" th:if="${param.error}">
-                    El email o la contraseña son incorrectas
-                </div>
 
 
-                <form th:action="@{/login}" method="post">
 
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control form-underline" id="username" name="username"   required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control form-underline" id="password" name="password"  required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                </form>
 
-                <div class="alert alert-danger my-3 d-none" id="loginErrorDiv">
-                    El correo o la contraseña son incorrectos
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        /* Si hay error de login, abrir el modal automáticamente */-->
+<!--        /* Thymeleaf reemplazará esto por true/false */-->
+<!--        var loginError = /*[[${session.loginError != null}]]*/ false;-->
+<!--        if (loginError) {-->
+<!--            var myModal = new bootstrap.Modal(document.getElementById('loginModal'));-->
+<!--            myModal.show();-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+<!-- v1 funciona pero se abre todo el tiempo -->
+<!-- Script para abrir automáticamente el modal si hay error -->
+<!--<script th:if="${session.loginError}">-->
+<!--    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));-->
+<!--    loginModal.show();-->
+<!--</script>-->
+
+<!--v2 estamos por ahi pero aun sigue con errores salta solo el modal-->
+<!--<script th:if="${session.loginError}">-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        var loginModalEl = document.getElementById('loginModal');-->
+<!--        if (loginModalEl) {-->
+
+<!--            var loginModal3 = new bootstrap.Modal(loginModalEl);-->
+<!--            loginModal3.show();-->
+
+<!--        }-->
+<!--&lt;!&ndash;        agregado recientemente&ndash;&gt;-->
+<!--        fetch('/login-error-clear', { method: 'POST' });-->
+<!--    });-->
+<!--</script>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        const loginError = /*[[${session.loginError}]]*/ false; // Thymeleaf lo reemplaza-->
+<!--        if (loginError) {-->
+<!--            const loginModalEl = document.getElementById('loginModal');-->
+<!--            if (loginModalEl) {-->
+<!--                const loginModal = new bootstrap.Modal(loginModalEl);-->
+<!--                loginModal.show();-->
+<!--            }-->
+<!--            // Limpiamos la sesión inmediatamente para que no vuelva a ejecutarse-->
+<!--            fetch('/login-error-clear', { method: 'POST' });-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        // Capturamos si hay error en sesión-->
+<!--        var loginError = /*[[${session.loginError}]]*/ false;-->
+
+<!--        if (loginError) {-->
+<!--            // Mostramos modal-->
+<!--            var loginModalEl = document.getElementById('loginModal');-->
+<!--            if (loginModalEl) {-->
+<!--                var loginModal = new bootstrap.Modal(loginModalEl);-->
+<!--                loginModal.show();-->
+<!--            }-->
+
+<!--            // Limpiamos la sesión para que no se vuelva a mostrar automáticamente-->
+<!--            fetch('/login-error-clear', { method: 'POST' });-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+
+
+
 
 
 <style>
@@ -216,73 +259,6 @@
         flex: 1; /* El contenido crece y empuja el footer hacia abajo */
     }
 </style>
-
-
-
-<!-- Mostrar mensaje de error solo si existe en sesión -->
-<!--<script>-->
-<!--    document.addEventListener("DOMContentLoaded", function() {-->
-<!--    const loginModalEl = document.getElementById("loginModal");-->
-<!--    const loginModal = new bootstrap.Modal(loginModalEl);-->
-
-<!--    // Si hay error (Thymeleaf agregó el div), abrir modal automáticamente-->
-<!--    const errorDiv = loginModalEl.querySelector(".alert-danger");-->
-<!--    if (errorDiv) {-->
-<!--        loginModal.show();-->
-<!--    }-->
-
-<!--});-->
-<!--</script>-->
-<!--<script>-->
-<!--    loginModalEl.addEventListener('hidden.bs.modal', function () {-->
-<!--    const errorDiv = loginModalEl.querySelector(".alert-danger");-->
-<!--    if (errorDiv) {-->
-<!--        errorDiv.remove();  // elimina el mensaje del DOM-->
-<!--    }-->
-<!--});-->
-<!--</script>-->
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const loginModalEl = document.getElementById("loginModal");
-        const loginModal = new bootstrap.Modal(loginModalEl);
-
-
-        const hasError = /*[[${param.error}]]*/ false;
-        if (hasError) {
-            loginModal.show();
-        }
-    });
-</script>
-<!--<script>-->
-<!--    document.addEventListener("DOMContentLoaded", function() {-->
-<!--        const loginModalEl = document.getElementById("loginModal");-->
-<!--        const loginModal = new bootstrap.Modal(loginModalEl);-->
-<!--        const loginErrorDiv = document.getElementById("loginErrorDiv");-->
-<!--        const btnLoginOpen = document.getElementById("btnLoginOpen");-->
-
-<!--        // ABRIR MODAL MANUALMENTE al hacer click-->
-<!--        btnLoginOpen?.addEventListener("click", () => {-->
-<!--            loginErrorDiv.classList.add("d-none"); // Limpiar cualquier mensaje previo-->
-<!--            loginModal.show();-->
-<!--        });-->
-
-<!--        // ABRIR MODAL SOLO SI HAY ERROR EN URL-->
-<!--        const urlParams = new URLSearchParams(window.location.search);-->
-<!--        if(urlParams.has('error') && urlParams.get('error') === 'true') {-->
-<!--            loginErrorDiv.classList.remove("d-none");-->
-<!--            loginModal.show();-->
-<!--            // OPCIONAL: eliminar ?error de la URL para no abrirlo de nuevo-->
-<!--            window.history.replaceState({}, document.title, "/");-->
-<!--        }-->
-
-<!--        // Limpiar mensaje al cerrar modal-->
-<!--        loginModalEl.addEventListener('hidden.bs.modal', function () {-->
-<!--            loginErrorDiv.classList.add("d-none");-->
-<!--        });-->
-<!--    });-->
-<!--</script>-->
 
 </body>
 </html>

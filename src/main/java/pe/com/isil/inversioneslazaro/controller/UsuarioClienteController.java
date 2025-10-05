@@ -1,27 +1,26 @@
 package pe.com.isil.inversioneslazaro.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-
 @Controller
-@RequestMapping("/cuenta")
-public class DashboardController {
+@RequestMapping("/cliente")
+public class UsuarioClienteController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @GetMapping("/editar")
+    //********************** corresponde al update de la cuenta del cliente***********************
+    @GetMapping("/account/editar")
     public String editarUsuario(Model model, Principal principal){
         String email = principal.getName();
 
@@ -31,9 +30,9 @@ public class DashboardController {
         return "usuario/userdashboard";
     }
 
-    @PostMapping("/editar")
+    @PostMapping("/account/editar")
     public String actualizar(@ModelAttribute Usuario usuario, RedirectAttributes ra){
-        Usuario existente = usuarioRepository.findById(usuario.getDni())
+        Usuario existente = usuarioRepository.findById(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Actualizas solo los campos permitidos
@@ -43,9 +42,7 @@ public class DashboardController {
         existente.setDireccion(usuario.getDireccion());
 
         usuarioRepository.save(existente);
-
         ra.addFlashAttribute("mensaje", "Datos actualizados correctamente");
-        return "redirect:/cuenta/editar";
+        return "redirect:/cliente/account/editar";
     }
-
 }

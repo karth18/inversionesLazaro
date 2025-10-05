@@ -1,5 +1,6 @@
 package pe.com.isil.inversioneslazaro.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,12 +11,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
 @Controller
-@RequestMapping("/registroUsu")
+@RequestMapping("/registrar")
 public class RegistroUsuarioController {
 
     @Autowired
@@ -36,29 +38,19 @@ public class RegistroUsuarioController {
     {
 
         //Validar si existe un email, tiene que ser unico
-        String email = usuario.getEmail();
-        String dni = usuario.getDni();
-        boolean usuarioExiste = usuarioRepository.existsByEmail(email);
-        boolean dniExists = usuarioRepository.existsByDni(dni);
+        boolean usuarioExiste = usuarioRepository.findByEmail(usuario.getEmail()).isPresent();
         if (usuarioExiste)
         {
             bindingResult.rejectValue("email", "EmailAlredayExists.usuario.email");
         }
-        //Validar si existe DNI, tiene que ser unico
-        if (dniExists) {
-            bindingResult.rejectValue("dni", "DniAlreadyExists.usuario.dni");
-        }
-
         //Validar la coincidencia de contraseñas
         if(! usuario.getPassword1().equals(usuario.getPassword2()))
         {
             bindingResult.rejectValue("password1", "PasswordNotEquals");
         }
-
         if (usuario.getPassword1() == null || usuario.getPassword1().isBlank()) {
             bindingResult.rejectValue("password1", "PasswordEmpty", "La contraseña no puede estar vacía");
         }
-
         if (bindingResult.hasErrors())
         {
             model.addAttribute("usuario", usuario);

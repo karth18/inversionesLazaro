@@ -11,19 +11,10 @@ import pe.com.isil.inversioneslazaro.model.Usuario;
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, String> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Optional<Usuario> findByEmail(String email);
-    Boolean existsByEmail(String email);
-    boolean existsByDni(String dni);
-
-    Page<Usuario> findByDniContainingIgnoreCase(String dni, Pageable pageable);
-
     Page<Usuario> findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
             String dni, String email, String nombres, String apellidos, Pageable pageable);
-
-
-
-
 
 }

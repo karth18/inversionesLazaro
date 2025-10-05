@@ -1,0 +1,33 @@
+
+<!-- esta seccion es el modal-->
+<div th:fragment="loginModal">
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger my-3" th:if="${param.error}">
+                    El email o la contraseña son incorrectas
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control form-underline" id="email" name="username"   required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control form-underline" id="password" name="password"  required>
+                    </div>
+
+                    <button class="btn btn-primary">Ingresar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
