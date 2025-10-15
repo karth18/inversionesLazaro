@@ -1,4 +1,11 @@
 package pe.com.isil.inversioneslazaro.repository;
 
-public interface ClienteRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import pe.com.isil.inversioneslazaro.model.Cliente;
+
+import java.util.Optional;
+
+public interface ClienteRepository extends JpaRepository<Cliente, Long> {
+    Optional<Cliente> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

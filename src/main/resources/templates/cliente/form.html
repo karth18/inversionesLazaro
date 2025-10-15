@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${cliente.id == null ? 'Nuevo cliente' : 'Editar cliente'}">Cliente</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+
+<h2 th:text="${cliente.id == null ? 'Nuevo cliente' : 'Editar cliente'}"></h2>
+
+<form th:action="@{/admin/clientes/guardar}" th:object="${cliente}" method="post">
+    <input type="hidden" th:field="*{id}"/>
+
+    <div class="mb-3">
+        <label class="form-label">Nombres</label>
+        <input class="form-control" type="text" th:field="*{nombres}" required/>
+        <div th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}" class="text-danger"></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Apellidos</label>
+        <input class="form-control" type="text" th:field="*{apellidos}" required/>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" th:field="*{email}" required/>
+        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Celular</label>
+        <input class="form-control" type="text" th:field="*{celular}"/>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Dirección</label>
+        <input class="form-control" type="text" th:field="*{direccion}"/>
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <a th:href="@{/admin/clientes}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+</body>
+</html>

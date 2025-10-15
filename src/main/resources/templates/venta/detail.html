@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Venta</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+<h2>Detalle de Venta</h2>
+
+<div th:if="${venta == null}">
+    <p class="text-danger">Venta no encontrada.</p>
+    <a th:href="@{/admin/ventas}" class="btn btn-secondary">Volver</a>
+</div>
+
+<div th:if="${venta != null}">
+    <div class="mb-3">
+        <strong>ID:</strong> <span th:text="${venta.id}">1</span><br>
+        <strong>Fecha:</strong> <span th:text="${#temporals.format(venta.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</span><br>
+        <strong>Cliente:</strong> <span th:text="${venta.clienteNombre}">Cliente X</span><br>
+        <strong>Método de Pago:</strong> <span th:text="${venta.metodoPago}">Efectivo</span><br>
+        <strong>Total:</strong> S/. <span th:text="${#numbers.formatDecimal(venta.total,1,2)}">0.00</span>
+    </div>
+
+    <h4>Detalles</h4>
+    <table class="table table-bordered">
+        <thead class="table-light">
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${venta.detalles}">
+            <td th:text="${d.producto.nombre}">Producto A</td>
+            <td th:text="${d.cantidad}">1</td>
+            <td th:text="${#numbers.formatDecimal(d.precioUnitario,1,2)}">0.00</td>
+            <td th:text="${#numbers.formatDecimal(d.subtotal,1,2)}">0.00</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/admin/ventas}" class="btn btn-primary">Volver al listado</a>
+</div>
+</body>
+</html>

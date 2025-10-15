@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Historial de Ventas</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+<h2>Historial de Ventas</h2>
+
+<!-- Form filtros -->
+<form class="row g-3 mb-3" th:action="@{/admin/ventas}" method="get">
+    <div class="col-md-3">
+        <label class="form-label">Cliente</label>
+        <select name="clienteId" class="form-select">
+            <option th:value="" th:text="'-- Todos --'"></option>
+            <option th:each="c : ${clientes}" th:value="${c.id}"
+                    th:text="${c.nombreCompleto + ' (' + c.email + ')'}"
+                    th:selected="${clienteId != null and c.id == clienteId}"></option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Desde</label>
+        <input type="date" name="desde" class="form-control" th:value="${desde}"/>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Hasta</label>
+        <input type="date" name="hasta" class="form-control" th:value="${hasta}"/>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+        <a th:href="@{/admin/ventas}" class="btn btn-outline-secondary">Limpiar</a>
+    </div>
+</form>
+
+<!-- Export buttons -->
+<div class="mb-3">
+    <a th:href="@{|/admin/ventas/export/pdf?clienteId=${clienteId}&desde=${desde}&hasta=${hasta}|}" class="btn btn-danger me-2">Exportar PDF</a>
+    <a th:href="@{|/admin/ventas/export/excel?clienteId=${clienteId}&desde=${desde}&hasta=${hasta}|}" class="btn btn-success">Exportar Excel</a>
+</div>
+
+<!-- Mensajes -->
+<div th:if="${ventas == null || ventas.totalElements == 0}">
+    <p>No hay ventas registradas.</p>
+</div>
+
+<table th:if="${ventas != null && ventas.totalElements > 0}" class="table table-striped">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Cliente</th>
+        <th>Monto</th>
+        <th>Método</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="v : ${ventas.content}">
+        <td th:text="${v.id}">1</td>
+        <td th:text="${#temporals.format(v.fecha, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+        <td th:text="${v.clienteNombre != null ? v.clienteNombre : 'Cliente anónimo'}">Cliente</td>
+        <td th:text="${#numbers.formatDecimal(v.total,1,2)}">0.00</td>
+        <td th:text="${v.metodoPago}">Efectivo</td>
+        <td><a th:href="@{|/admin/ventas/${v.id}|}" class="btn btn-sm btn-primary">Ver</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Paginación -->
+<nav th:if="${ventas != null and ventas.totalPages > 1}">
+    <ul class="pagination">
+        <li class="page-item" th:classappend="${ventas.first}? 'disabled'">
+            <a class="page-link" th:href="@{|/admin/ventas?page=${ventas.number - 1}&clienteId=${clienteId}&desde=${desde}&hasta=${hasta}|}">Anterior</a>
+        </li>
+
+        <li class="page-item" th:each="i : ${#numbers.sequence(0, ventas.totalPages - 1)}"
+            th:classappend="${i == ventas.number}? 'active'">
+            <a class="page-link" th:href="@{|/admin/ventas?page=${i}&clienteId=${clienteId}&desde=${desde}&hasta=${hasta}|}" th:text="${i + 1}">1</a>
+        </li>
+
+        <li class="page-item" th:classappend="${ventas.last}? 'disabled'">
+            <a class="page-link" th:href="@{|/admin/ventas?page=${ventas.number + 1}&clienteId=${clienteId}&desde=${desde}&hasta=${hasta}|}">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+
+<p><a th:href="@{/admin}">Volver al panel</a></p>
+</body>
+</html>

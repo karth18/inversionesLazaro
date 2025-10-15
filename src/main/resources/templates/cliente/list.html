@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Clientes</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Clientes</h2>
+    <a class="btn btn-primary" th:href="@{/admin/clientes/nuevo}">Nuevo Cliente</a>
+</div>
+
+<div th:if="${mensajeExito}" class="alert alert-success" th:text="${mensajeExito}"></div>
+
+<table class="table table-hover">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Nombre completo</th>
+        <th>Email</th>
+        <th>Celular</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="c : ${clientes}">
+        <td th:text="${c.id}">1</td>
+        <td th:text="${c.nombreCompleto}">Juan Perez</td>
+        <td th:text="${c.email}">mail@x.com</td>
+        <td th:text="${c.celular}">999999999</td>
+        <td>
+            <span th:if="${c.activo}" class="badge bg-success">Activo</span>
+            <span th:if="${!c.activo}" class="badge bg-secondary">Inactivo</span>
+        </td>
+        <td>
+            <a th:href="@{|/admin/clientes/editar/${c.id}|}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <form th:action="@{|/admin/clientes/${c.id}/desactivar|}" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn btn-sm btn-outline-danger" th:if="${c.activo}" onclick="return confirm('Desactivar cliente?')">Desactivar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<p><a th:href="@{/admin}">Volver al panel</a></p>
+</body>
+</html>
