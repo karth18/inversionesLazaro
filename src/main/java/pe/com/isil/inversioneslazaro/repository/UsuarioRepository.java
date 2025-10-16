@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
+    Page<Usuario> findByEstadoTrue(Pageable pageable);
     Optional<Usuario> findByEmail(String email);
     Page<Usuario> findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
             String dni, String email, String nombres, String apellidos, Pageable pageable);

@@ -59,6 +59,7 @@ public class RegistroUsuarioController {
         //asignamos el password encryptado
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword1()));
         //Asignamos el role por defecto
+        usuario.setEstado(true);
         usuario.setRol(Usuario.Rol.CLIENTE);
         //grabamos el usuario en base de datos
         usuarioRepository.save(usuario);

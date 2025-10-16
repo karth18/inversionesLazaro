@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "usuarios")
@@ -22,7 +24,6 @@ public class Usuario {
     @Column(nullable = false, length = 8)
     private String dni;
 
-
     @NotBlank
     @Column(nullable = false, length = 50)
     private String nombres;
@@ -37,6 +38,17 @@ public class Usuario {
 
     @NotBlank
     private String direccion;
+
+    private boolean estado = true;
+
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_act")
+    private LocalDateTime fechaActualizacion;
+
+    @Column(name = "usuario_modificacion", length = 100)
+    private String usuarioModificacion;
 
     @NotEmpty
     @Email
@@ -60,6 +72,17 @@ public class Usuario {
         ADMIN,
         CLIENTE
 
+    }
+
+    @PrePersist
+    protected void onCreate(){
+        this.fechaCreacion = LocalDateTime.now();
+        this.fechaActualizacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.fechaActualizacion = LocalDateTime.now();
     }
 
 }

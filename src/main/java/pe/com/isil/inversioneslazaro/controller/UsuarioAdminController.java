@@ -6,13 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.com.isil.inversioneslazaro.model.AuditoriaUsuario;
 import pe.com.isil.inversioneslazaro.model.Usuario;
+import pe.com.isil.inversioneslazaro.repository.AuditoriaUsuarioRepository;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
 import java.util.Optional;
@@ -26,6 +29,11 @@ public class UsuarioAdminController {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuditoriaUsuarioRepository auditoriaUsuarioRepository;
+
+
 
 
     @GetMapping("")
@@ -41,7 +49,7 @@ public class UsuarioAdminController {
                     .findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
                             busqueda, busqueda, busqueda, busqueda, pageable);
         } else {
-            usu = usuarioRepository.findAll(pageable);
+            usu = usuarioRepository.findByEstadoTrue(pageable);
         }
 
         model.addAttribute("usu", usu);
@@ -51,17 +59,57 @@ public class UsuarioAdminController {
         return "usuario/index";
     }
 
+
+    @GetMapping("/activar")
+    public String activar(Model model,
+                        @PageableDefault(size = 10) Pageable pageable,
+                        @RequestParam(required = false) String busqueda) {
+        Page<Usuario> usu;
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            // Buscar por todos los campos
+            usu = usuarioRepository
+                    .findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
+                            busqueda, busqueda, busqueda, busqueda, pageable);
+        } else {
+            usu = usuarioRepository.findAll(pageable);
+        }
+
+        model.addAttribute("usu", usu);
+        model.addAttribute("busqueda", busqueda); // para mantener el valor en el input
+        model.addAttribute("totalRegistros", usu.getTotalElements());
+
+        return "usuario/activarusu";
+    }
+
+
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Integer id, RedirectAttributes ra) {
         // Opcional: verificar si existe antes de eliminar
         Optional<Usuario> usuario = usuarioRepository.findById(id);
         if (usuario.isPresent()) {
-            usuarioRepository.deleteById(id);
+            Usuario usuarioe = usuario.get();
+            usuarioe.setEstado(false);
+            usuarioRepository.save(usuarioe);
             ra.addFlashAttribute("mensajeExito", "Usuario eliminado correctamente");
         } else {
             ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
         }
         return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping("/habilitar/{id}")
+    public String habilitar(@PathVariable Integer id, RedirectAttributes ra) {
+        // Opcional: verificar si existe antes de eliminar
+        Optional<Usuario> usuario = usuarioRepository.findById(id);
+        if (usuario.isPresent()) {
+            Usuario usuarioe = usuario.get();
+            usuarioe.setEstado(true);
+            usuarioRepository.save(usuarioe);
+            ra.addFlashAttribute("mensajeExito", "Usuario Habilitado correctamente");
+        } else {
+            ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
+        }
+        return "redirect:/admin/usuarios/activar";
     }
 
     @GetMapping("/editar/{id}")
@@ -82,23 +130,45 @@ public class UsuarioAdminController {
     @PostMapping("/editar/{id}")
     public String actualizar(@PathVariable Integer id,
                              @RequestParam String password,
-                             @Valid @ModelAttribute("usuario") Usuario usuario, BindingResult result, Model model) {
-
+                             @Valid @ModelAttribute("usuario") Usuario usuario, BindingResult result, Model model, HttpSession session) {
+        Usuario existente = usuarioRepository.findById(id).orElse(null);
+        if(existente == null){
+            return "redirect: /admin/usuarios";
+        }
         if (!password.isEmpty()) {
             usuario.setPassword(passwordEncoder.encode(password)); // <-- aquí actualizas la contraseña real
         } else {
-            Usuario existente = usuarioRepository.findById(id).orElse(null);
-            if (existente != null) {
                 usuario.setPassword(existente.getPassword());
-            }
         }
             if (result.hasErrors()) {
                 model.addAttribute("usuario", usuario);
                 model.addAttribute("modoEdicion", true);
                 return "usuario/editar"; // vuelve al formulario
             }
+
+            usuario.setFechaCreacion(existente.getFechaCreacion());
             usuario.setId(id);
             usuarioRepository.save(usuario);
+
+            String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            AuditoriaUsuario audit = new AuditoriaUsuario();
+            audit.setUsuarioAfectado(usuario);
+            audit.setAccion("EDICIÓN");
+            audit.setRealizadoPor(emailLogueado);
+            auditoriaUsuarioRepository.save(audit);
+
         return "redirect:/admin/usuarios";
     }
+
+
+    @GetMapping("/auditoria")
+    public String verAuditoria(Model model) {
+        model.addAttribute("auditorias", auditoriaUsuarioRepository.findAll());
+        return "auditoria/index";
+    }
+
+
+
+
 }

@@ -30,7 +30,7 @@
         </div>
     </form>
 
-    <a href="/admin/usuarios/activar" class="btn btn-primary">Activar Usuario</a>
+    <a href="/admin/usuarios" class="btn btn-secondary">Regresar</a>
 
     <table class="table table-responsive table-hover">
         <thead class="table">
@@ -42,6 +42,7 @@
             <th>Direccion</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Estado</th>
             <th></th>
 
         </tr>
@@ -55,13 +56,8 @@
             <td th:text="${usuario.direccion}"></td>
             <td th:text="${usuario.email}"></td>
             <td th:text="${usuario.rol}"></td>
-            <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/editar/{id}(id=*{usuario.id})}">Editar</a></td>
-            <td ><a th:href="@{/admin/usuarios/eliminar/{id}(id=${usuario.id})}"
-                    class="btn btn-danger btn-sm"
-                    onclick="return confirm('¿Seguro que deseas eliminar este usuario?');">
-                    Eliminar
-                </a>
-            </td>
+            <td th:text="${usuario.estado ? 'Habilitado': 'Deshabilitado'}"></td>
+            <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/habilitar/{id}(id=*{usuario.id})}">Activar</a></td>
 
         </tr>
 
@@ -69,18 +65,18 @@
     </table>
     <nav th:if="${usu.totalPages > 1}">
         <div class="d-flex justify-content-center my-3">
-        <ul class="pagination">
-            <li class="page-item" th:classappend="${usu.first}? 'disabled'">
-                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number-1})}">Anterior</a>
-            </li>
-            <li class="page-item" th:each="i : ${#numbers.sequence(0, usu.totalPages-1)}"
-                th:classappend="${usu.number == i}? 'active'">
-                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${i})}" th:text="${i+1}">1</a>
-            </li>
-            <li class="page-item" th:classappend="${usu.last}? 'disabled'">
-                <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number+1})}">Siguiente</a>
-            </li>
-        </ul>
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${usu.first}? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number-1})}">Anterior</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, usu.totalPages-1)}"
+                    th:classappend="${usu.number == i}? 'active'">
+                    <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${i})}" th:text="${i+1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${usu.last}? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/usuarios(dni=${dni}, page=${usu.number+1})}">Siguiente</a>
+                </li>
+            </ul>
         </div>
         <div class="d-flex justify-content-end my-3">
             <div>Total de registros: <span th:text="${totalRegistros}">0</span></div>
