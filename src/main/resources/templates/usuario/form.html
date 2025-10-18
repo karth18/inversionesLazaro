@@ -11,17 +11,17 @@
 <body>
 <div class="container mt-5" layout:fragment="content" >
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-6 col-lg-8">
             <div class="bg-white shadow rounded p-5">
                 <h3>Registro de usuario</h3>
-                <form th:action="@{/registrar/registro}" method="post" class="mt-5" th:object="${usuario}">
+                <form th:action="@{/registrar/registro}" method="post" class="mt-5 " th:object="${usuario}">
                     <div class="mb-2">
 
                         <label for="dni">Documento de Identidad</label>
                         <input type="text" id="dni"
                                placeholder="Documento de Identidad"
                                th:field="*{dni}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{dni}" th:if="${#fields.hasErrors('dni')}"
@@ -33,7 +33,7 @@
                         <input type="text" id="nombres"
                                placeholder="Nombres"
                                th:field="*{nombres}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{nombres}" th:if="${#fields.hasErrors('nombres')}"
@@ -46,7 +46,7 @@
                         <input type="text" id="apellidos"
                                placeholder="Apellidos"
                                th:field="*{apellidos}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{apellidos}" th:if="${#fields.hasErrors('apellidos')}"
@@ -59,23 +59,10 @@
                         <input type="text" id="celular"
                                placeholder="Celular"
                                th:field="*{celular}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{celular}" th:if="${#fields.hasErrors('celular')}"
-                        >
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="direccion">direccion</label>
-                        <input type="text" id="direccion"
-                               placeholder="Direccion"
-                               th:field="*{direccion}"
-                               class="form-control"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{direccion}" th:if="${#fields.hasErrors('direccion')}"
                         >
                         </div>
                     </div>
@@ -85,7 +72,7 @@
                         <input type="email" id="email"
                                placeholder="Email"
                                th:field="*{email}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{email}" th:if="${#fields.hasErrors('email')}"
@@ -98,7 +85,7 @@
                         <input type="password" id="password1"
                                placeholder="Password"
                                th:field="*{password1}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{password1}" th:if="${#fields.hasErrors('password1')}"
@@ -111,18 +98,30 @@
                         <input type="password" id="password2"
                                placeholder="Password"
                                th:field="*{password2}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{password2}" th:if="${#fields.hasErrors('password2')}"
                         >
                         </div>
                     </div>
+                    <div class="mb-2 form-check">
+                        <input type="checkbox"
+                               id="politica"
+                               th:field="*{politica}"
+                               class="form-check-input" th:errorclass="is-invalid">
+                        <label class="form-check-label" for="politica">
+                            Acepto las <a href="/politicas-de-privacidad" target="_blank">políticas de privacidad</a>.
+                        </label>
+                        <div class="invalid-feedback"
+                             th:errors="*{politica}" th:if="${#fields.hasErrors('politica')}">
+                        </div>
+                    </div>
 
                     <div class="text-end mt-3">
-                        <a href="/" class="btn btn-light">Cancelar</a>
-                        <button class="btn btn-primary">Registrar</button>
+                        <button class="btn btn-primary">Regístrate</button>
                     </div>
+
 
                 </form>
             </div>

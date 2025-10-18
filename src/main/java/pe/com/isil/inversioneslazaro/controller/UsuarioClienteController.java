@@ -47,7 +47,6 @@ public class UsuarioClienteController {
         existente.setNombres(usuario.getNombres());
         existente.setApellidos(usuario.getApellidos());
         existente.setCelular(usuario.getCelular());
-        existente.setDireccion(usuario.getDireccion());
         existente.setUsuarioModificacion(existente.getEmail());
 
         usuarioRepository.save(existente);

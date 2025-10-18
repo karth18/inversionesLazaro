@@ -37,39 +37,52 @@
         </button>
         <a class="navbar-brand" href="/">Metal mecanica</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" aria-current="page" href="/" >Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="/catalogo"  >Catalogo</a></li>
                 <li class="nav-item"><a class="nav-link" href="/" >Personaliza</a></li>
-
-                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
-                    <a class="nav-link" href="/admin/usuarios">
-                        Usuarios
-                    </a>
-                </li>
             </ul>
 
-            <div sec:authorize="!isAuthenticated()">
-                    <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <form action="/catalogo" method="get" class="d-flex my-2 my-lg-0 mx-auto w-50">
+                <div class="input-group">
+                    <input type="search" name="busqueda" class="form-control"
+                           placeholder="Buscar productos en el catálogo"
+                           aria-label="Buscar productos">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="d-flex align-items-center ms-auto gap-3">
+
+                <div sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
                         Iniciar Sesión
                     </a>
-                <a class="btn btn-primary" href="/registrar/registro">Regístrate</a>
-            </div>
+                    <a class="btn btn-primary" href="/registrar/registro">Regístrate</a>
+                </div>
 
-            <div class="dropdown" sec:authorize="isAuthenticated()">
-                <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                   data-bs-toggle="dropdown" aria-expanded="false"
-                   sec:authentication="principal.nombre">
-                </a>
+                <div class="dropdown" sec:authorize="isAuthenticated()">
+                    <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                       data-bs-toggle="dropdown" aria-expanded="false"
+                       sec:authentication="principal.nombre">
+                    </a>
 
-                <ul class="dropdown-menu dropdown-menu-end"  aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="/cliente/account/editar">Mi cuenta</a></li>
-                    <li><a class="dropdown-item" href="/admin/usuarios">Mis Compras</a></li>
-                    <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
-                </ul>
+                    <ul class="dropdown-menu dropdown-menu-end"  aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="/cliente/account/editar">Mi cuenta</a></li>
+                        <li><a class="dropdown-item" href="/admin/usuarios">Mis Compras</a></li>
+                        <li sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a class="dropdown-item" href="/admin/usuarios">Usuarios</a>
+                        </li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+
 </nav>
 
 <main>

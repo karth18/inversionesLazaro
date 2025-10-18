@@ -158,57 +158,39 @@ public class UsuarioAdminController {
         if(existente == null){
             return "redirect: /admin/usuarios";
         }
-        if (!password.isEmpty()) {
-            usuario.setPassword(passwordEncoder.encode(password)); // <-- aquí actualizas la contraseña real
-        } else {
-                usuario.setPassword(existente.getPassword());
-        }
-            if (result.hasErrors()) {
-                model.addAttribute("usuario", usuario);
-                model.addAttribute("modoEdicion", true);
-                return "usuario/editar"; // vuelve al formulario
-            }
 
-            usuario.setFechaCreacion(existente.getFechaCreacion());
+        if (result.hasErrors()) {
+
             usuario.setId(id);
-            usuarioRepository.save(usuario);
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("modoEdicion", true);
+            return "usuario/editar"; // vuelve al formulario
+        }
 
-            String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+        existente.setDni(usuario.getDni());
+        existente.setNombres(usuario.getNombres());
+        existente.setApellidos(usuario.getApellidos());
+        existente.setCelular(usuario.getCelular());
+        existente.setFechaCreacion(usuario.getFechaCreacion());
+        existente.setEmail(usuario.getEmail());
+        existente.setRol(usuario.getRol());
+        existente.setPolitica(usuario.getPolitica());
 
-            AuditoriaUsuario audit = new AuditoriaUsuario();
-            audit.setUsuarioAfectado(usuario);
-            audit.setAccion("EDICIÓN");
-            audit.setRealizadoPor(emailLogueado);
-            auditoriaUsuarioRepository.save(audit);
+        if (password != null && !password.isBlank()) {
+            existente.setPassword(passwordEncoder.encode(password));
+        }
+        usuarioRepository.save(existente);
+
+        String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+        AuditoriaUsuario audit = new AuditoriaUsuario();
+        audit.setUsuarioAfectado(existente);
+        audit.setAccion("EDICIÓN");
+        audit.setRealizadoPor(emailLogueado);
+        auditoriaUsuarioRepository.save(audit);
 
         return "redirect:/admin/usuarios";
     }
 
-
-//    @GetMapping("/auditoria")
-//    public String verAuditoria(Model model, @PageableDefault(size = 10) Pageable pageable,
-//                               @RequestParam(required = false) String busqueda) {
-//
-//        Page<AuditoriaUsuario> audi;
-//
-//        if (busqueda != null && !busqueda.trim().isEmpty()) {
-//            // Buscar por todos los campos
-//            audi = auditoriaUsuarioRepository
-//                    .buscarAuditoria(busqueda.trim(),pageable);
-//        } else {
-//            audi = auditoriaUsuarioRepository.findAll(pageable);
-//        }
-//
-//        model.addAttribute("auditorias", audi.getContent());
-//        model.addAttribute("audi", audi);
-//        model.addAttribute("busqueda", busqueda); // para mantener el valor en el input
-//        model.addAttribute("totalRegistros", audi.getTotalElements());
-//
-//
-//
-//        model.addAttribute("auditorias", auditoriaUsuarioRepository.findAll());
-//        return "auditoria/index";
-//    }
 
     @GetMapping("/auditoria")
     public String verAuditoria(@RequestParam(value = "busqueda", required = false) String busqueda,

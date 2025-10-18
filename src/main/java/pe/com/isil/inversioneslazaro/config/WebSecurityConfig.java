@@ -44,7 +44,7 @@ public class WebSecurityConfig  {
                 // Configuración de permisos
                 .authorizeHttpRequests(authz -> authz
                         // URLs públicas
-                        .requestMatchers("/", "/inicio", "/catalogo", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/registro").permitAll()
+                        .requestMatchers("/", "/inicio", "/catalogo", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/cursos/**", "/mis-cursos", "/usuario/**").authenticated()

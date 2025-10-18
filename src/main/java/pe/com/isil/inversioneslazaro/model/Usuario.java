@@ -36,10 +36,10 @@ public class Usuario {
     @Column(length = 10)
     private String celular;
 
-    @NotBlank
-    private String direccion;
+    private boolean estado;
 
-    private boolean estado = true;
+    @NotNull(message = "{politicasNoAceptadas.usuario.politica}")
+    private Boolean politica;
 
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
@@ -84,5 +84,11 @@ public class Usuario {
     protected void onUpdate(){
         this.fechaActualizacion = LocalDateTime.now();
     }
+
+    //validacion de correo electronico
+
+    private String tokenVerificacion;
+
+    private LocalDateTime fechaExpiracionToken;
 
 }

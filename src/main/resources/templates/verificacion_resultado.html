@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de Verificación</title>
+</head>
+<body>
+<div class="container mt-5" layout:fragment="content">
+
+    <div th:if="${mensaje != null}"
+         th:class="${mensaje.contains('Error') ? 'alert alert-danger' : 'alert alert-success'}"
+         role="alert">
+
+        <h4 class="alert-heading">Resultado de la Verificación</h4>
+        <p th:text="${mensaje}"></p>
+
+        <hr th:if="${!mensaje.contains('Error')}">
+
+        <p th:if="${!mensaje.contains('Error')}" class="mb-0">
+            Ahora puedes ir a la página de inicio de sesión para acceder a tu cuenta.
+        </p>
+
+        <a th:if="${!mensaje.contains('Error')}" data-bs-toggle="modal" data-bs-target="#loginModal" class="btn btn-primary mt-3">Ir a Iniciar Sesión</a>
+        <a th:if="${mensaje.contains('expirado')}" href="/solicitar-nuevo-token" class="btn btn-warning mt-3">Solicitar Nuevo Correo</a>
+
+    </div>
+
+</div>
+</body>
+</html>

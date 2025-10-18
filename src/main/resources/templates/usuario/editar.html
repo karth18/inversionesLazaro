@@ -11,15 +11,16 @@
 <body>
 <div class="container mt-5" layout:fragment="content" >
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-6 col-lg-8">
             <div class="bg-white shadow rounded p-5">
                 <h3>Actualizar usuario</h3>
 
                 <form id="form-usuario" th:action="@{/admin/usuarios/editar/{id}(id=${usuario.id})}" method="post" class="mt-5" th:object="${usuario}">
                     <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{politica}">
                     <div class="mb-2">
                         <label for="dni">Documento de Identidad</label>
-                        <span class="form-control readonly-span" th:text="*{dni}" ></span>
+                        <span class="form-control readonly-span form-underline" th:text="*{dni}" ></span>
                         <input type="hidden" id="dni" th:field="*{dni}">
                     </div>
                     <div class="mb-2">
@@ -27,7 +28,7 @@
                         <input type="text" id="nombres"
                                placeholder="Nombres"
                                th:field="*{nombres}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{nombres}" th:if="${#fields.hasErrors('nombres')}"
@@ -40,7 +41,7 @@
                         <input type="text" id="apellidos"
                                placeholder="Apellidos"
                                th:field="*{apellidos}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{apellidos}" th:if="${#fields.hasErrors('apellidos')}"
@@ -53,7 +54,7 @@
                         <input type="text" id="celular"
                                placeholder="Celular"
                                th:field="*{celular}"
-                               class="form-control"
+                               class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
                              th:errors="*{celular}" th:if="${#fields.hasErrors('celular')}"
@@ -62,27 +63,14 @@
                     </div>
 
                     <div class="mb-2">
-                        <label for="direccion">direccion</label>
-                        <input type="text" id="direccion"
-                               placeholder="Direccion"
-                               th:field="*{direccion}"
-                               class="form-control"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{direccion}" th:if="${#fields.hasErrors('direccion')}"
-                        >
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
                         <label for="email">Email</label>
-                        <span class="form-control readonly-span" th:text="*{email}" ></span>
+                        <span class="form-control readonly-span form-underline" th:text="*{email}" ></span>
                         <input type="hidden" id="email" th:field="*{email}">
                     </div>
 
                     <div class="mb-2">
                         <label for="rol">Rol</label>
-                        <select id="rol" th:field="*{rol}" class="form-control" th:errorClass="is-invalid">
+                        <select id="rol" th:field="*{rol}" class="form-control form-underline" th:errorClass="is-invalid">
                             <option value="ADMIN">ADMIN</option>
                             <option value="CLIENTE">CLIENTE</option>
                         </select>
@@ -93,7 +81,7 @@
 
                     <div class="mb-2" th:if="${modoEdicion}">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" class="form-control"
+                        <input type="password" id="password" name="password" class="form-control form-underline"
                                placeholder="Ingrese nueva contraseña (opcional)">
                     </div>
 

@@ -18,6 +18,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Page<Usuario> findByDniContainingIgnoreCaseOrEmailContainingIgnoreCaseOrNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(
             String dni, String email, String nombres, String apellidos, Pageable pageable);
 
+    Usuario findByTokenVerificacion(String token);
+
     boolean existsByDni(String dni);
     boolean existsByEmail(String email);
 

@@ -3,15 +3,14 @@ package pe.com.isil.inversioneslazaro.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
 @Entity
-@Table(name = "productos", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "codigo", name = "uk_producto_codigo")
-})
 public class Producto {
 
     @Id
@@ -20,13 +19,15 @@ public class Producto {
     private Long id;
 
     @Column(nullable = false, length = 50, unique = true)
-    private String codigo; // código único del producto
+    private String codPro; // código único del producto
 
     @Column(nullable = false)
-    private String nombre;
+    private String nomPro;
 
-    @Column(length = 1000)
-    private String descripcion;
+    @Column(length = 1000, nullable = false)
+    private String descripcionCorta;
+
+    private String descripcionLarga;
 
     // precio con BigDecimal (mejor precisión para dinero)
     @Column(nullable = false, precision = 12, scale = 2)
@@ -35,16 +36,61 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock;
 
+    // Datos adicionales de la descripcion de productos
+    private Double altoCm;
+    private Double anchoCm;
+    private Double fondoCm;
+
+    @Column(length = 100)
+    private String modelo;
+
+    @Column(length = 100)
+    private String material;
+
+    private Integer potenciaBtu;
+
+    private Integer garantiaMeses;
+
+    @Column(length = 100)
+    private String paisOrigen;
+
+    @Column(length = 255)
+    private String fichaTecnica;
+
+    //claves foraneas
+    @ManyToOne
+    @JoinColumn(name = "idMarca", referencedColumnName = "idMarca", nullable = false)
+    private Marca idMarca;
+
+    @ManyToOne
+    @JoinColumn(name = "idCate", referencedColumnName = "idCate", nullable = false)
+    private Categoria IdCate;
+
+    @ManyToOne
+    @JoinColumn(name = "idTipo", referencedColumnName = "idTipo", nullable = false)
+    private TipoProducto idTipo;
+
     // ruta a la foto (puede ser nombre de archivo o url)
-    @Column(name = "foto_path")
     private String fotoPath;
 
-    // auditoría básica (opcional)
-    private String createdBy;
-    private java.time.LocalDateTime createdAt;
+    @Transient
+    private MultipartFile imagen;
+
+    //Fecha de creacion y actualizacion
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_act")
+    private LocalDateTime fechaActualizacion;
 
     @PrePersist
-    void prePersist() {
-        if (createdAt == null) createdAt = java.time.LocalDateTime.now();
+    protected void onCreate(){
+        this.fechaCreacion = LocalDateTime.now();
+        this.fechaActualizacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate(){
+        this.fechaActualizacion = LocalDateTime.now();
     }
 }

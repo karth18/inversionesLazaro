@@ -1,3 +1,4 @@
+/*
 package pe.com.isil.inversioneslazaro.controller.admin;
 
 import jakarta.validation.Valid;
@@ -104,3 +105,4 @@ public class ClienteAdminController {
     }
 
 }
+*/

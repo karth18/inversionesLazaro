@@ -1,3 +1,4 @@
+/*
 package pe.com.isil.inversioneslazaro.controller.admin;
 
 import com.lowagie.text.Document;
@@ -54,9 +55,11 @@ public class VentaAdminController {
         this.clienteRepository = clienteRepository;
     }
 
-    /**
+    */
+/**
      * Listado con filtros: página, tamaño, clienteId (optional), desde/hasta (optional, ISO date yyyy-MM-dd)
-     */
+     *//*
+
     @GetMapping
     public String listarVentas(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "20") int size,
@@ -110,10 +113,12 @@ public class VentaAdminController {
         return "venta/detail";
     }
 
-    /**
+    */
+/**
      * Dev-only: crea una venta sencilla con el primer producto disponible.
      * Mantén este endpoint para pruebas y luego elimínalo o protéjalo.
-     */
+     *//*
+
     @PostMapping("/seed")
     public String seedVenta(Authentication authentication) {
         // obtener primer producto (si no hay, no hacer nada)
@@ -176,7 +181,9 @@ public class VentaAdminController {
         return "redirect:/admin/ventas";
     }
 
-    /* ---------------- EXPORT: Excel -------------------- */
+    */
+/* ---------------- EXPORT: Excel -------------------- *//*
+
     @GetMapping("/export/excel")
     public void exportExcel(
             @RequestParam(required = false) Long clienteId,
@@ -225,7 +232,9 @@ public class VentaAdminController {
         }
     }
 
-    /* ---------------- EXPORT: PDF -------------------- */
+    */
+/* ---------------- EXPORT: PDF -------------------- *//*
+
     @GetMapping("/export/pdf")
     public void exportPdf(
             @RequestParam(required = false) Long clienteId,
@@ -293,3 +302,4 @@ public class VentaAdminController {
         }
     }
 }
+*/

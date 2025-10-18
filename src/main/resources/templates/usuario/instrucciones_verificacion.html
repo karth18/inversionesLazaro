@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <title>Verificación Pendiente</title>
+</head>
+<body>
+<div class="container mt-5" layout:fragment="content">
+    <div class="alert alert-warning text-center" role="alert">
+        <h4 class="alert-heading">¡Registro Casi Completo!</h4>
+        <p>
+            Hemos enviado un correo electrónico de verificación a:
+            <strong th:if="${email}" th:text="${email}">[correo del usuario]</strong>
+            <span th:if="${mensajeGenerico}" th:text="${mensajeGenerico}"></span>
+        </p>
+        <hr>
+        <p class="mb-0">
+            **Tu cuenta se encuentra actualmente INACTIVA.** Para activarla y poder iniciar sesión, por favor haz clic en el enlace que encontrarás en el correo.
+        </p>
+        <p class="text-muted mt-2">
+            Revisa también la carpeta de **Spam** o correo no deseado.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>
