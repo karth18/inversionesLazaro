@@ -90,7 +90,7 @@ public class RegistroUsuarioController {
     @GetMapping("/verificar")
     public String verificarCuenta(@RequestParam("token") String token, Model model) {
 
-        Usuario usuario = usuarioRepository.findByTokenVerificacion(token); // Necesitas este método en tu Repository
+        Usuario usuario = usuarioRepository.findByTokenVerificacion(token);
 
         if (usuario == null) {
             model.addAttribute("mensaje", "Error: El token de verificación es inválido.");
@@ -119,7 +119,7 @@ public class RegistroUsuarioController {
     }
 
 
-    // NUEVO MÉTODO: Crea un endpoint para mostrar el mensaje persistente
+
     @GetMapping("/instrucciones-verificacion")
     public String mostrarInstruccionesVerificacion(@ModelAttribute("emailVerificacion") final String email, Model model) {
         // Si la redirección tiene el flash attribute, lo muestra.
