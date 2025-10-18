@@ -146,6 +146,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
+
                     <div id="error-modal" class="alert alert-danger my-3 d-none"></div>
                     <form id="fakeLoginForm">
                         <div class="mb-3">
@@ -162,7 +163,8 @@
             </div>
         </div>
     </div>
-
+<input type="hidden" id="loginErrorMsg"
+       th:value="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}">
 <script>
     document.addEventListener("DOMContentLoaded", () => {
       const fakeForm = document.getElementById("fakeLoginForm");
@@ -201,10 +203,17 @@
       if (params.has("error")) {
         const modal = document.getElementById("loginModal");
         const errorDiv = document.getElementById("error-modal");
-        if (errorDiv) {
-          errorDiv.textContent = "Correo o contraseña incorrectos";
+        const errorMsg = document.getElementById("loginErrorMsg")?.value || "";
+
+        if (errorMsg.includes("deshabilitada")) {
+          errorDiv.textContent = "Tu cuenta ha sido deshabilitada. contacta al administrador";
           errorDiv.classList.remove("d-none");
+
+        }else{
+            errorDiv.textContent = "Correo o contraseña incorrectos"
+            errorDiv.classList.remove("d-none");
         }
+
         if (modal) {
           const loginModal = new bootstrap.Modal(modal);
           loginModal.show();
@@ -217,6 +226,7 @@
         if (errorDiv) errorDiv.classList.add("d-none");
      });
 </script>
+
 
 
 <style>
@@ -259,6 +269,24 @@
     main {
         flex: 1; /* El contenido crece y empuja el footer hacia abajo */
     }
+
+
+
+    .link-float {
+  color: #6c757d; /* gris Bootstrap */
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.link-float:hover {
+  background-color: rgba(255, 255, 255, 0.9); /* blanco opaco */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* sombra suave gris */
+  transform: translateY(-2px); /* leve efecto de elevación */
+  color: #495057; /* gris más oscuro */
+}
 </style>
 
 </body>

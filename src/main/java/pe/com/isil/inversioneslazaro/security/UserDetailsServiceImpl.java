@@ -1,6 +1,8 @@
 package pe.com.isil.inversioneslazaro.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,8 +23,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException("El usuario no ha sido encontrado para: " + username));
 
+        if (!usuario.isEstado()) {
+            throw new DisabledException("La cuenta ha sido deshabilitada. Contacte al administrador.");
+        }
+
         return new AppUserDetails(usuario);
     }
-
 
 }

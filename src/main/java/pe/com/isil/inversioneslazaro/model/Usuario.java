@@ -21,7 +21,7 @@ public class Usuario {
     private Integer id;
 
     @NotBlank
-    @Column(nullable = false, length = 8)
+    @Column(nullable = false, length = 11)
     private String dni;
 
     @NotBlank

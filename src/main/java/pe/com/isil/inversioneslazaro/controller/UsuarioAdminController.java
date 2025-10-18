@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -90,6 +92,16 @@ public class UsuarioAdminController {
             Usuario usuarioe = usuario.get();
             usuarioe.setEstado(false);
             usuarioRepository.save(usuarioe);
+
+            // Obtener el email del usuario logueado
+            String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            // Registrar en auditoría
+            AuditoriaUsuario audit = new AuditoriaUsuario();
+            audit.setUsuarioAfectado(usuarioe);
+            audit.setAccion("ELIMINAR");
+            audit.setRealizadoPor(emailLogueado);
+            auditoriaUsuarioRepository.save(audit);
             ra.addFlashAttribute("mensajeExito", "Usuario eliminado correctamente");
         } else {
             ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
@@ -105,10 +117,21 @@ public class UsuarioAdminController {
             Usuario usuarioe = usuario.get();
             usuarioe.setEstado(true);
             usuarioRepository.save(usuarioe);
+
+            // Obtener el email del usuario logueado
+            String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            // Registrar en auditoría
+            AuditoriaUsuario audit = new AuditoriaUsuario();
+            audit.setUsuarioAfectado(usuarioe);
+            audit.setAccion("HABILITAR");
+            audit.setRealizadoPor(emailLogueado);
+            auditoriaUsuarioRepository.save(audit);
             ra.addFlashAttribute("mensajeExito", "Usuario Habilitado correctamente");
         } else {
             ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
         }
+
         return "redirect:/admin/usuarios/activar";
     }
 
@@ -162,13 +185,51 @@ public class UsuarioAdminController {
     }
 
 
+//    @GetMapping("/auditoria")
+//    public String verAuditoria(Model model, @PageableDefault(size = 10) Pageable pageable,
+//                               @RequestParam(required = false) String busqueda) {
+//
+//        Page<AuditoriaUsuario> audi;
+//
+//        if (busqueda != null && !busqueda.trim().isEmpty()) {
+//            // Buscar por todos los campos
+//            audi = auditoriaUsuarioRepository
+//                    .buscarAuditoria(busqueda.trim(),pageable);
+//        } else {
+//            audi = auditoriaUsuarioRepository.findAll(pageable);
+//        }
+//
+//        model.addAttribute("auditorias", audi.getContent());
+//        model.addAttribute("audi", audi);
+//        model.addAttribute("busqueda", busqueda); // para mantener el valor en el input
+//        model.addAttribute("totalRegistros", audi.getTotalElements());
+//
+//
+//
+//        model.addAttribute("auditorias", auditoriaUsuarioRepository.findAll());
+//        return "auditoria/index";
+//    }
+
     @GetMapping("/auditoria")
-    public String verAuditoria(Model model) {
-        model.addAttribute("auditorias", auditoriaUsuarioRepository.findAll());
+    public String verAuditoria(@RequestParam(value = "busqueda", required = false) String busqueda,
+                               @RequestParam(defaultValue = "0") int page,
+                               Model model) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("fechaAccion").descending());
+        Page<AuditoriaUsuario> audi;
+
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            audi = auditoriaUsuarioRepository.buscarAuditoria(busqueda.trim(), pageable);
+        } else {
+            audi = auditoriaUsuarioRepository.findAll(pageable);
+        }
+
+        model.addAttribute("auditorias", audi.getContent());
+        model.addAttribute("audi", audi);
+        model.addAttribute("busqueda", busqueda);
+        model.addAttribute("totalRegistros", audi.getTotalElements());
+
         return "auditoria/index";
     }
-
-
-
 
 }

@@ -9,6 +9,18 @@
 <div class="container" layout:fragment="content">
 <h2>Auditoría de cambios en usuarios</h2>
 
+    <form action="" class="my-3" >
+        <div class="row">
+            <div class="col-md-6 col-lg-4">
+                <div class="input-group">
+                    <input type="search" name="busqueda" class="form-control" placeholder="Buscar usuario por DNI, nombres, apellidos o email"
+                           th:value="${busqueda}">
+                    <button class="btn btn-primary">Buscar</button>
+                </div>
+                <a href="/admin/usuarios">Lista usuarios</a>
+            </div>
+        </div>
+    </form>
 <table border="1" cellpadding="6">
     <thead>
     <tr>
@@ -16,7 +28,7 @@
         <th>Usuario afectado</th>
         <th>Acción</th>
         <th>Realizado por</th>
-        <th>Fecha</th>
+        <th>fecha de Modificación</th>
     </tr>
     </thead>
     <tbody>
@@ -29,6 +41,25 @@
     </tr>
     </tbody>
 </table>
+    <nav th:if="${audi.totalPages > 1}">
+        <div class="d-flex justify-content-center my-3">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${audi.first}? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${audi.number-1}, busqueda=${busqueda})}">Anterior</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, audi.totalPages-1)}"
+                    th:classappend="${audi.number == i}? 'active'">
+                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${i}, busqueda=${busqueda})}" th:text="${i+1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${audi.last}? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${audi.number+1}, busqueda=${busqueda})}">Siguiente</a>
+                </li>
+            </ul>
+        </div>
+        <div class="d-flex justify-content-end my-3">
+            <div>Total de registros: <span th:text="${totalRegistros}">0</span></div>
+        </div>
+    </nav>
 </div>
 </body>
 </html>
