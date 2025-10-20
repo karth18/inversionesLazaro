@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.swing.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -57,6 +59,11 @@ public class Producto {
     @Column(length = 255)
     private String fichaTecnica;
 
+    //Pequeña modificacion para las imagenes pero que sean varias o hasta 10
+    //se esta mapeando con el campo producto en la clase imagenProducto
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImagenProducto> imagenes = new ArrayList<>();
+
     //claves foraneas
     @ManyToOne
     @JoinColumn(name = "idMarca", referencedColumnName = "idMarca", nullable = false)
@@ -69,12 +76,6 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "idTipo", referencedColumnName = "idTipo", nullable = false)
     private TipoProducto idTipo;
-
-    // ruta a la foto (puede ser nombre de archivo o url)
-    private String fotoPath;
-
-    @Transient
-    private MultipartFile imagen;
 
     //Fecha de creacion y actualizacion
     @Column(name = "fecha_creacion", updatable = false)
