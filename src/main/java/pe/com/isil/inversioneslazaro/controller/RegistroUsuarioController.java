@@ -2,7 +2,7 @@ package pe.com.isil.inversioneslazaro.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +14,6 @@ import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 import pe.com.isil.inversioneslazaro.service.UsuarioService;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/registrar")
@@ -41,7 +40,6 @@ public class RegistroUsuarioController {
     @PostMapping("/registro")
     public String crear(@Valid Usuario usuario, BindingResult bindingResult, RedirectAttributes ra, Model model)
     {
-
         //Validar si existe un email, tiene que ser unico
         boolean usuarioExiste = usuarioRepository.findByEmail(usuario.getEmail()).isPresent();
         if (usuarioExiste)

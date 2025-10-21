@@ -47,7 +47,7 @@ public class WebSecurityConfig  {
                         .requestMatchers("/", "/inicio", "/catalogo", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/cursos/**", "/mis-cursos", "/usuario/**").authenticated()
+                        .requestMatchers( "/usuario/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 // Logout

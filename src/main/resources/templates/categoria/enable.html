@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{master.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Habilitar Categoria</title>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+    <h1>Habilitar Categoría</h1>
+
+    <a th:href="@{/admin/categoria}">Regresar</a>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cate : ${categoria} ">
+            <td th:text="${cate.id}"></td>
+            <td th:text="${cate.nombre}"></td>
+            <td th:text="${cate.estado? 'habilitado': 'deshabilitado'}"></td>
+            <td>
+                <a href="" title="Habilitar categoria" class="btn btn-success" onclick="return eliminarCate(this)"> <i class="fa fa-eye"></i></a>
+                <form th:action="@{/admin/categoria/habilitar/{id}(id=${cate.id})}" method="get" class="d-none"></form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        function eliminarCate(etiqueta)
+        {
+            var ok = confirm('¿Estas seguro de Habilitar la categoria?');
+
+            if(ok)
+            {
+                etiqueta.nextElementSibling.submit();
+            }
+            return false;
+        }
+    </script>
+</div>
+
+</body>
+</html>
