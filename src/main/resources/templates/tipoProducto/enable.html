@@ -5,44 +5,44 @@
       layout:decorate="~{master.html}">
 <head>
     <meta charset="UTF-8">
-    <title>Habilitar Categoria</title>
+    <title>Habilitar Tipo de Producto</title>
 </head>
 <body>
 <div class="container" layout:fragment="content">
-    <h1>Habilitar Categoría</h1>
+    <h1>Tipos de Producto Desactivados</h1>
 
-    <a th:href="@{/admin/categoria}">Regresar</a>
+    <a th:href="@{/admin/tproducto}" class="btn btn-secondary">Regresar al Listado Activo</a>
 
     <table class="table table-striped table-hover">
         <thead>
         <tr>
             <th>Id</th>
             <th>Nombre</th>
-            <th>Estado</th>
-            <th></th>
+            <th>Categoría</th> <th>Estado</th>
+            <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="cate : ${categoria} ">
-            <td th:text="${cate.id}"></td>
-            <td th:text="${cate.nombre}"></td>
-            <td th:text="${cate.estado? 'habilitado': 'deshabilitado'}"></td>
+        <tr th:each="tpro : ${tiposProducto} ">
+            <td th:text="${tpro.id}"></td>
+            <td th:text="${tpro.nombre}"></td>
+            <td th:text="${tpro.idCate.nombre}"></td> <td th:text="${tpro.estado? 'Habilitado': 'Deshabilitado'}"></td>
             <td>
-                <a href="" title="Habilitar categoria" class="btn btn-success" onclick="return eliminarCate(this)"> <i class="fa fa-eye"></i></a>
-                <form th:action="@{/admin/categoria/habilitar/{id}(id=${cate.id})}" method="get" class="d-none"></form>
+                <a href="#" title="Habilitar Tipo de Producto" class="btn btn-success btn-sm" onclick="return confirmarHabilitar(this)">
+                    <i class="fa fa-eye"></i>
+                </a>
+                <form th:action="@{/admin/tproducto/habilitar/{id}(id=${tpro.id})}" method="get" class="d-none"></form>
             </td>
         </tr>
         </tbody>
     </table>
-
-
 </div>
 
 <div layout:fragment="scripts">
     <script>
-        function eliminarCate(etiqueta)
+        function confirmarHabilitar(etiqueta)
         {
-            var ok = confirm('¿Estas seguro de Habilitar la categoria?');
+            var ok = confirm('¿Estás seguro de HABILITAR este Tipo de Producto?');
 
             if(ok)
             {
@@ -52,6 +52,5 @@
         }
     </script>
 </div>
-
 </body>
 </html>

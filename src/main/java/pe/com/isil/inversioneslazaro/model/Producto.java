@@ -1,6 +1,10 @@
 package pe.com.isil.inversioneslazaro.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,28 +24,34 @@ public class Producto {
     @Column(name = "producto_id")
     private Long id;
 
+    @NotBlank(message = "El codigo es obligatorio")
     @Column(nullable = false, length = 50, unique = true)
-    private String codPro; // código único del producto
+    private String codPro;
 
+    @NotBlank(message = "El nombre es obligatorio")
     @Column(nullable = false)
     private String nomPro;
 
+    @NotBlank(message = "La descripcion corta es obligatoria")
     @Column(length = 1000, nullable = false)
     private String descripcionCorta;
 
     private String descripcionLarga;
 
     // precio con BigDecimal (mejor precisión para dinero)
-    @Column(nullable = false, precision = 12, scale = 2)
+    @NotNull(message = "El precio es obligatorio")
+    @DecimalMin(value = "0.01", message = "el precio debe ser mayor a cero")
     private BigDecimal precio;
 
-    @Column(nullable = false)
+    @NotNull(message = "El estock es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
 
     // Datos adicionales de la descripcion de productos
     private Double altoCm;
     private Double anchoCm;
     private Double fondoCm;
+
 
     @Column(length = 100)
     private String modelo;
@@ -51,6 +61,7 @@ public class Producto {
 
     private Integer potenciaBtu;
 
+
     private Integer garantiaMeses;
 
     @Column(length = 100)
@@ -59,22 +70,26 @@ public class Producto {
     @Column(length = 255)
     private String fichaTecnica;
 
-    //Pequeña modificacion para las imagenes pero que sean varias o hasta 10
-    //se esta mapeando con el campo producto en la clase imagenProducto
+    private boolean estado;
+
+
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImagenProducto> imagenes = new ArrayList<>();
 
-    //claves foraneas
+
     @ManyToOne
     @JoinColumn(name = "idMarca", referencedColumnName = "idMarca", nullable = false)
+    @NotNull
     private Marca idMarca;
 
     @ManyToOne
     @JoinColumn(name = "idCate", referencedColumnName = "idCate", nullable = false)
+    @NotNull
     private Categoria IdCate;
 
     @ManyToOne
     @JoinColumn(name = "idTipo", referencedColumnName = "idTipo", nullable = false)
+    @NotNull
     private TipoProducto idTipo;
 
     //Fecha de creacion y actualizacion

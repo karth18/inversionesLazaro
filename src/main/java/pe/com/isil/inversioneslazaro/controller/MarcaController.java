@@ -78,7 +78,7 @@ public class MarcaController {
         Optional<Marca> existente = marcaRepository.findByNombre(marca.getNombre());
 
         if(existente.isPresent() && (marca.getId() == null || !existente.get().getId().equals(marca.getId()))){
-            bindingResult.rejectValue("nombre", "error.categoria","El nombre de la marca ya existe");
+            bindingResult.rejectValue("nombre", "error.marca","El nombre de la marca ya existe");
             return"marca/form";
         }
         marcaRepository.save(marca);

@@ -11,8 +11,8 @@
 <div class="container" layout:fragment="content">
     <h1>Listado de Categoría</h1>
 
-    <a th:href="@{/admin/categoria/nuevo}">Nuevo</a>
-    <a th:href="@{/admin/categoria/habilitar}">Habilitar</a>
+    <a th:href="@{/admin/marca/nuevo}">Nuevo</a>
+    <a th:href="@{/admin/marca/habilitar}">Habilitar</a>
     <table class="table table-striped table-hover">
         <thead>
         <tr>
@@ -23,14 +23,14 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="cate : ${categoria} ">
-            <td th:text="${cate.id}"></td>
-            <td th:text="${cate.nombre}"></td>
-            <td th:text="${cate.estado? 'habilitado': 'deshabilitado'}"></td>
+        <tr th:each="mar : ${marca} ">
+            <td th:text="${mar.id}"></td>
+            <td th:text="${mar.nombre}"></td>
+            <td th:text="${mar.estado? 'habilitado': 'deshabilitado'}"></td>
             <td>
-                <a th:href="@{/admin/categoria/editar/{id}(id=${cate.id})}" title="Editar categoria" class="btn btn-primary"> <i class="fa fa-edit"></i></a>
-                <a href="" title="Eliminar Categoria" onclick="return eliminarCate(this)" class="btn btn-danger"> <i class="fa fa-trash"></i></a>
-                <form th:action="@{/admin/categoria/eliminar/{id}(id=${cate.id})}" method="get" class="d-none"></form>
+                <a th:href="@{/admin/marca/editar/{id}(id=${mar.id})}" title="Editar marca" class="btn btn-primary"> <i class="fa fa-edit"></i></a>
+                <a href="" title="Eliminar marca" onclick="return eliminarCate(this)" class="btn btn-danger"> <i class="fa fa-trash"></i></a>
+                <form th:action="@{/admin/marca/eliminar/{id}(id=${mar.id})}" method="get" class="d-none"></form>
             </td>
         </tr>
         </tbody>
@@ -43,7 +43,7 @@
     <script>
         function eliminarCate(etiqueta)
         {
-            var ok = confirm('¿Estas seguro de Desactivar la categoria?');
+            var ok = confirm('¿Estas seguro de Desactivar la marca?');
 
             if(ok)
             {

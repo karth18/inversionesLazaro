@@ -5,21 +5,21 @@
       layout:decorate="~{master.html}">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${categoria.id == null ? 'Registrar Nueva Categoría' : 'Editar Categoría'}"></title>
+    <title th:text="${marca.id == null ? 'Registrar Nueva Marca' : 'Editar Marca'}"></title>
 </head>
 <body>
 <div class="container" layout:fragment="content">
 
-    <form th:action="@{/admin/categoria/nuevo}" th:object="${categoria}" method="post">
+    <form th:action="@{/admin/marca/nuevo}" th:object="${marca}" method="post">
 
-        <h1 th:text="${categoria.id == null ? 'Registrar Categoria' : 'Editar Categoria'}"></h1>
+        <h1 th:text="${marca.id == null ? 'Registrar Marca' : 'Editar Marca'}"></h1>
 
         <input type="hidden" th:field="*{id}">
 
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="nombre"
-                   placeholder="Ingrese el nombre de la categoría" th:field="*{nombre}">
+                   placeholder="Ingrese el nombre de la marca" th:field="*{nombre}">
 
             <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">
                 [Error de Nombre]
@@ -36,8 +36,8 @@
         </div>
 
         <div class="mb-3">
-            <button type="submit" class="btn btn-success" th:text="${categoria.id == null ? 'Registrar' : 'Actualizar'}">Guardar</button>
-            <a th:href="@{/admin/categoria}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success" th:text="${marca.id == null ? 'Registrar' : 'Actualizar'}">Guardar</button>
+            <a th:href="@{/admin/marca}" class="btn btn-secondary">Cancelar</a>
         </div>
 
     </form>

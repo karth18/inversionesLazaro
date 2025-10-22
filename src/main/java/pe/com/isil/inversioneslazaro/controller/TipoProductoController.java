@@ -23,98 +23,111 @@ import java.util.Optional;
 public class TipoProductoController {
 
     @Autowired
+    private TipoProductoRepository tipoProductoRepository;
+
+    @Autowired
     private CategoriaRepository categoriaRepository;
 
 
-    @GetMapping("")
-    String Index(Model model){
-        List<Categoria> categoria = categoriaRepository.findByEstadoTrue();
-        model.addAttribute("categoria", categoria);
-        return"categoria/index";
+    @GetMapping
+    public String index(Model model) {
+
+        List<TipoProducto> tiposProducto = tipoProductoRepository.findByEstadoTrue();
+        model.addAttribute("tiposProducto", tiposProducto);
+        return "tipoProducto/index";
     }
-
-    @GetMapping("/habilitar")
-    String listahabilitar(Model model){
-        List<Categoria> categoria = categoriaRepository.findByEstadoFalse();
-        model.addAttribute("categoria", categoria);
-        return"categoria/enable";
-    }
-
-    @GetMapping("/habilitar/{id}")
-    String habilitar(@PathVariable Long id, RedirectAttributes ra){
-        Optional<Categoria> categorias = categoriaRepository.findById(id);
-
-        if(categorias.isEmpty()){
-            ra.addFlashAttribute("msgError", "La categoria que intentas Habilitar no existe");
-            return"redirect:/admin/categoria/habilitar";
-        }
-        Categoria categoria = categorias.get();
-        try{
-            categoria.setEstado(true);
-            categoriaRepository.save(categoria);
-            ra.addFlashAttribute("msgExito", "categoría Activada con exito");
-        }catch (Exception e){
-            ra.addFlashAttribute("msgError", "categoría no fue Activada con exito");
-        }
-        return "redirect:/admin/categoria/habilitar";
-    }
-
 
     @GetMapping("/nuevo")
-    String nuevo(Model model){
+    public String nuevo(Model model) {
 
-        model.addAttribute("categoria", new Categoria());
-        return"categoria/form";
+        model.addAttribute("tipoProducto", new TipoProducto());
+        model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
 
+        return "tipoProducto/form";
     }
 
     @PostMapping("/nuevo")
-    String registrar(@Valid Categoria categoria, Model model, BindingResult bindingResult, RedirectAttributes ra){
+    public String registrar(@Valid TipoProducto tipoProducto, Model model, BindingResult bindingResult, RedirectAttributes ra) {
 
-        if(bindingResult.hasErrors()){
-            return "categoria/form";
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
+            return "tipoProducto/form";
         }
 
-        Optional<Categoria> existente = categoriaRepository.findByNombre(categoria.getNombre());
 
-        if(existente.isPresent() && (categoria.getId() == null || !existente.get().getId().equals(categoria.getId()))){
-            bindingResult.rejectValue("nombre", "error.categoria","El nombre de la categoría ya existe");
-            return"categoria/form";
+        Optional<TipoProducto> existente = tipoProductoRepository.findByNombre(tipoProducto.getNombre());
+        if (existente.isPresent() && (tipoProducto.getId() == null || !existente.get().getId().equals(tipoProducto.getId()))) {
+            bindingResult.rejectValue("nombre", "error.tipoProducto", "El nombre de Tipo de Producto ya existe");
+            model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
+            return "tipoProducto/form";
         }
-        categoriaRepository.save(categoria);
-        ra.addFlashAttribute("msgExito", "Categoria guardada/actualizada con éxito");
-        return "redirect:/admin/categoria";
+
+        tipoProductoRepository.save(tipoProducto);
+        ra.addFlashAttribute("msgExito", "Tipo de Producto guardado/actualizado con éxito");
+        return "redirect:/admin/tproducto";
     }
 
     @GetMapping("/editar/{id}")
-    String editar(@PathVariable Long id, Model model, RedirectAttributes ra){
-        Optional<Categoria> categorias = categoriaRepository.findById(id);
+    public String editar(@PathVariable Long id, Model model, RedirectAttributes ra) {
+        Optional<TipoProducto> tipoProducto = tipoProductoRepository.findById(id);
 
-        if(categorias.isEmpty()){
-            ra.addFlashAttribute("msgError", "Categoria no encontrada");
-            return "redirect:/admin/categoria";
+        if (tipoProducto.isEmpty()) {
+            ra.addFlashAttribute("msgError", "Tipo de Producto no encontrado");
+            return "redirect:/admin/tproducto";
         }
-        model.addAttribute("categoria",categorias.get());
-        return "categoria/form";
+
+        model.addAttribute("tipoProducto", tipoProducto.get());
+        // ⭐ CLAVE: Pasamos las categorías activas para el select de edición ⭐
+        model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
+
+        return "tipoProducto/form";
     }
+
 
     @GetMapping("/eliminar/{id}")
-    String eliminar(@PathVariable Long id, RedirectAttributes ra){
-        Optional<Categoria> categorias = categoriaRepository.findById(id);
+    public String eliminar(@PathVariable Long id, RedirectAttributes ra) {
+        Optional<TipoProducto> tipoProductoOptional = tipoProductoRepository.findById(id);
 
-        if(categorias.isEmpty()){
-            ra.addFlashAttribute("msgError", "La categoria que intentas eliminar no existe");
-            return"redirect:/admin/categoria";
+        if (tipoProductoOptional.isEmpty()) {
+            ra.addFlashAttribute("msgError", "El Tipo de Producto que intentas eliminar no existe");
+            return "redirect:/admin/tproducto";
         }
-        Categoria categoria = categorias.get();
-        try{
-            categoria.setEstado(false);
-            categoriaRepository.save(categoria);
-            ra.addFlashAttribute("msgExito", "categoría desactivada con exito");
-        }catch (Exception e){
-            ra.addFlashAttribute("msgError", "categoría no fue desactivado con exito");
+        TipoProducto tipoProducto = tipoProductoOptional.get();
+        try {
+            tipoProducto.setEstado(false); // Desactivar
+            tipoProductoRepository.save(tipoProducto);
+            ra.addFlashAttribute("msgExito", "Tipo de Producto desactivado con éxito");
+        } catch (Exception e) {
+            ra.addFlashAttribute("msgError", "El Tipo de Producto no fue desactivado con éxito");
         }
-        return "redirect:/admin/categoria";
+        return "redirect:/admin/tproducto";
     }
 
+
+    @GetMapping("/habilitar")
+    public String listahabilitar(Model model){
+        List<TipoProducto> tiposProducto = tipoProductoRepository.findByEstadoFalse();
+        model.addAttribute("tiposProducto", tiposProducto);
+        return"tipoProducto/enable";
+    }
+
+    @GetMapping("/habilitar/{id}")
+    public String habilitar(@PathVariable Long id, RedirectAttributes ra){
+        Optional<TipoProducto> tipoProductoOptional = tipoProductoRepository.findById(id);
+
+        if(tipoProductoOptional.isEmpty()){
+            ra.addFlashAttribute("msgError", "El Tipo de Producto que intentas Habilitar no existe");
+            return"redirect:/admin/tproducto/habilitar";
+        }
+        TipoProducto tipoProducto = tipoProductoOptional.get();
+        try{
+            tipoProducto.setEstado(true);
+            tipoProductoRepository.save(tipoProducto);
+            ra.addFlashAttribute("msgExito", "Tipo de Producto Activado con exito");
+        }catch (Exception e){
+            ra.addFlashAttribute("msgError", "El Tipo de Producto no fue Activado con exito");
+        }
+        return "redirect:/admin/tproducto/habilitar";
+    }
 }

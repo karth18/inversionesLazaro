@@ -35,13 +35,25 @@ public class FileSystemStorageService implements StorageService {
         }
     }
 
+    // Método auxiliar para sanitizar el nombre de archivo
+
+    private String sanitizeFilename(String filename) {
+        if (filename == null) return "";
+        // Reemplaza caracteres no alfanuméricos, espacios y barras con guiones bajos
+        // y normaliza la cadena (quita acentos, etc. si aplica)
+        String cleanName = filename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        // Limita la longitud para seguridad si es necesario
+        return cleanName.length() > 50 ? cleanName.substring(0, 50) + cleanName.substring(cleanName.lastIndexOf(".")) : cleanName;
+    }
+
     @Override
     public String store(MultipartFile file) {
         // Generamos un nombre de archivo único
         String originalFilename = file.getOriginalFilename();
 
+        String sanitizedFilename = sanitizeFilename(originalFilename);
         // Creamos un nombre único: UUID + guion bajo + nombre original
-        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+        String uniqueFilename = UUID.randomUUID().toString() + "_" + sanitizedFilename;
 
         // Llamamos a tu método de dos parámetros para hacer el guardado real
         return this.store(file, uniqueFilename);
@@ -93,7 +105,8 @@ public class FileSystemStorageService implements StorageService {
     public void delete(String filename) {
         Path file = load(filename);
         try {
-            FileSystemUtils.deleteRecursively(file);
+            Files.delete(file);
+//            FileSystemUtils.deleteRecursively(file);
         } catch (IOException e) {
             throw new FileNotFoundException("No se pudo eliminar el archivo: " + filename, e);
         }

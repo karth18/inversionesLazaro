@@ -11,7 +11,7 @@
 <div class="container" layout:fragment="content">
     <h1>Habilitar Categoría</h1>
 
-    <a th:href="@{/admin/categoria}">Regresar</a>
+    <a th:href="@{/admin/marca}">Regresar</a>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -23,13 +23,13 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="cate : ${categoria} ">
+        <tr th:each="cate : ${marca} ">
             <td th:text="${cate.id}"></td>
             <td th:text="${cate.nombre}"></td>
             <td th:text="${cate.estado? 'habilitado': 'deshabilitado'}"></td>
             <td>
-                <a href="" title="Habilitar categoria" class="btn btn-success" onclick="return eliminarCate(this)"> <i class="fa fa-eye"></i></a>
-                <form th:action="@{/admin/categoria/habilitar/{id}(id=${cate.id})}" method="get" class="d-none"></form>
+                <a href="" title="Habilitar marca" class="btn btn-success" onclick="return eliminarCate(this)"> <i class="fa fa-eye"></i></a>
+                <form th:action="@{/admin/marca/habilitar/{id}(id=${cate.id})}" method="get" class="d-none"></form>
             </td>
         </tr>
         </tbody>
@@ -42,7 +42,7 @@
     <script>
         function eliminarCate(etiqueta)
         {
-            var ok = confirm('¿Estas seguro de Habilitar la categoria?');
+            var ok = confirm('¿Estas seguro de Habilitar la marca?');
 
             if(ok)
             {

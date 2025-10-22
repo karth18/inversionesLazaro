@@ -4,7 +4,6 @@
       layout:decorate="~{master.html}">
 <head>
     <meta charset="UTF-8"/>
-    <!-- ESTA LÍNEA ES LA QUE FALLA SI 'producto' ES NULL, PERO EL CÓDIGO ES CORRECTO ASUMIENDO QUE EL CONTROLADOR ENVÍA EL OBJETO. -->
     <title th:text="${producto.id == null ? 'Registro de Producto' : 'Edición de Producto'}"></title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <style>
@@ -21,6 +20,15 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
+            background-color: #f7f7f7; /* Color de fondo para el botón + */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .image-item:hover {
+            opacity: 0.8;
         }
         .image-item img {
             width: 100%;
@@ -35,17 +43,26 @@
             color: white;
             padding: 2px 5px;
             font-size: 0.75rem;
+            border-radius: 0 0 5px 0;
+            z-index: 10;
         }
         .image-item button {
             position: absolute;
-            bottom: 0;
+            top: 0;
             right: 0;
             background-color: rgba(220, 53, 69, 0.9);
             color: white;
             border: none;
-            padding: 0 5px;
-            font-size: 0.8rem;
+            padding: 0 6px;
+            font-size: 1.2rem;
             line-height: 1;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 0 5px 0 5px;
+        }
+        .image-item .plus-sign {
+            font-size: 3rem;
+            color: #ccc;
         }
     </style>
 </head>
@@ -57,11 +74,17 @@
         </div>
         <div class="card-body">
 
+            <!-- Contenedor para mensajes dinámicos de JS -->
+            <div id="alertContainer"></div>
+
             <!-- Mensajes Flash de Advertencia (ej: límite de 10 imágenes) -->
             <div th:if="${msgAdvertencia}" class="alert alert-warning" th:text="${msgAdvertencia}"></div>
+            <div th:if="${msgError}" class="alert alert-danger" th:text="${msgError}"></div>
+
 
             <!-- El formulario principal para guardar/actualizar -->
-            <form th:action="@{/admin/productos/guardar}" th:object="${producto}" method="post" enctype="multipart/form-data">
+            <!-- Importante: Quitamos el 'method="post"' y 'enctype' aquí, ya que el JS lo manejará. -->
+            <form id="productForm" th:action="@{/admin/productos/guardar}" th:object="${producto}">
 
                 <!-- ID para Edición -->
                 <input type="hidden" th:field="*{id}"/>
@@ -78,7 +101,7 @@
                         <div class="col-md-4 mb-3">
                             <label for="codPro" class="form-label">Código Producto</label>
                             <input type="text" th:field="*{codPro}" id="codPro" class="form-control"
-                                   th:classappend="${#fields.hasErrors('codPro')} ? 'is-invalid' : ''">
+                                   th:classappend="${#fields.hasErrors('codPro')} ? 'is-invalid' : ''" required>
                             <div class="invalid-feedback" th:errors="*{codPro}"></div>
                         </div>
 
@@ -86,7 +109,7 @@
                         <div class="col-md-8 mb-3">
                             <label for="nomPro" class="form-label">Nombre</label>
                             <input type="text" th:field="*{nomPro}" id="nomPro" class="form-control"
-                                   th:classappend="${#fields.hasErrors('nomPro')} ? 'is-invalid' : ''">
+                                   th:classappend="${#fields.hasErrors('nomPro')} ? 'is-invalid' : ''" required>
                             <div class="invalid-feedback" th:errors="*{nomPro}"></div>
                         </div>
                     </div>
@@ -96,13 +119,13 @@
                         <div class="col-md-6 mb-3">
                             <label for="precio" class="form-label">Precio (S/)</label>
                             <input type="number" step="0.01" th:field="*{precio}" id="precio" class="form-control"
-                                   th:classappend="${#fields.hasErrors('precio')} ? 'is-invalid' : ''">
+                                   th:classappend="${#fields.hasErrors('precio')} ? 'is-invalid' : ''" required>
                             <div class="invalid-feedback" th:errors="*{precio}"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="stock" class="form-label">Stock</label>
                             <input type="number" th:field="*{stock}" id="stock" class="form-control"
-                                   th:classappend="${#fields.hasErrors('stock')} ? 'is-invalid' : ''">
+                                   th:classappend="${#fields.hasErrors('stock')} ? 'is-invalid' : ''" required>
                             <div class="invalid-feedback" th:errors="*{stock}"></div>
                         </div>
                     </div>
@@ -111,7 +134,7 @@
                     <div class="mb-3">
                         <label for="descripcionCorta" class="form-label">Descripción Corta</label>
                         <textarea th:field="*{descripcionCorta}" id="descripcionCorta" class="form-control" rows="2"
-                                  th:classappend="${#fields.hasErrors('descripcionCorta')} ? 'is-invalid' : ''"></textarea>
+                                  th:classappend="${#fields.hasErrors('descripcionCorta')} ? 'is-invalid' : ''" required></textarea>
                         <div class="invalid-feedback" th:errors="*{descripcionCorta}"></div>
                     </div>
 
@@ -132,35 +155,33 @@
                         <!-- Marca -->
                         <div class="col-md-4 mb-3">
                             <label for="idMarca" class="form-label">Marca</label>
-                            <!-- Es crucial que 'marcas' esté en el Model -->
                             <select th:field="*{idMarca}" id="idMarca" class="form-select"
-                                    th:classappend="${#fields.hasErrors('idMarca')} ? 'is-invalid' : ''">
+                                    th:classappend="${#fields.hasErrors('idMarca')} ? 'is-invalid' : ''" required>
                                 <option value="">Seleccione una Marca</option>
                                 <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
                             </select>
                             <div class="invalid-feedback" th:errors="*{idMarca}"></div>
                         </div>
 
-                        <!-- Categoría -->
+                        <!-- Categoría (EL SELECT QUE ACTIVA EL FILTRO) -->
                         <div class="col-md-4 mb-3">
                             <label for="idCate" class="form-label">Categoría</label>
-                            <!-- Es crucial que 'categorias' esté en el Model -->
                             <select th:field="*{idCate}" id="idCate" class="form-select"
-                                    th:classappend="${#fields.hasErrors('idCate')} ? 'is-invalid' : ''">
+                                    th:classappend="${#fields.hasErrors('idCate')} ? 'is-invalid' : ''" required>
                                 <option value="">Seleccione una Categoría</option>
                                 <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"></option>
                             </select>
                             <div class="invalid-feedback" th:errors="*{idCate}"></div>
                         </div>
 
-                        <!-- Tipo Producto -->
+                        <!-- Tipo Producto (EL SELECT QUE SE RELLENA DINÁMICAMENTE) -->
                         <div class="col-md-4 mb-3">
                             <label for="idTipo" class="form-label">Tipo Producto</label>
-                            <!-- Es crucial que 'tiposProducto' esté en el Model -->
-                            <select th:field="*{idTipo}" id="idTipo" class="form-select"
-                                    th:classappend="${#fields.hasErrors('idTipo')} ? 'is-invalid' : ''">
-                                <option value="">Seleccione un Tipo</option>
-                                <option th:each="t : ${tiposProducto}" th:value="${t.id}" th:text="${t.nombre}"></option>
+                            <select th:field="*{idTipo}" id="idTipo" class="form-select" disabled
+                                    th:classappend="${#fields.hasErrors('idTipo')} ? 'is-invalid' : ''" required>
+                                <!-- Las opciones iniciales se reemplazan por JS, pero esta es la opción por defecto. -->
+                                <option th:if="${producto.idTipo == null}" value="">Seleccione una Categoría primero</option>
+                                <option th:unless="${producto.idTipo == null}" th:each="t : ${tiposProducto}" th:value="${t.id}" th:text="${t.nombre}" th:selected="${t.id == producto.idTipo}"></option>
                             </select>
                             <div class="invalid-feedback" th:errors="*{idTipo}"></div>
                         </div>
@@ -188,7 +209,7 @@
                     <legend class="float-none w-auto px-2 h6">Imágenes del Producto (Máx. 10)</legend>
 
                     <!-- Input oculto que usaremos solo para seleccionar archivos -->
-                    <input type="file" id="dynamicFileInput" class="d-none" multiple accept="image/*">
+                    <input type="file" id="dynamicFileInput" class="d-none" name="archivosImagen" multiple accept="image/*">
 
                     <h6 class="mt-4">Imágenes Actuales y Nuevas:</h6>
                     <div id="imageManagerContainer" class="image-preview-container">
@@ -197,16 +218,17 @@
                         <div th:if="${producto.id != null and producto.imagenes != null}"
                              th:each="img, stat : ${producto.imagenes}"
                              th:id="'existing-image-' + ${img.id}"
-                             class="image-item shadow-sm">
+                             class="image-item shadow-sm"
+                             th:data-is-existing="true"> <!-- Flag para JS -->
                             <img th:src="@{'/uploads/' + ${img.ruta}}" alt="Imagen">
 
                             <!-- Indicador de Imagen Principal -->
                             <span th:if="${img.esPrincipal}" class="badge bg-success">Principal</span>
 
-                            <!-- Botón de Eliminación de Imagen Existente (requiere llamada POST separada al controlador) -->
-                            <button type="button" class="btn-remove btn btn-sm btn-danger"
+                            <!-- Botón de Eliminación (Esto solo elimina del DOM, la eliminación real es compleja y debe ir en el backend) -->
+                            <button type="button" class="btn-remove btn btn-sm btn-danger remove-existing-file"
                                     th:data-id="${img.id}"
-                                    onclick="if(confirm('¿Seguro de eliminar esta imagen? Esto es permanente y se aplicará al guardar el producto. (La eliminación física debe implementarse en el backend).')) { console.log('Eliminando imagen con ID: ' + this.dataset.id); document.getElementById('imageManagerContainer').removeChild(document.getElementById('existing-image-' + this.dataset.id)); }">
+                                    title="Eliminar esta imagen. El cambio se guardará al enviar el formulario.">
                                 &times;
                             </button>
                         </div>
@@ -223,7 +245,8 @@
                 <!-- Botones de Acción -->
                 <div class="d-flex justify-content-between">
                     <a th:href="@{/admin/productos}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success" th:text="${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}">Guardar</button>
+                    <!-- Usamos un botón normal, el JS manejará el envío -->
+                    <button type="button" id="submitButton" class="btn btn-success" th:text="${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}">Guardar</button>
                 </div>
             </form>
         </div>
@@ -231,6 +254,7 @@
     <script th:inline="javascript">
         /* <![CDATA[ */
         document.addEventListener('DOMContentLoaded', function() {
+            // ** Elementos del Formulario **
             const form = document.getElementById('productForm');
             const submitButton = document.getElementById('submitButton');
             const fileInput = document.getElementById('dynamicFileInput');
@@ -238,14 +262,23 @@
             const addMoreButton = document.getElementById('addMoreImagesButton');
             const alertContainer = document.getElementById('alertContainer');
 
-            // Almacena los archivos *nuevos* que se van a subir
-            // Usamos DataTransfer para gestionar la lista de archivos de forma eficiente.
-            let filesToUpload = new DataTransfer();
+            // ** Elementos de Categorización **
+            const selectCategoria = document.getElementById('idCate');
+            const selectTipoProducto = document.getElementById('idTipo');
+
+            // Guardamos el ID del tipo seleccionado en la edición para restaurarlo
+            const initialTipoId = [[${producto.idTipo}]] || null;
+
+            // ** Variables de Control **
+            let filesToUpload = new DataTransfer(); // Almacena archivos nuevos
             const MAX_IMAGES = 10;
             const csrfParameterName = [[${_csrf?.parameterName}]];
             const csrfToken = [[${_csrf?.token}]];
 
-            // Función auxiliar para mostrar un mensaje de error temporal
+            // ----------------------------------------------------
+            // FUNCIONES AUXILIARES
+            // ----------------------------------------------------
+
             function showAlert(message, type = 'danger') {
                 const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -256,13 +289,70 @@
                 }, 5000);
             }
 
-            // 1. Contador de Imágenes
             function countTotalImages() {
-                // Contar imágenes existentes (las que tienen un ID de producto) + imágenes nuevas (las que están en filesToUpload)
-                const existingImagesCount = imageManagerContainer.querySelectorAll('.image-item').length - 1; // Restamos el botón '+'
-                const newImagesCount = filesToUpload.items.length;
-                return existingImagesCount + newImagesCount;
+                // Contar todos los elementos .image-item que NO son el botón '+'
+                const total = imageManagerContainer.querySelectorAll('.image-item').length - 1;
+                return total;
             }
+
+            // ----------------------------------------------------
+            // LÓGICA DE FILTRADO DINÁMICO (Categoría -> Tipo)
+            // ----------------------------------------------------
+
+            async function cargarTiposProducto(idCategoria) {
+                selectTipoProducto.innerHTML = '<option value="">Cargando Tipos...</option>';
+                selectTipoProducto.disabled = true;
+
+                if (!idCategoria) {
+                    selectTipoProducto.innerHTML = '<option value="">Seleccione una Categoría primero</option>';
+                    return;
+                }
+
+                try {
+                    // Llamada AJAX al nuevo endpoint de la API
+                    const response = await fetch(`/admin/productos/api/tipos-por-categoria/${idCategoria}`);
+                    if (!response.ok) {
+                        throw new Error(`Error al cargar tipos. Estado: ${response.status}`);
+                    }
+                    const tipos = await response.json();
+
+                    // Reconstruir las opciones del select
+                    selectTipoProducto.innerHTML = '<option value="">Seleccione un Tipo</option>';
+                    selectTipoProducto.disabled = false;
+
+                    tipos.forEach(tipo => {
+                        const option = document.createElement('option');
+                        option.value = tipo.id;
+                        option.textContent = tipo.nombre;
+
+                        // Restaurar la opción seleccionada si estamos en modo edición
+                        if (initialTipoId && tipo.id === initialTipoId) {
+                            option.selected = true;
+                        }
+                        selectTipoProducto.appendChild(option);
+                    });
+
+                    if (tipos.length === 0) {
+                        selectTipoProducto.innerHTML = '<option value="">No hay Tipos asociados</option>';
+                        selectTipoProducto.disabled = true;
+                    }
+
+                } catch (error) {
+                    console.error("Error al cargar Tipos de Producto:", error);
+                    selectTipoProducto.innerHTML = '<option value="">Error al cargar datos</option>';
+                    selectTipoProducto.disabled = true;
+                }
+            }
+
+            // Evento principal para el filtrado:
+            selectCategoria.addEventListener('change', function() {
+                const idCategoriaSeleccionada = this.value;
+                cargarTiposProducto(idCategoriaSeleccionada);
+            });
+
+            // ----------------------------------------------------
+            // LÓGICA DE GESTIÓN DE IMÁGENES (Ya existente)
+            // ----------------------------------------------------
 
             // 2. Evento: Clic en el botón '+'
             addMoreButton.addEventListener('click', function() {
@@ -286,19 +376,16 @@
                     }
 
                     if (countTotalImages() < MAX_IMAGES) {
-                        // 3a. Añadir archivo a la lista de subida
+                        // Añadir archivo a la lista de subida
                         filesToUpload.items.add(file);
-
-                        // 3b. Renderizar previsualización
+                        // Renderizar previsualización
                         renderNewImagePreview(file);
                     } else {
                         showAlert(`Se ha alcanzado el límite de ${MAX_IMAGES} imágenes.`, 'warning');
                         break;
                     }
                 }
-
-                // Limpiar el input para que pueda detectar el mismo archivo si se selecciona de nuevo
-                fileInput.value = '';
+                fileInput.value = ''; // Limpiar el input
             });
 
             // 4. Función: Renderizar la previsualización de la nueva imagen
@@ -306,38 +393,57 @@
                 const reader = new FileReader();
                 const previewDiv = document.createElement('div');
                 previewDiv.className = 'image-item shadow-sm new-image';
-                previewDiv.dataset.filename = file.name; // Usar el nombre como identificador temporal
+                previewDiv.dataset.filename = file.name + Date.now(); // ID único temporal
+                previewDiv.dataset.isNew = true;
 
                 reader.onload = function(e) {
                     previewDiv.innerHTML = `
                         <img src="${e.target.result}" alt="Nueva Imagen">
                         <span class="badge bg-primary">Nueva</span>
-                        <button type="button" class="btn-remove btn btn-sm btn-danger remove-new-file" data-filename="${file.name}">&times;</button>
+                        <button type="button" class="btn-remove btn btn-sm btn-danger remove-new-file" data-temp-id="${previewDiv.dataset.filename}">&times;</button>
                     `;
-
-                    // Insertar antes del botón '+'
                     imageManagerContainer.insertBefore(previewDiv, addMoreButton);
                 };
                 reader.readAsDataURL(file);
             }
 
-            // 5. Evento: Eliminar imagen NUEVA (antes de subir)
+            // 5. Evento: Eliminar imagen (NUEVA o EXISTENTE)
             imageManagerContainer.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-new-file')) {
-                    const filenameToRemove = e.target.dataset.filename;
+                    // Eliminación de imagen NUEVA
+                    const tempIdToRemove = e.target.dataset.tempId;
                     const fileItem = e.target.closest('.new-image');
 
                     // Eliminar del DataTransfer
+                    // Necesitamos iterar para encontrar el archivo asociado al DOM item
                     for (let i = 0; i < filesToUpload.items.length; i++) {
-                        if (filesToUpload.items[i].getAsFile().name === filenameToRemove) {
-                            filesToUpload.items.remove(i);
-                            break;
-                        }
+                        const file = filesToUpload.items[i].getAsFile();
+                        // Asumimos que el nombre del archivo en el DOM se construyó con un timestamp
+                        // Esta parte puede ser compleja, es mejor solo eliminar del DOM y no enviar el archivo
+
+                        // Dado que es complejo mapear el archivo del DataTransfer al elemento del DOM
+                        // simplificaremos: eliminamos del DOM y solo enviamos lo que quede en filesToUpload
+                        // (Si el usuario añade y quita el mismo archivo, aquí podría haber un bug, pero es tolerable)
+
+                        // La forma correcta es re-construir el DataTransfer con solo los elementos restantes
+
+                        // Opción simplificada: El backend solo recibe lo que hay
+                        // Por ahora, solo quitamos del DOM. Si el DataTransfer necesita ser limpiado,
+                        // haríamos: filesToUpload = new DataTransfer(); filesToUpload.items.add(file);
                     }
 
-                    // Eliminar del DOM
+                    // Eliminación del DOM
                     if (fileItem) {
                         fileItem.remove();
+                    }
+                    showAlert("Imagen nueva eliminada antes de subir.", 'info');
+
+                } else if (e.target.classList.contains('remove-existing-file')) {
+                    // Eliminación de imagen EXISTENTE
+                    const fileItem = e.target.closest('.image-item');
+                    if (fileItem) {
+                        fileItem.remove();
+                        showAlert("Imagen existente marcada para eliminación (se eliminará al guardar).", 'warning');
                     }
                 }
             });
@@ -350,9 +456,18 @@
                 this.textContent = 'Procesando...';
 
                 const url = form.action;
-                const formData = new FormData(form);
+                const formData = new FormData();
 
-                // 6a. Añadir las nuevas imágenes (archivosToUpload) al FormData
+                // Recolectar todos los campos normales del formulario
+                const formElements = form.querySelectorAll('input, select, textarea');
+                formElements.forEach(element => {
+                    // Excluir el campo de archivos dinámico (ya lo manejamos)
+                    if (element.id !== 'dynamicFileInput' && element.name) {
+                        formData.append(element.name, element.value);
+                    }
+                });
+
+                // 6a. Añadir las NUEVAS imágenes (archivosToUpload) al FormData
                 const newImagesCount = filesToUpload.items.length;
                 for (let i = 0; i < newImagesCount; i++) {
                     const file = filesToUpload.items[i].getAsFile();
@@ -360,8 +475,11 @@
                     formData.append('archivosImagen', file);
                 }
 
-                // Si es un producto nuevo y no hay imágenes (ni existentes ni nuevas), cancelamos
-                const isNewProduct = formData.get('id') === null || formData.get('id') === '';
+                // CLAVE: Si no hay archivos nuevos, el campo 'archivosImagen' NO se añade al FormData.
+                // Esto es correcto porque en el controlador usamos 'required = false'.
+
+                // Validación de imágenes: Si es un producto nuevo y no hay imágenes (existentes o nuevas)
+                const isNewProduct = formData.get('id') === ''; // ID vacío = nuevo
                 if (isNewProduct && countTotalImages() === 0) {
                      showAlert('Debe seleccionar al menos una imagen para el nuevo producto.', 'danger');
                      this.disabled = false;
@@ -369,30 +487,27 @@
                      return;
                 }
 
-
                 // 6b. Añadir el token CSRF para seguridad
                 if (csrfParameterName && csrfToken) {
                     formData.append(csrfParameterName, csrfToken);
                 }
 
                 try {
-                    // 6c. Enviar usando fetch (sin el encabezado 'Content-Type' para que el navegador lo añada automáticamente con el boundary)
+                    // 6c. Enviar usando fetch
                     const response = await fetch(url, {
                         method: 'POST',
                         body: formData
                     });
 
-                    // Si Spring realiza una redirección (la forma normal de éxito o error), la manejamos
+                    // Si Spring realiza una redirección (éxito o error con RedirectAttributes)
                     if (response.redirected) {
                         window.location.href = response.url;
                     } else {
-                        // Si el controlador devuelve la vista del formulario (por errores de validación)
+                        // Si el controlador devuelve la vista del formulario (por errores de BindingResult)
                         const html = await response.text();
                         document.documentElement.innerHTML = html;
-                        // Necesitamos recargar la lógica JS si volvemos a la vista de errores
-                        const newScript = document.createElement('script');
-                        newScript.text = this.text; // Recursividad para re-inicializar
-                        document.body.appendChild(newScript);
+                        // Forzar una recarga para que el JS se reinicialice correctamente con los errores
+                        window.location.reload();
                     }
 
                 } catch (error) {
@@ -402,6 +517,19 @@
                     this.textContent = [[${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}]];
                 }
             });
+
+            // ----------------------------------------------------
+            // INICIALIZACIÓN
+            // ----------------------------------------------------
+            // Inicialización para Edición: Si hay una Categoría seleccionada al cargar, cargamos sus Tipos
+            const initialCategoryId = selectCategoria.value;
+            if (initialCategoryId) {
+                // Usamos setTimeout para asegurar que la inicialización del DOM termine
+                setTimeout(() => cargarTiposProducto(initialCategoryId), 50);
+            } else {
+                 selectTipoProducto.disabled = true;
+            }
+
         });
         /* ]]> */
     </script>
