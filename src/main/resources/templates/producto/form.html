@@ -89,15 +89,19 @@
                         <div class="col-md-4 mb-3">
                             <label for="codPro" class="form-label">Código Producto</label>
                             <input type="text" th:field="*{codPro}" id="codPro" class="form-control"
-                                   th:classappend="${#fields.hasErrors('codPro')} ? 'is-invalid' : ''" required>
-                            <div class="invalid-feedback" th:errors="*{codPro}"></div>
+                                   th:errorClass="is-invalid" required>
+                            <div class="invalid-feedback"
+                                   th:errors="*{codPro}"
+                                   th:if="${#fields.hasErrors('codPro')}" > </div>
                         </div>
 
                         <div class="col-md-8 mb-3">
                             <label for="nomPro" class="form-label">Nombre</label>
                             <input type="text" th:field="*{nomPro}" id="nomPro" class="form-control"
-                                   th:classappend="${#fields.hasErrors('nomPro')} ? 'is-invalid' : ''" required>
-                            <div class="invalid-feedback" th:errors="*{nomPro}"></div>
+                                   th:errorClass="is-invalid" required>
+                            <div class="invalid-feedback"
+                                 th:errors="*{nomPro}"
+                                 th:if="${#fields.hasErrors('nomPro')}" > </div>
                         </div>
                     </div>
 
@@ -114,31 +118,39 @@
                         <div class="col-md-4 mb-3">
                             <label for="precio" class="form-label">Precio Regular (S/)</label>
                             <input type="number" step="0.01" th:field="*{precio}" id="precio" class="form-control"
-                                   th:classappend="${#fields.hasErrors('precio')} ? 'is-invalid' : ''" required>
-                            <div class="invalid-feedback" th:errors="*{precio}"></div>
+                                   th:errorClass="is-invalid" required>
+                            <div class="invalid-feedback"
+                                 th:errors="*{precio}"
+                                 th:if="${#fields.hasErrors('precio')}" > </div>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="precioOferta" class="form-label">Precio Oferta (S/)</label>
                             <input type="number" step="0.01" th:field="*{precioOferta}" id="precioOferta" class="form-control"
-                                   th:classappend="${#fields.hasErrors('precioOferta')} ? 'is-invalid' : ''">
-                            <div class="invalid-feedback" th:errors="*{precioOferta}"></div>
+                                   th:errorClass="is-invalid" required>
+                            <div class="invalid-feedback"
+                                 th:errors="*{precioOferta}"
+                                 th:if="${#fields.hasErrors('precioOferta')}" > </div>
                             <small class="form-text text-muted">Dejar en 0 o vacío si no hay oferta.</small>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="stock" class="form-label">Stock</label>
                             <input type="number" th:field="*{stock}" id="stock" class="form-control"
-                                   th:classappend="${#fields.hasErrors('stock')} ? 'is-invalid' : ''" required>
-                            <div class="invalid-feedback" th:errors="*{stock}"></div>
+                                   th:errorClass="is-invalid" required>
+                            <div class="invalid-feedback"
+                                 th:errors="*{stock}"
+                                 th:if="${#fields.hasErrors('stock')}" > </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="descripcionCorta" class="form-label">Descripción Corta</label>
                         <textarea th:field="*{descripcionCorta}" id="descripcionCorta" class="form-control" rows="2"
-                                  th:classappend="${#fields.hasErrors('descripcionCorta')} ? 'is-invalid' : ''" required></textarea>
-                        <div class="invalid-feedback" th:errors="*{descripcionCorta}"></div>
+                                  th:errorClass="is-invalid" required></textarea>
+                        <div class="invalid-feedback"
+                             th:errors="*{descripcionCorta}"
+                             th:if="${#fields.hasErrors('descripcionCorta')}" > </div>
                     </div>
                     <div class="mb-3">
                         <label for="descripcionLarga" class="form-label">Descripción Larga</label>
@@ -155,30 +167,37 @@
                         <div class="col-md-4 mb-3">
                             <label for="idMarca" class="form-label">Marca</label>
                             <select th:field="*{idMarca}" id="idMarca" class="form-select"
-                                    th:classappend="${#fields.hasErrors('idMarca')} ? 'is-invalid' : ''" required>
+                                    th:errorClass="is-invalid" required>
                                 <option value="">Seleccione una Marca</option>
                                 <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
                             </select>
-                            <div class="invalid-feedback" th:errors="*{idMarca}"></div>
+                            <div class="invalid-feedback"
+                                 th:errors="*{idMarca}"
+                                 th:if="${#fields.hasErrors('idMarca')}" > </div>
+
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="idCate" class="form-label">Categoría</label>
                             <select th:field="*{IdCate}" id="idCate" class="form-select"
-                                    th:classappend="${#fields.hasErrors('IdCate')} ? 'is-invalid' : ''" required>
+                                    th:errorClass="is-invalid" required>
                                 <option value="">Seleccione una Categoría</option>
                                 <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"></option>
                             </select>
-                            <div class="invalid-feedback" th:errors="*{IdCate}"></div>
+                            <div class="invalid-feedback"
+                                 th:errors="*{IdCate}"
+                                 th:if="${#fields.hasErrors('IdCate')}" > </div>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="idTipo" class="form-label">Tipo Producto</label>
                             <select th:field="*{idTipo}" id="idTipo" class="form-select"
-                                    th:classappend="${#fields.hasErrors('idTipo')} ? 'is-invalid' : ''" required
+                                    th:errorClass="is-invalid" required
                                     th:disabled="${producto.idTipo == null}">
                                 <option th:if="${producto.idTipo == null}" value="">Seleccione una Categoría primero</option>
                                 <option th:unless="${producto.idTipo == null}" th:each="t : ${tiposProducto}" th:value="${t.id}" th:text="${t.nombre}" th:selected="${t.id == producto.idTipo.id}"></option>
                             </select>
-                            <div class="invalid-feedback" th:errors="*{idTipo}"></div>
+                            <div class="invalid-feedback"
+                                 th:errors="*{idTipo}"
+                                 th:if="${#fields.hasErrors('idTipo')}" > </div>
                         </div>
                     </div>
 
@@ -272,250 +291,235 @@
             </form>
         </div>
     </div>
-
     <script th:inline="javascript">
         /* <![CDATA[ */
-        document.addEventListener('DOMContentLoaded', function() {
-            // ** Elementos del Formulario **
+
+        // --- Función para inicializar listeners y lógica del formulario ---
+        function initializeProductForm() {
+            console.log("Inicializando/Re-inicializando listeners del formulario..."); // Para depuración
+
+            // --- Seleccionar Elementos ---
             const form = document.getElementById('productForm');
             const submitButton = document.getElementById('submitButton');
             const fileInput = document.getElementById('dynamicFileInput');
             const imageManagerContainer = document.getElementById('imageManagerContainer');
             const addMoreButton = document.getElementById('addMoreImagesButton');
             const alertContainer = document.getElementById('alertContainer');
-
-            // ** Elementos de Categorización **
             const selectCategoria = document.getElementById('idCate');
             const selectTipoProducto = document.getElementById('idTipo');
 
-            // --- CORRECCIÓN 1: Obtener el ID del objeto TipoProducto ---
-            const initialTipoId = /*[[${producto.idTipo?.id}]]*/ null;
+            // Salir si algún elemento esencial no se encuentra (puede pasar durante la recarga)
+            if (!form || !submitButton || !fileInput || !imageManagerContainer || !addMoreButton || !selectCategoria || !selectTipoProducto) {
+                console.warn("Advertencia: No se encontraron todos los elementos del formulario para inicializar.");
+                return;
+            }
 
-            // ** Variables de Control **
-            let filesToUpload = new DataTransfer();
+            // --- Variables de Estado (Resetear en cada inicialización) ---
+            let filesToUpload = new DataTransfer(); // IMPORTANTE: Resetear aquí
             const MAX_IMAGES = 10;
             const csrfParameterName = /*[[${_csrf?.parameterName}]]*/ null;
             const csrfToken = /*[[${_csrf?.token}]]*/ null;
+            const initialTipoId = /*[[${producto.idTipo?.id}]]*/ null;
 
-            // ----------------------------------------------------
-            // FUNCIONES AUXILIARES (Tu código original)
-            // ----------------------------------------------------
+            // --- Funciones Auxiliares (Sin cambios) ---
             function showAlert(message, type = 'danger') {
-                const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-                alertContainer.innerHTML = alertHtml;
-                setTimeout(() => {
-                    alertContainer.innerHTML = '';
-                }, 5000);
+                const container = document.getElementById('alertContainer'); // Re-seleccionar por si acaso
+                if(container) {
+                    container.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                    setTimeout(() => { container.innerHTML = ''; }, 5000);
+                }
             }
-
             function countTotalImages() {
-                const total = imageManagerContainer.querySelectorAll('.image-item').length - 1;
-                return total;
+                 const container = document.getElementById('imageManagerContainer'); // Re-seleccionar
+                 return container ? container.querySelectorAll('.image-item:not(.add-button)').length : 0;
             }
 
-            // ----------------------------------------------------
-            // LÓGICA DE FILTRADO DINÁMICO (Tu código original)
-            // ----------------------------------------------------
+            // --- Lógica Dropdowns Dependientes ---
             async function cargarTiposProducto(idCategoria) {
-                selectTipoProducto.innerHTML = '<option value="">Cargando Tipos...</option>';
-                selectTipoProducto.disabled = true;
-
-                if (!idCategoria) {
-                    selectTipoProducto.innerHTML = '<option value="">Seleccione una Categoría primero</option>';
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`/admin/productos/api/tipos-por-categoria/${idCategoria}`);
-                    if (!response.ok) {
-                        throw new Error(`Error al cargar tipos. Estado: ${response.status}`);
-                    }
-                    const tipos = await response.json();
-
-                    selectTipoProducto.innerHTML = '<option value="">Seleccione un Tipo</option>';
-                    selectTipoProducto.disabled = false;
-
-                    tipos.forEach(tipo => {
-                        const option = document.createElement('option');
-                        option.value = tipo.id;
-                        option.textContent = tipo.nombre;
-
-                        // Se usa '==' en lugar de '===' porque initialTipoId puede ser Long y tipo.id puede ser string/number
-                        if (initialTipoId && tipo.id == initialTipoId) {
-                            option.selected = true;
-                        }
-                        selectTipoProducto.appendChild(option);
-                    });
-
-                    if (tipos.length === 0) {
-                        selectTipoProducto.innerHTML = '<option value="">No hay Tipos asociados</option>';
-                        selectTipoProducto.disabled = true;
-                    }
-
-                } catch (error) {
-                    console.error("Error al cargar Tipos de Producto:", error);
-                    selectTipoProducto.innerHTML = '<option value="">Error al cargar datos</option>';
-                    selectTipoProducto.disabled = true;
-                }
+                 const currentSelectTipo = document.getElementById('idTipo'); // Re-seleccionar
+                 if(!currentSelectTipo) return;
+                 currentSelectTipo.innerHTML = '<option value="">Cargando...</option>';
+                 currentSelectTipo.disabled = true;
+                 // ... (resto de tu lógica fetch sin cambios) ...
+                 if (!idCategoria) {
+                     currentSelectTipo.innerHTML = '<option value="">Seleccione Categoría</option>';
+                     return;
+                 }
+                 try {
+                     const response = await fetch(`/admin/productos/api/tipos-por-categoria/${idCategoria}`);
+                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                     const tipos = await response.json();
+                     currentSelectTipo.innerHTML = '<option value="">Seleccione Tipo</option>';
+                     currentSelectTipo.disabled = false;
+                     tipos.forEach(tipo => {
+                         const option = document.createElement('option');
+                         option.value = tipo.id;
+                         option.textContent = tipo.nombre;
+                         if (initialTipoId && tipo.id == initialTipoId) option.selected = true;
+                         currentSelectTipo.appendChild(option);
+                     });
+                     if (tipos.length === 0) {
+                         currentSelectTipo.innerHTML = '<option value="">No hay Tipos</option>';
+                         currentSelectTipo.disabled = true;
+                     }
+                 } catch (error) {
+                     console.error("Error cargando Tipos:", error);
+                     currentSelectTipo.innerHTML = '<option value="">Error</option>';
+                     currentSelectTipo.disabled = true;
+                 }
             }
-
+            // *Adjuntar* listener (sin borrar explícitamente, el reemplazo del DOM lo hace)
             selectCategoria.addEventListener('change', function() {
-                const idCategoriaSeleccionada = this.value;
-                cargarTiposProducto(idCategoriaSeleccionada);
+                cargarTiposProducto(this.value);
             });
 
-            // ----------------------------------------------------
-            // LÓGICA DE GESTIÓN DE IMÁGENES (Tu código original)
-            // ----------------------------------------------------
-            addMoreButton.addEventListener('click', function() {
-                if (countTotalImages() >= MAX_IMAGES) {
-                    showAlert(`No se pueden añadir más imágenes. Límite máximo: ${MAX_IMAGES}`, 'warning');
-                    return;
-                }
-                fileInput.click();
-            });
+            // --- Lógica Gestión de Imágenes ---
+             addMoreButton.addEventListener('click', function() {
+                 if (countTotalImages() >= MAX_IMAGES) {
+                     showAlert(`Máximo ${MAX_IMAGES} imágenes.`, 'warning');
+                     return;
+                 }
+                 document.getElementById('dynamicFileInput').click(); // Re-seleccionar
+             });
 
-            fileInput.addEventListener('change', function(e) {
-                const files = e.target.files;
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (!file.type.startsWith('image/')) {
-                        console.warn(`Archivo ignorado: ${file.name} no es una imagen.`);
-                        continue;
-                    }
-                    if (countTotalImages() < MAX_IMAGES) {
-                        filesToUpload.items.add(file);
-                        renderNewImagePreview(file);
-                    } else {
-                        showAlert(`Se ha alcanzado el límite de ${MAX_IMAGES} imágenes.`, 'warning');
-                        break;
-                    }
-                }
-                fileInput.value = '';
-            });
+             fileInput.addEventListener('change', function(e) {
+                 const files = e.target.files;
+                 // Reiniciamos filesToUpload CADA VEZ que se seleccionan archivos NUEVOS
+                 filesToUpload = new DataTransfer();
 
-            function renderNewImagePreview(file) {
-                const reader = new FileReader();
-                const previewDiv = document.createElement('div');
-                previewDiv.className = 'image-item shadow-sm new-image';
-                previewDiv.dataset.filename = file.name + Date.now();
-                previewDiv.dataset.isNew = true;
+                 for (let i = 0; i < files.length; i++) {
+                     const file = files[i];
+                     if (!file.type.startsWith('image/')) continue;
+                     if (countTotalImages() < MAX_IMAGES) {
+                         filesToUpload.items.add(file);
+                         renderNewImagePreview(file);
+                     } else {
+                         showAlert(`Límite de ${MAX_IMAGES} alcanzado.`, 'warning');
+                         break;
+                     }
+                 }
+                 this.value = ''; // Limpiar input
+             });
 
-                reader.onload = function(e) {
-                    previewDiv.innerHTML = `
-                        <img src="${e.target.result}" alt="Nueva Imagen">
+             function renderNewImagePreview(file) {
+                 const reader = new FileReader();
+                 const previewDiv = document.createElement('div');
+                 previewDiv.className = 'image-item shadow-sm new-image';
+                 previewDiv.dataset.filename = file.name + Date.now();
+                 previewDiv.dataset.isNew = true;
+                 const container = document.getElementById('imageManagerContainer');
+                 const addButton = document.getElementById('addMoreImagesButton');
+
+                 if(!container || !addButton) return; // Chequeo extra
+
+                 reader.onload = function(e) {
+                     previewDiv.innerHTML = `
+                        <img src="${e.target.result}" alt="Nueva">
                         <span class="badge bg-primary">Nueva</span>
-                        <button type="button" class="btn-remove btn btn-sm btn-danger remove-new-file" data-temp-id="${previewDiv.dataset.filename}">&times;</button>
-                    `;
-                    imageManagerContainer.insertBefore(previewDiv, addMoreButton);
-                };
-                reader.readAsDataURL(file);
-            }
+                        <button type="button" class="btn-remove btn-sm btn-danger remove-new-file" data-temp-id="${previewDiv.dataset.filename}">&times;</button>
+                     `;
+                     container.insertBefore(previewDiv, addButton);
+                 };
+                 reader.readAsDataURL(file);
+             }
 
-            imageManagerContainer.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-new-file')) {
-                    // (Tu lógica para remover 'new-file'...)
-                    // Esto es complejo, una simplificación es reconstruir 'filesToUpload'
-                    // Por ahora, solo quitamos del DOM.
-                    const fileItem = e.target.closest('.new-image');
-                    if (fileItem) {
-                        fileItem.remove();
-                    }
-                } else if (e.target.classList.contains('remove-existing-file')) {
-                    // (Tu lógica para remover 'existing-file'...)
-                    const fileItem = e.target.closest('.image-item');
-                    if (fileItem) {
-                        fileItem.remove();
-                        showAlert("Imagen existente marcada para eliminación (se eliminará al guardar).", 'warning');
-                    }
-                }
-            });
+             imageManagerContainer.addEventListener('click', function(e) {
+                 if (e.target.classList.contains('remove-new-file')) {
+                     const fileItem = e.target.closest('.new-image');
+                     // TODO: Idealmente, también remover de 'filesToUpload' aquí.
+                     // Por ahora, solo removemos del DOM. El submit usará lo que quede en filesToUpload.
+                     if (fileItem) fileItem.remove();
 
-            // ----------------------------------------------------
-            // Evento: SUBMIT (Tu código original con la CORRECCIÓN 2)
-            // ----------------------------------------------------
+                 } else if (e.target.classList.contains('remove-existing-file')) {
+                      const fileItem = e.target.closest('.image-item');
+                      // TODO: Necesitarías enviar al backend qué IDs existentes eliminar.
+                      // Por ahora, solo lo quitamos visualmente.
+                      if (fileItem) fileItem.remove();
+                      showAlert("Imagen existente marcada para eliminar (requiere lógica backend).", 'warning');
+                 }
+             });
+
+            // --- Lógica de Submit ---
             submitButton.addEventListener('click', async function(e) {
                 e.preventDefault();
                 this.disabled = true;
                 this.textContent = 'Procesando...';
 
-                const url = form.action;
+                const currentForm = document.getElementById('productForm'); // Re-seleccionar
+                const url = currentForm.action;
                 const formData = new FormData();
+                const currentFormElements = currentForm.querySelectorAll('input, select, textarea');
 
-                // --- CORRECCIÓN 2: Lógica para recolectar campos ---
-                const formElements = form.querySelectorAll('input, select, textarea');
-                formElements.forEach(element => {
-                    // Excluir el campo de archivos dinámico
+                currentFormElements.forEach(element => {
                     if (element.id !== 'dynamicFileInput' && element.name) {
-
-                        // Manejar el boolean del switch 'estado'
                         if (element.type === 'checkbox') {
-                            formData.append(element.name, element.checked); // Envía 'true' o 'false'
+                            formData.append(element.name, element.checked);
                         } else {
                             formData.append(element.name, element.value);
                         }
                     }
                 });
-                // --- FIN DE LA CORRECCIÓN 2 ---
 
-                // 6a. Añadir las NUEVAS imágenes
+                // Añadir imágenes NUEVAS (las que están en filesToUpload)
                 const newImagesCount = filesToUpload.items.length;
                 for (let i = 0; i < newImagesCount; i++) {
-                    const file = filesToUpload.items[i].getAsFile();
-                    formData.append('archivosImagen', file);
+                    formData.append('archivosImagen', filesToUpload.items[i].getAsFile());
                 }
 
-                // (Validación de imagen nueva... tu código original)
+                // (Validación de imagen para nuevos productos...)
                 const isNewProduct = formData.get('id') === '';
-                if (isNewProduct && countTotalImages() === 0) {
-                     showAlert('Debe seleccionar al menos una imagen para el nuevo producto.', 'danger');
-                     this.disabled = false;
-                     this.textContent = [[${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}]];
-                     return;
-                }
+                 if (isNewProduct && countTotalImages() === 0 && newImagesCount === 0) { // Chequear ambos
+                      showAlert('Debe seleccionar al menos una imagen para el nuevo producto.', 'danger');
+                      this.disabled = false;
+                      this.textContent = /*[[${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}]]*/ 'Guardar';
+                      return;
+                 }
 
-                // 6b. Añadir el token CSRF
                 if (csrfParameterName && csrfToken) {
                     formData.append(csrfParameterName, csrfToken);
                 }
 
                 try {
-                    // 6c. Enviar usando fetch
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const response = await fetch(url, { method: 'POST', body: formData });
 
                     if (response.redirected) {
                         window.location.href = response.url;
                     } else {
-                        // Error de validación (BindingResult)
                         const html = await response.text();
-                        document.documentElement.innerHTML = html;
-                        window.location.reload(); // Recarga para reinicializar scripts con los errores
-                    }
+                        document.documentElement.innerHTML = html; // Reemplaza TODO
 
+                        // ¡Vuelve a llamar a la inicialización!
+                        console.log("Re-inicializando listeners después de error...");
+                        initializeProductForm();
+                    }
                 } catch (error) {
-                    console.error('Error al enviar el formulario:', error);
-                    showAlert('Ocurrió un error de conexión al guardar el producto.', 'danger');
-                    this.disabled = false;
-                    this.textContent = [[${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}]];
+                    console.error('Error en fetch:', error);
+                    showAlert('Error de conexión al guardar.', 'danger');
+                     const currentSubmitBtn = document.getElementById('submitButton'); // Re-seleccionar
+                     if(currentSubmitBtn) {
+                         currentSubmitBtn.disabled = false;
+                         currentSubmitBtn.textContent = /*[[${producto.id == null ? 'Registrar Producto' : 'Guardar Cambios'}]]*/ 'Guardar';
+                     }
                 }
             });
 
-            // ----------------------------------------------------
-            // INICIALIZACIÓN (Tu código original)
-            // ----------------------------------------------------
-            const initialCategoryId = selectCategoria.value;
-            if (initialCategoryId) {
-                setTimeout(() => cargarTiposProducto(initialCategoryId), 50);
+            // --- Inicialización (Carga inicial de tipos) ---
+            const initialCategoryIdValue = selectCategoria.value;
+            if (initialCategoryIdValue) {
+                cargarTiposProducto(initialCategoryIdValue);
             } else {
-                 selectTipoProducto.disabled = true;
+                selectTipoProducto.disabled = true;
             }
 
-        });
+            console.log("Listeners del formulario adjuntados.");
+
+        } // --- Fin de initializeProductForm ---
+
+        // --- Ejecutar la inicialización en la carga inicial ---
+        document.addEventListener('DOMContentLoaded', initializeProductForm);
+
         /* ]]> */
     </script>
 </div>

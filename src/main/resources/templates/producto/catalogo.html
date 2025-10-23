@@ -1,101 +1,184 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{master.html}">
 <head>
     <meta charset="UTF-8"/>
     <title>Catálogo de Productos | Inversiones Lázaro</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <style>
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            overflow: hidden;
-            height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        .product-image-container {
-            height: 200px; /* Altura fija para la imagen */
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f7f7f7;
-        }
-        .product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Recorta la imagen para que llene el contenedor */
-        }
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0d6efd; /* Azul de Bootstrap */
-        }
-    </style>
+    <th:block layout:fragment="styles">
+        <style>
+            .product-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                transition: transform 0.2s, box-shadow 0.2s;
+                overflow: hidden;
+                height: 100%;
+            }
+            .product-card-link:hover .product-card {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+            .product-image-container {
+                height: 200px;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #f7f7f7;
+            }
+            .product-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .price-offer { color: #dc3545; font-weight: bold; }
+            .price-regular-offer { text-decoration: line-through; color: #6c757d; font-size: 0.9em; }
+            .product-price-normal { font-size: 1.2rem; font-weight: bold; color: #212529; }
+            .add-to-cart-btn { position: relative; z-index: 2; }
+            .card-img-top { height: 180px; object-fit: cover; }
+        </style>
+    </th:block>
 </head>
 <body>
 <div class="container py-5" layout:fragment="content">
     <h1 class="mb-4 text-center text-primary">Nuestros Productos Destacados</h1>
 
-    <!-- Verificar si hay productos -->
-    <div th:if="${productos.isEmpty()}" class="alert alert-warning text-center">
+    <form class="d-flex mb-4" th:action="@{/catalogo}" method="get">
+        <input type="search" name="q" class="form-control me-2" placeholder="Buscar por nombre o código" th:value="${param.q}">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+    </form>
+
+    <div th:if="${productos == null or productos.isEmpty()}" class="alert alert-warning text-center">
         Actualmente no hay productos disponibles en el catálogo.
     </div>
 
-    <!-- Contenedor de la cuadrícula: row para la fila, g-4 para espaciado -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${productos.isEmpty()}">
-
-        <!-- Bucle de Thymeleaf: Crea una columna por cada producto -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${productos == null or productos.isEmpty()}">
         <div class="col" th:each="p : ${productos}">
-            <div class="card product-card">
-
-                <!-- Contenedor de la Imagen (busca la imagen principal o la primera) -->
-                <div class="product-image-container">
-                    <th:block th:with="
-                            principalList=${p.imagenes.?[esPrincipal == true]},
-                            finalImage=${!principalList.isEmpty() ? principalList[0] : (p.imagenes.isEmpty() ? null : p.imagenes[0])}
-                        ">
-                        <img th:if="${finalImage != null and finalImage.ruta != null and !finalImage.ruta.isEmpty()}"
-                             th:src="@{'/uploads/' + ${finalImage.ruta}}"
-                             alt="Imagen de Producto"
-                             class="product-image">
-                        <img th:unless="${finalImage != null and finalImage.ruta != null and !finalImage.ruta.isEmpty()}"
-                             th:src="@{/img/placeholder.png}"
-                             alt="Sin Imagen"
-                             class="product-image">
-                    </th:block>
-                </div>
-
-                <!-- Cuerpo de la Tarjeta -->
-                <div class="card-body d-flex flex-column">
-
-                    <!-- Nombre del Producto -->
-                    <h5 class="card-title text-truncate" th:text="${p.nomPro}">Nombre del Producto</h5>
-
-                    <!-- Marca -->
-                    <p class="card-text mb-1 text-muted small">
-                        Marca: <span th:text="${p.idMarca.nombre}">Marca X</span>
-                    </p>
-
-                    <!-- Detalle Corto -->
-                    <p class="card-text flex-grow-1" th:text="${p.descripcionCorta}"></p>
-
-                    <!-- Precio -->
-                    <div class="mt-auto pt-2">
-                        <p class="product-price mb-1" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 'POINT', 2, 'COMMA')}">S/ 1,200.00</p>
-                        <!-- Botón o enlace a la vista de detalle -->
-                        <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="btn btn-primary btn-sm w-100">Ver Detalles</a>
+            <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="text-decoration-none text-dark d-block h-100 product-card-link">
+                <div class="card product-card">
+                    <div class="product-image-container">
+                        <img th:src="@{${p.getImagenPrincipalUrl()}}" alt="Imagen de Producto" class="product-image card-img-top">
                     </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate" th:text="${p.nomPro}">Nombre del Producto</h5>
+                        <p class="card-text mb-1 text-muted small">Marca: <span th:text="${p.idMarca.nombre}">Marca</span></p>
+                        <div class="mt-auto pt-2">
+                            <div th:if="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                <p class="mb-0 price-regular-offer">
+                                    S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
+                                </p>
+                                <p class="mb-1 fw-bold price-offer" style="font-size: 1.2rem;">
+                                    S/ [[${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}]]
+                                </p>
+                            </div>
+                            <div th:unless="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                <p class="mb-1 product-price-normal">
+                                    S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
+                                </p>
+                            </div>
+                            <small class="text-muted">Stock: [[${p.stock}]]</small>
+                        </div>
+                    </div> <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+                    <button type="button" class="btn btn-sm btn-danger w-100 add-to-cart-btn"
+                            th:data-product-id="${p.id}"
+                            onclick="event.stopPropagation(); event.preventDefault();"> <i class="fas fa-cart-plus me-1"></i> Agregar
+                    </button>
                 </div>
+                </div> </a> </div> </div> <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addToCartModalLabel">
+                    <i class="fas fa-check-circle text-success me-2"></i>Producto Agregado
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¡El producto se ha añadido a tu carrito!
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-shopping-bag me-1"></i> Seguir comprando
+                </button>
+                <a th:href="@{/carrito}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-1"></i> Ir al carrito
+                </a>
             </div>
         </div>
-        <!-- Fin del Bucle -->
     </div>
 </div>
+</div> <div layout:fragment="scripts">
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartModalElement = document.getElementById('addToCartModal');
+            let cartModalInstance = null;
+            if (cartModalElement && typeof bootstrap !== 'undefined') {
+                 cartModalInstance = new bootstrap.Modal(cartModalElement);
+            } else {
+                console.error("Bootstrap Modal JS not found or modal element missing!");
+            }
+
+            const csrfToken = /*[[${_csrf?.token}]]*/ null;
+            const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    // Prevent link navigation if something went wrong before JS attached
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const productId = this.dataset.productId;
+                    const addButton = this;
+
+                    addButton.disabled = true;
+                    addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'; // Just spinner
+
+                    const formData = new FormData();
+                    formData.append('id', productId);
+                    formData.append('cantidad', '1');
+
+                    const fetchHeaders = new Headers();
+                    if (csrfHeader && csrfToken) {
+                         fetchHeaders.append(csrfHeader, csrfToken);
+                    }
+                    fetchHeaders.append('X-Requested-With', 'XMLHttpRequest');
+
+                    fetch('/carrito/api/agregar', { // Make sure this URL is correct
+                        method: 'POST',
+                        body: formData,
+                        headers: fetchHeaders
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            // Try to parse error JSON, otherwise use status text
+                            return response.json().catch(() => {
+                                throw new Error(response.statusText || 'Error del servidor');
+                            }).then(err => { throw new Error(err.message || response.statusText); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && cartModalInstance) {
+                            cartModalInstance.show(); // Show success modal
+                        } else {
+                            alert(data.message || 'No se pudo agregar el producto.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding to cart:', error);
+                        // Provide more specific feedback if possible
+                        alert('Error al agregar: ' + error.message);
+                    })
+                    .finally(() => {
+                        // Restore button
+                        addButton.disabled = false;
+                        addButton.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Agregar';
+                    });
+                });
+            });
+        });
+    </script>
+</div>
+
 </body>
 </html>

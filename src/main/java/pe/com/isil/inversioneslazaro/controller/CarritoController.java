@@ -1,6 +1,8 @@
 package pe.com.isil.inversioneslazaro.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,8 +11,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.service.CarritoService;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/carrito")
 public class CarritoController {
@@ -63,5 +67,27 @@ public class CarritoController {
         carritoService.eliminarItem(productoId);
         Map<String, BigDecimal> totales = carritoService.calcularTotales();
         return ResponseEntity.ok(totales); // Devuelve los nuevos totales
+    }
+    @PostMapping("/api/agregar")
+    @ResponseBody // Important: Returns JSON, not a view or redirect
+    public ResponseEntity<?> agregarAlCarritoApi(
+            @RequestParam("id") Long productoId,
+            @RequestParam(value = "cantidad", defaultValue = "1") int cantidad) {
+        try {
+            carritoService.agregarAlCarrito(productoId, cantidad);
+            // Return a success response (maybe include cart count later)
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Producto añadido al carrito");
+            // You could add: response.put("cartItemCount", carritoService.getItemCount());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Return an error response
+            log.error("Error adding product to cart via API: id={}", productoId, e); // Use your logger
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "No se pudo añadir el producto. Intente de nuevo.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

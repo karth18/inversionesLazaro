@@ -121,9 +121,17 @@ public class ProductoController {
                    @RequestParam(value = "archivosImagen", required = false) MultipartFile[] archivosImagen) {
 
         boolean esNuevo = producto.getId() == null;
-
         // **Validación de Imagen (Solo si es nuevo y no hay archivos válidos)**
         boolean hayArchivosValidos = false;
+
+        if (esNuevo && producto.getCodPro() != null && !producto.getCodPro().trim().isEmpty()) {
+            boolean codigoExiste = productoRepository.findByCodPro(producto.getCodPro().trim()).isPresent();
+            if (codigoExiste) {
+                // Añade un error específico para el campo 'codPro'
+                bindingResult.rejectValue("codPro", "CodProAlreadyExists", "Este código de producto ya está registrado.");
+            }
+        }
+
         if (archivosImagen != null) {
             for (MultipartFile file : archivosImagen) {
                 if (!file.isEmpty()) {
@@ -135,10 +143,7 @@ public class ProductoController {
 
         // 1. Manejo de Errores de Imagen
         if (esNuevo && !hayArchivosValidos) {
-            model.addAttribute("msgError", "Debe seleccionar al menos una imagen para el nuevo producto.");
-            model.addAttribute("producto", producto);
-            cargarListas(model);
-            return "producto/form";
+            bindingResult.rejectValue("imagenes", "MultipartNotEmpty.producto.imagen", "Debe seleccionar al menos una imagen para el nuevo producto.");
         }
 
         // 2. Manejo de Errores de Validación de Campos (@Valid)
@@ -151,18 +156,18 @@ public class ProductoController {
         // 3. Cargar y Mapear el producto
         Producto productoExistente = esNuevo ? producto : productoRepository.findById(producto.getId()).orElse(producto);
 
-        // --- INICIO DE LA MEJORA ---
+
         // Si no es nuevo (es edición), mapeamos todos los campos del formulario al objeto existente
         if (!esNuevo) {
             // Sección 1: Datos Principales
             productoExistente.setCodPro(producto.getCodPro());
             productoExistente.setNomPro(producto.getNomPro());
             productoExistente.setPrecio(producto.getPrecio());
-            productoExistente.setPrecioOferta(producto.getPrecioOferta()); // <--- CAMPO AÑADIDO
+            productoExistente.setPrecioOferta(producto.getPrecioOferta());
             productoExistente.setStock(producto.getStock());
             productoExistente.setDescripcionCorta(producto.getDescripcionCorta());
             productoExistente.setDescripcionLarga(producto.getDescripcionLarga());
-            productoExistente.setEstado(producto.isEstado()); // <--- CAMPO AÑADIDO (isEstado() para boolean)
+            productoExistente.setEstado(producto.isEstado());
 
             // Sección 2: Relaciones y Dimensiones
             productoExistente.setIdMarca(producto.getIdMarca());
@@ -173,14 +178,14 @@ public class ProductoController {
             productoExistente.setFondoCm(producto.getFondoCm());
 
             // Sección 3: Especificaciones Adicionales
-            productoExistente.setModelo(producto.getModelo()); // <--- CAMPO AÑADIDO
-            productoExistente.setMaterial(producto.getMaterial()); // <--- CAMPO AÑADIDO
-            productoExistente.setPotenciaBtu(producto.getPotenciaBtu()); // <--- CAMPO AÑADIDO
-            productoExistente.setGarantiaMeses(producto.getGarantiaMeses()); // <--- CAMPO AÑADIDO
-            productoExistente.setPaisOrigen(producto.getPaisOrigen()); // <--- CAMPO AÑADIDO
-            productoExistente.setFichaTecnica(producto.getFichaTecnica()); // <--- CAMPO AÑADIDO
+            productoExistente.setModelo(producto.getModelo());
+            productoExistente.setMaterial(producto.getMaterial());
+            productoExistente.setPotenciaBtu(producto.getPotenciaBtu());
+            productoExistente.setGarantiaMeses(producto.getGarantiaMeses());
+            productoExistente.setPaisOrigen(producto.getPaisOrigen());
+            productoExistente.setFichaTecnica(producto.getFichaTecnica());
         }
-        // --- FIN DE LA MEJORA ---
+
 
         // 4. Guardar el Producto principal
         // Si es nuevo, 'producto' (que ya tiene todos los datos) se guarda.
