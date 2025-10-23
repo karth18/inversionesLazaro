@@ -6,15 +6,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@SuppressWarnings("unused")
 @Data
 @Entity
 public class Producto {
@@ -41,7 +40,11 @@ public class Producto {
     // precio con BigDecimal (mejor precisión para dinero)
     @NotNull(message = "El precio es obligatorio")
     @DecimalMin(value = "0.01", message = "el precio debe ser mayor a cero")
+    @Column(precision = 10, scale = 2)
     private BigDecimal precio;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioOferta;
 
     @NotNull(message = "El estock es obligatorio")
     @Min(value = 0, message = "El stock no puede ser negativo")
@@ -67,7 +70,7 @@ public class Producto {
     @Column(length = 100)
     private String paisOrigen;
 
-    @Column(length = 255)
+    @Column(length = 250)
     private String fichaTecnica;
 
     private boolean estado;
@@ -108,5 +111,24 @@ public class Producto {
     @PreUpdate
     protected void onUpdate(){
         this.fechaActualizacion = LocalDateTime.now();
+    }
+
+
+    public String getImagenPrincipalUrl() {
+        if (imagenes == null || imagenes.isEmpty()) {
+            return "/images/placeholder.png"; // Asegúrate de tener esta imagen en static/images
+        }
+
+        // 1. Busca la principal
+        Optional<ImagenProducto> principal = imagenes.stream()
+                .filter(ImagenProducto::isEsPrincipal)
+                .findFirst();
+
+        if (principal.isPresent()) {
+            return "/uploads/" + principal.get().getRuta();
+        }
+
+        // 2. Devuelve la primera
+        return "/uploads/" + imagenes.get(0).getRuta();
     }
 }

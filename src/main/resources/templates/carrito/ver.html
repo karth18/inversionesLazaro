@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Mi Carrito de Compras</title>
+    <style>
+        .cart-item-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 0.75rem; /* Puntas redondeadas */
+        }
+        .cart-item-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-left: none;
+            border-right: none;
+        }
+        .quantity-btn {
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+        }
+        .summary-card {
+            position: sticky;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-4" layout:fragment="content">
+
+    <div class="row g-4">
+        <div class="col-12">
+            <h1 class="h3">Mi Carrito</h1>
+        </div>
+
+        <div class="col-lg-8">
+
+            <div th:if="${#lists.isEmpty(carrito)}" class="alert alert-info">
+                Tu carrito de compras está vacío.
+            </div>
+
+            <div class="d-grid gap-3" id="cart-items-container">
+
+                <div th:each="item : ${carrito}"
+                     th:id="'item-row-' + ${item.productoId}"
+                     class="cart-item-card shadow-sm p-3"
+                     th:data-product-id="${item.productoId}">
+
+                    <div class="row g-3 align-items-center">
+
+                        <div class="col-auto">
+                            <input class="form-check-input cart-item-check"
+                                   type="checkbox"
+                                   th:checked="${item.seleccionado}">
+                        </div>
+
+                        <div class="col-auto">
+                            <img th:src="@{${item.imagenUrl}}" alt="Imagen" class="cart-item-img">
+                        </div>
+
+                        <div class="col">
+                            <small class="text-muted" th:text="${'Código: ' + item.codigo}">SKU123</small>
+                            <h6 class="mb-1" th:text="${item.nombre}">Nombre del Producto</h6>
+
+                            <p th:if="${item.tieneDescuento}" class="mb-0 text-muted" style="text-decoration: line-through;">
+                                S/ [[${#numbers.formatDecimal(item.precioSinDescuento, 1, 'COMMA', 2, 'POINT')}]]
+                            </p>
+
+                            <p class="mb-0 fw-bold"
+                               th:classappend="${item.tieneDescuento} ? 'text-danger' : ''"
+                               th:text="${'S/ ' + #numbers.formatDecimal(item.precioUnitario, 1, 'COMMA', 2, 'POINT')}">
+                                S/ 99.90
+                            </p>
+                        </div>
+
+                        <div class="col-md-auto text-md-end">
+                            <div class="input-group" style="width: 130px;">
+                                <button class="btn btn-outline-secondary quantity-btn btn-qty-minus" type="button">-</button>
+                                <input type="text" class="form-control quantity-input"
+                                       th:value="${item.cantidad}"
+                                       inputmode="numeric"
+                                       pattern="[0-9]*">
+                                <button class="btn btn-outline-secondary quantity-btn btn-qty-plus" type="button">+</button>
+                            </div>
+                        </div>
+
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item text-danger btn-delete-item" href="#">Eliminar</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="summary-card card shadow-sm" style="border-radius: 0.75rem;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Resumen de tu Orden</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal" th:text="${'S/ ' + #numbers.formatDecimal(totales.subtotal, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 text-success">
+                        <span>Ahorro por productos</span>
+                        <span id="cart-product-saving" th:text="${'-S/ ' + #numbers.formatDecimal(totales.ahorroPorProductos, 1, 'COMMA', 2, 'POINT')}">-S/ 0.00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Descuento (Cupón)</span>
+                        <span id="cart-coupon-discount" class="text-danger" th:text="${'-S/ ' + #numbers.formatDecimal(totales.descuentoPorCupon, 1, 'COMMA', 2, 'POINT')}">-S/ 0.00</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold h5 mb-3">
+                        <span>Total</span>
+                        <span id="cart-total" th:text="${'S/ ' + #numbers.formatDecimal(totales.total, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="/checkout" class="btn btn-primary btn-lg">Continuar Compra</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Obtenemos el Token CSRF de Spring Security (si está habilitado)
+            const csrfToken = /*[[${_csrf?.token}]]*/ null;
+            const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+
+            // Creamos un objeto de cabeceras para Fetch
+            const fetchHeaders = new Headers();
+            if (csrfHeader && csrfToken) {
+                 fetchHeaders.append(csrfHeader, csrfToken);
+            }
+            // Necesario para que Spring Boot entienda los FormData de Fetch
+            fetchHeaders.append('X-Requested-With', 'XMLHttpRequest');
+
+
+            // Función para formatear moneda
+            function formatCurrency(value) {
+                return 'S/ ' + parseFloat(value).toLocaleString('es-PE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            // Función para actualizar el resumen (Subtotal, Total)
+function actualizarResumen(totales) {
+    document.getElementById('cart-subtotal').textContent = formatCurrency(totales.subtotal);
+
+    // --- LÍNEAS ACTUALIZADAS ---
+    // Ahorro por productos
+    document.getElementById('cart-product-saving').textContent = '-S/ ' + parseFloat(totales.ahorroPorProductos).toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // Descuento por cupón
+    document.getElementById('cart-coupon-discount').textContent = '-S/ ' + parseFloat(totales.descuentoPorCupon).toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // Total
+    document.getElementById('cart-total').textContent = formatCurrency(totales.total);
+}
+
+// (La función formatCurrency que ya tenías puede reutilizarse)
+function formatCurrency(value) {
+    return 'S/ ' + parseFloat(value).toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+            /**
+             * Función principal de API: Llama al backend para actualizar o eliminar
+             */
+            async function llamarApiCarrito(url, formData, rowElement = null) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: fetchHeaders // Usamos las cabeceras definidas
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+
+                    const totales = await response.json();
+                    actualizarResumen(totales);
+
+                    // Si la URL era para eliminar, quitamos la fila del DOM
+                    if (url.includes('/api/eliminar') && rowElement) {
+                        rowElement.remove();
+                    }
+
+                } catch (error) {
+                    console.error('Error al actualizar el carrito:', error);
+                    alert('No se pudo actualizar el carrito. Intente de nuevo.');
+                }
+            }
+
+            // 1. Event Listeners para Checkboxes
+            document.querySelectorAll('.cart-item-check').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const row = this.closest('.cart-item-card');
+                    const id = row.dataset.productId;
+                    const cantidad = row.querySelector('.quantity-input').value;
+                    const seleccionado = this.checked;
+
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('cantidad', cantidad);
+                    formData.append('seleccionado', seleccionado);
+
+                    llamarApiCarrito('/carrito/api/actualizar', formData);
+                });
+            });
+
+            // 2. Event Listeners para Botones de Cantidad (+ y -)
+            document.querySelectorAll('.quantity-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('.cart-item-card');
+                    const id = row.dataset.productId;
+                    const input = row.querySelector('.quantity-input');
+                    const checkbox = row.querySelector('.cart-item-check');
+
+                    let cantidad = parseInt(input.value);
+
+                    if (this.classList.contains('btn-qty-plus')) {
+                        cantidad++;
+                    } else if (this.classList.contains('btn-qty-minus')) {
+                        cantidad--;
+                    }
+
+                    if (cantidad <= 0) {
+                        if (confirm('¿Desea eliminar este producto del carrito?')) {
+                            const formData = new FormData();
+                            formData.append('id', id);
+                            llamarApiCarrito('/carrito/api/eliminar', formData, row);
+                        }
+                        return;
+                    }
+
+                    input.value = cantidad;
+
+                    if (!checkbox.checked) {
+                        checkbox.checked = true;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('cantidad', cantidad);
+                    formData.append('seleccionado', checkbox.checked);
+
+                    llamarApiCarrito('/carrito/api/actualizar', formData);
+                });
+            });
+
+            // 3. Event Listeners para el botón Eliminar (del menú de 3 puntos)
+            document.querySelectorAll('.btn-delete-item').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (!confirm('¿Está seguro de que desea eliminar este producto?')) {
+                        return;
+                    }
+
+                    const row = this.closest('.cart-item-card');
+                    const id = row.dataset.productId;
+
+                    const formData = new FormData();
+                    formData.append('id', id);
+
+                    llamarApiCarrito('/carrito/api/eliminar', formData, row);
+                });
+            });
+
+        });
+    </script>
+</div>
+</body>
+</html>

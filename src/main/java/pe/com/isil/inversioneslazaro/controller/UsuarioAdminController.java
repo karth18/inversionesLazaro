@@ -22,7 +22,7 @@ import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
 import java.util.Optional;
 
-
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/admin/usuarios")
 public class UsuarioAdminController {
@@ -40,7 +40,7 @@ public class UsuarioAdminController {
 
     @GetMapping("")
     public String index(Model model,
-                        @PageableDefault(size = 10) Pageable pageable,
+                        @PageableDefault(size = 8) Pageable pageable,
                         @RequestParam(required = false) String busqueda) {
 
         Page<Usuario> usu;
@@ -64,7 +64,7 @@ public class UsuarioAdminController {
 
     @GetMapping("/activar")
     public String activar(Model model,
-                        @PageableDefault(size = 10) Pageable pageable,
+                        @PageableDefault(size = 8) Pageable pageable,
                         @RequestParam(required = false) String busqueda) {
         Page<Usuario> usu;
         if (busqueda != null && !busqueda.trim().isEmpty()) {

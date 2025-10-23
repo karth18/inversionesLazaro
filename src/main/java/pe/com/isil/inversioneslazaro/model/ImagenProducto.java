@@ -12,7 +12,7 @@ public class ImagenProducto {
     private Long id;
 
     // Ruta donde se guarda el archivo (ej: nombre_archivo.jpg)
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 250)
     private String ruta;
 
     // Campo para indicar si es la imagen principal o una secundaria
@@ -23,6 +23,6 @@ public class ImagenProducto {
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
-    // Aún pendiente si agregar una entidad orden por evaluar pero ahi lo tengo porsiacaso
+    // Aún pendiente si agregar una entidad orden por evaluar, pero ahi lo tengo porsiacaso
     // private Integer orden;
 }

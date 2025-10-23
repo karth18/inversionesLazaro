@@ -9,7 +9,7 @@ import pe.com.isil.inversioneslazaro.model.Usuario;
 
 
 import java.util.Optional;
-
+@SuppressWarnings("unused")
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 

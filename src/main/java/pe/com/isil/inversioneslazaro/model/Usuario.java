@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
+@SuppressWarnings("unused")
 @Data
 @Entity
 @Table(name = "usuarios")

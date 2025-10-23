@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.com.isil.inversioneslazaro.model.Categoria;
 import pe.com.isil.inversioneslazaro.model.Marca;
-import pe.com.isil.inversioneslazaro.repository.CategoriaRepository;
 import pe.com.isil.inversioneslazaro.repository.MarcaRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/admin/marca")
 public class MarcaController {

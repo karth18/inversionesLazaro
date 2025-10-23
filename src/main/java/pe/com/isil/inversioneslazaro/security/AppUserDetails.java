@@ -1,5 +1,6 @@
 package pe.com.isil.inversioneslazaro.security;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +9,9 @@ import pe.com.isil.inversioneslazaro.model.Usuario;
 
 import java.util.Collection;
 import java.util.Collections;
+@SuppressWarnings("unused")
 
+@Getter
 public class AppUserDetails implements UserDetails {
 
     //creamos 2 atributos para mapear el usuario y password
@@ -56,8 +59,7 @@ public class AppUserDetails implements UserDetails {
         return true;
     }
 
-
-    public String getNombre(){
-        return nombre;
-    }
+//    public String getNombre(){
+//        return nombre;
+//    }
 }

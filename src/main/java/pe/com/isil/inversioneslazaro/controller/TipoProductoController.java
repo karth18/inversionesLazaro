@@ -10,14 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.com.isil.inversioneslazaro.model.Categoria;
 import pe.com.isil.inversioneslazaro.model.TipoProducto;
 import pe.com.isil.inversioneslazaro.repository.CategoriaRepository;
 import pe.com.isil.inversioneslazaro.repository.TipoProductoRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/admin/tproducto")
 public class TipoProductoController {
@@ -78,7 +77,7 @@ public class TipoProductoController {
         }
 
         model.addAttribute("tipoProducto", tipoProducto.get());
-        // ⭐ CLAVE: Pasamos las categorías activas para el select de edición ⭐
+
         model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
 
         return "tipoProducto/form";

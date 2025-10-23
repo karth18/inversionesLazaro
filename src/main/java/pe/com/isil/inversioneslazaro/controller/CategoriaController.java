@@ -2,7 +2,6 @@ package pe.com.isil.inversioneslazaro.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,10 +13,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.model.Categoria;
 import pe.com.isil.inversioneslazaro.repository.CategoriaRepository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
-
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/admin/categoria")
 public class CategoriaController {
@@ -25,7 +23,7 @@ public class CategoriaController {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-
+    //listar categoria solo si el estado es verdadero
     @GetMapping("")
     String Index(Model model){
         List<Categoria> categoria = categoriaRepository.findByEstadoTrue();
@@ -33,12 +31,14 @@ public class CategoriaController {
         return"categoria/index";
     }
 
+    //listar categoria solo si el estado es falso
     @GetMapping("/habilitar")
     String listahabilitar(Model model){
         List<Categoria> categoria = categoriaRepository.findByEstadoFalse();
         model.addAttribute("categoria", categoria);
         return"categoria/enable";
     }
+
 
     @GetMapping("/habilitar/{id}")
     String habilitar(@PathVariable Long id, RedirectAttributes ra){

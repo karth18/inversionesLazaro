@@ -63,14 +63,14 @@
                 <!--                inicio de sesion-->
                 <div class="dropdown" sec:authorize="!isAuthenticated()">
 
-                    <a class="btn btn-light dropdown-toggle" href="#" role="button" id="sesionDropdown"
+                    <a class="link-float dropdown-toggle" href="#" role="button" id="sesionDropdown"
                        data-bs-toggle="dropdown" aria-expanded="false"
-                    >Iniciar Sesion
+                    >Inicia Sesión
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sesionDropdown">
                         <li><a class="dropdown-item" href="" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            Iniciar Sesión
+                            Inicia Sesión
                         </a></li>
                         <li><a class="dropdown-item" href="/registrar/registro">Registrate</a></li>
                     </ul>
@@ -99,9 +99,10 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+
+                        <a class="resource-menu-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                            data-bs-toggle="dropdown" aria-expanded="false"
-                           sec:authentication="principal.nombre">
+                           th:text="'Bienvenido, '+ ${#authentication.principal.nombre}">
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
@@ -114,9 +115,14 @@
                         </ul>
                     </div>
                 </div>
+                <span style="width: 2px; height: 20px; background-color: #ccc; display: inline-block;"></span>
+                <div>
+                        <a th:href="@{/carrito}"><i class="fa-solid fa-cart-shopping" style="color: gray; font-size: 20px;"></i></a>
+                </div>
             </div>
         </div>
     </div>
+
 
 </nav>
 
@@ -146,10 +152,6 @@
     });
 
 </script>
-<div layout:fragment="scripts" th:remove="tag">
-
-
-</div>
 <footer class="bg-dark text-light mt-5">
     <div class="container py-4">
         <div class="row">
@@ -366,10 +368,7 @@
 
 /* 3. Estilo para el ícono de cuadrícula */
 .resource-menu-link .fa-th {
-    color: #333; /* Asegura que el ícono sea negro por defecto */
-    /* Aquí podrías agregar un estilo para que parezca "flotante" si lo deseas,
-       por ejemplo, una ligera sombra o un tamaño un poco más grande: */
-    /* font-size: 1.1em; */
+    color: #333;
 }
 
 /* 4. Estilo de Dropdown Activo (opcional) */
@@ -378,5 +377,7 @@
     background-color: rgba(0, 123, 255, 0.15) !important;
 }
 </style>
+<div layout:fragment="scripts" th:remove="tag">
+</div>
 </body>
 </html>

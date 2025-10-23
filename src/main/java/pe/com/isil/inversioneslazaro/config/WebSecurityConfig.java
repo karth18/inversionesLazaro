@@ -1,28 +1,19 @@
 package pe.com.isil.inversioneslazaro.config;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import pe.com.isil.inversioneslazaro.security.UserDetailsServiceImpl;
 
-import javax.naming.AuthenticationException;
-import java.io.IOException;
-
-
+@SuppressWarnings("unused")
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig  {
@@ -43,10 +34,17 @@ public class WebSecurityConfig  {
                 )
                 // Configuración de permisos
                 .authorizeHttpRequests(authz -> authz
-                        // URLs públicas
+                        // URL públicas
                         .requestMatchers("/", "/inicio", "/catalogo/**", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**", "/uploads/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // URLs Autenticadas. Ojo: todo usuario autenticado puede ingresar a cualquier url si no esta debidamente mapeado
+                        //por ejemplo si bien es cierto al asignarles un rol en el  front
+                        //es para que no se muestre si el usuario no tiene como rol Admin
+                        //esa url no se mostrar pero sinembargo si el usuario autenticado lo escribre la url
+                        // de manera manual en el buscador tendra acceso a dicha informacion por ello las rutas de admin estan
+                        // como admin/** siendo asi privada solo las rutas que estan en admin/** cualquier otra ruta solo
+                        // basta con autenticarse
                         .requestMatchers( "/usuario/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -69,8 +67,7 @@ public class WebSecurityConfig  {
                         .accessDeniedHandler(accessDeniedHandlerApp())
                 )
                 // CSRF (si usas formularios normales, puedes dejarlo activo)
-                .csrf(csrf -> csrf
-                        .disable()
+                .csrf(AbstractHttpConfigurer::disable
                 )
                 .build();
     }
@@ -89,13 +86,5 @@ public class WebSecurityConfig  {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-//    @PostMapping("/login-error-clear")
-//    @ResponseBody
-//    public void clearLoginError(HttpSession session) {
-//        session.removeAttribute("loginError");
-//    }
-//
 
 }

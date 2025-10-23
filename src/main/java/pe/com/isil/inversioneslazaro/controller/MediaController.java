@@ -12,7 +12,7 @@ import pe.com.isil.inversioneslazaro.service.FileSystemStorageService;
 
 import java.io.IOException;
 import java.nio.file.Files;
-
+@SuppressWarnings("unused")
 @Slf4j
 @Controller
 @RequestMapping("/media")

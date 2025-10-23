@@ -1,4 +1,249 @@
 <!DOCTYPE html>
+<html lang="es"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Gestión de Productos</title>
+    <style>
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .action-column {
+            width: 120px; /* Ancho fijo para botones */
+        }
+        .price-regular {
+            text-decoration: line-through;
+            color: #6c757d; /* Gris */
+            font-size: 0.9em;
+        }
+        .price-offer {
+            color: #dc3545; /* Rojo */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4" layout:fragment="content">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h1 class="card-title h4 mb-0">Listado de Productos (Administración)</h1>
+            <a th:href="@{/admin/productos/nuevo}" class="btn btn-warning btn-sm">
+                <i class="fas fa-plus-circle"></i> Nuevo Producto
+            </a>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/admin/productos}" method="get" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-8">
+                        <input type="text" name="nombre" class="form-control" placeholder="Buscar por nombre de producto..."
+                               th:value="${paramNombre}" aria-label="Buscar producto">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="estado" class="form-select">
+                            <option value="">Todos los Estados</option>
+                            <option value="true" th:selected="${paramEstado == 'true'}">Activos</option>
+                            <option value="false" th:selected="${paramEstado == 'false'}">Inactivos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid gap-2 d-md-block">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <a th:href="@{/admin/productos}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            <div th:if="${producto.isEmpty()}" class="alert alert-info">
+                No se encontraron productos que coincidan con los filtros.
+            </div>
+
+            <div class="table-responsive" th:unless="${producto.isEmpty()}">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Img</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-end">Oferta</th> <th class="text-center">Stock</th>
+                        <th class="text-center">Estado</th> <th class="action-column text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${producto.content}">
+                        <td>
+                            <img th:src="@{${p.getImagenPrincipalUrl()}}" alt="Imagen" class="product-image">
+                        </td>
+                        <td>
+                            <span th:text="${p.nomPro}" class="fw-bold"></span><br>
+                            <small class="text-muted" th:text="${p.codPro}"></small>
+                        </td>
+                        <td th:text="${p.idCate.nombre}"></td>
+                        <td class="text-end">
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}"
+                                  th:classappend="${p.precioOferta != null && p.precioOferta.compareTo(p.precio) < 0} ? 'price-regular' : ''">
+                            </span>
+                        </td>
+                        <td class="text-end price-offer">
+                            <span th:if="${p.precioOferta != null && p.precioOferta.compareTo(p.precio) < 0}"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}">
+                            </span>
+                            <span th:unless="${p.precioOferta != null && p.precioOferta.compareTo(p.precio) < 0}">-</span>
+                        </td>
+                        <td class="text-center" th:text="${p.stock}"></td>
+                        <td class="text-center">
+                            <span th:if="${p.estado}" class="badge bg-success">Activo</span>
+                            <span th:unless="${p.estado}" class="badge bg-secondary">Inactivo</span>
+                        </td>
+                        <td class="text-center action-column">
+                            <a th:href="@{/admin/productos/editar/{id}(id=${p.id})}" class="btn btn-sm btn-info" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button th:if="${p.estado}"
+                                    type="button" class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    th:data-producto-id="${p.id}"
+                                    th:data-producto-nombre="${p.nomPro}"
+                                    title="Desactivar">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                            <button th:unless="${p.estado}"
+                                    type="button" class="btn btn-sm btn-success"
+                                    data-bs-toggle="modal" data-bs-target="#activateModal"
+                                    th:data-producto-id="${p.id}"
+                                    th:data-producto-nombre="${p.nomPro}"
+                                    title="Activar">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${producto.totalPages > 0}" class="d-flex justify-content-between align-items-center mt-3">
+                <span class="text-muted">Página <span th:text="${producto.number + 1}"></span> de <span th:text="${producto.totalPages}"></span></span>
+                <nav aria-label="Navegación de Productos">
+                    <ul class="pagination pagination-sm justify-content-end">
+                        <li class="page-item" th:classappend="${producto.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/productos(page=${producto.number - 1}, size=${producto.size}, nombre=${paramNombre}, estado=${paramEstado})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, producto.totalPages - 1)}" th:classappend="${i == producto.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/productos(page=${i}, size=${producto.size}, nombre=${paramNombre}, estado=${paramEstado})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${producto.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/productos(page=${producto.number + 1}, size=${producto.size}, nombre=${paramNombre}, estado=${paramEstado})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div> </div> <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark"> <h5 class="modal-title" id="deleteModalLabel">Confirmar Desactivación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de que desea **desactivar** el producto:
+                <br><strong><span id="productNameInModal"></span></strong>?
+                <br><br>
+                <small>El producto se ocultará de la tienda pública pero no se eliminará de la base de datos.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post" action="">
+                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-warning">Sí, Desactivar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="activateModal" tabindex="-1" aria-labelledby="activateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="activateModalLabel">Confirmar Activación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea **activar** el producto:
+                    <br><strong><span id="productNameInActivateModal"></span></strong>?
+                    <br><br>
+                    <small>El producto volverá a ser visible en la tienda pública.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="activateForm" method="post" action="">
+                        <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-success">Sí, Activar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // --- Lógica para el modal DESACTIVAR ---
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const productoId = button.getAttribute('data-producto-id');
+                    const productoNombre = button.getAttribute('data-producto-nombre');
+
+                    const modalBodyInput = deleteModal.querySelector('#productNameInModal');
+                    modalBodyInput.textContent = productoNombre;
+
+                    const deleteForm = deleteModal.querySelector('#deleteForm');
+
+                    // --- CORRECCIÓN 2: Usar Backticks (`) en lugar de comillas simples (') ---
+                    deleteForm.action = `/admin/productos/eliminar/${productoId}`;
+                });
+            }
+
+            // --- Lógica para el modal ACTIVAR (Esta ya estaba correcta) ---
+            const activateModal = document.getElementById('activateModal');
+            if (activateModal) {
+                activateModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const productoId = button.getAttribute('data-producto-id');
+                    const productoNombre = button.getAttribute('data-producto-nombre');
+
+                    const modalBodyInput = activateModal.querySelector('#productNameInActivateModal');
+                    modalBodyInput.textContent = productoNombre;
+
+                    const activateForm = activateModal.querySelector('#activateForm');
+                    activateForm.action = `/admin/productos/activar/${productoId}`;
+                });
+            }
+        });
+    </script>
+</div>
+
+</body>
+</html>
+<!--
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{master.html}">
@@ -32,7 +277,7 @@
         </div>
         <div class="card-body">
 
-            <!-- Mensajes Flash -->
+            &lt;!&ndash; Mensajes Flash &ndash;&gt;
             <div th:if="${msgExito}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <span th:text="${msgExito}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -42,7 +287,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
 
-            <!-- Formulario de Búsqueda -->
+            &lt;!&ndash; Formulario de Búsqueda &ndash;&gt;
             <form th:action="@{/admin/productos}" method="get" class="mb-4">
                 <div class="input-group">
                     <input type="text" name="nombre" class="form-control" placeholder="Buscar por nombre de producto..."
@@ -52,7 +297,7 @@
                 </div>
             </form>
 
-            <!-- Tabla de Productos -->
+            &lt;!&ndash; Tabla de Productos &ndash;&gt;
             <div th:if="${producto.isEmpty()}" class="alert alert-info">
                 No se encontraron productos que coincidan con la búsqueda.
             </div>
@@ -75,12 +320,12 @@
                     <tbody>
                     <tr th:each="p : ${producto}">
                         <td>
-                            <!-- Muestra la imagen principal (si existe) o la primera imagen como fallback -->
+                            &lt;!&ndash; Muestra la imagen principal (si existe) o la primera imagen como fallback &ndash;&gt;
                             <th:block th:if="${p.imagenes != null and !p.imagenes.isEmpty()}" th:with="
                                     principalList=${p.imagenes.?[esPrincipal == true]},
                                     finalImage=${!principalList.isEmpty() ? principalList[0] : p.imagenes[0]}
                                 ">
-                                <!-- Validamos que el objeto imagen y su propiedad 'ruta' existan -->
+                                &lt;!&ndash; Validamos que el objeto imagen y su propiedad 'ruta' existan &ndash;&gt;
                                 <img th:if="${finalImage != null and finalImage.ruta != null and !finalImage.ruta.isEmpty()}"
                                      th:src="@{'/uploads/' + ${finalImage.ruta}}"
                                      alt="Imagen de Producto"
@@ -100,7 +345,7 @@
                             <a th:href="@{/admin/productos/editar/{id}(id=${p.id})}" class="btn btn-sm btn-info" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <!-- Botón que activa el modal de confirmación -->
+                            &lt;!&ndash; Botón que activa el modal de confirmación &ndash;&gt;
                             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" th:data-producto-id="${p.id}" th:data-producto-nombre="${p.nomPro}" title="Eliminar">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
@@ -110,13 +355,13 @@
                 </table>
             </div>
 
-            <!-- Paginación -->
+            &lt;!&ndash; Paginación &ndash;&gt;
             <div th:if="${producto.totalPages > 0}" class="d-flex justify-content-between align-items-center mt-3">
                 <span class="text-muted">Página <span th:text="${producto.number + 1}"></span> de <span th:text="${producto.totalPages}"></span></span>
 
                 <nav aria-label="Navegación de Productos">
                     <ul class="pagination pagination-sm justify-content-end">
-                        <!-- Botón Anterior -->
+                        &lt;!&ndash; Botón Anterior &ndash;&gt;
                         <li class="page-item" th:classappend="${producto.first} ? 'disabled'">
                             <a class="page-link"
                                th:href="@{/admin/productos(page=${producto.number - 1}, size=${producto.size}, nombre=${param.nombre})}"
@@ -125,14 +370,14 @@
                             </a>
                         </li>
 
-                        <!-- Números de Página (ejemplo simple, solo muestra las páginas principales) -->
+                        &lt;!&ndash; Números de Página (ejemplo simple, solo muestra las páginas principales) &ndash;&gt;
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, producto.totalPages - 1)}" th:classappend="${i == producto.number} ? 'active'">
                             <a class="page-link"
                                th:href="@{/admin/productos(page=${i}, size=${producto.size}, nombre=${param.nombre})}"
                                th:text="${i + 1}">1</a>
                         </li>
 
-                        <!-- Botón Siguiente -->
+                        &lt;!&ndash; Botón Siguiente &ndash;&gt;
                         <li class="page-item" th:classappend="${producto.last} ? 'disabled'">
                             <a class="page-link"
                                th:href="@{/admin/productos(page=${producto.number + 1}, size=${producto.size}, nombre=${param.nombre})}"
@@ -148,7 +393,7 @@
     </div>
 </div>
 
-<!-- Modal de Confirmación de Eliminación -->
+&lt;!&ndash; Modal de Confirmación de Eliminación &ndash;&gt;
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -162,7 +407,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <form id="deleteForm" method="post" th:action="@{/admin/productos/eliminar/{id}(id='')}">
-                    <!-- CSRF Token -->
+                    &lt;!&ndash; CSRF Token &ndash;&gt;
                     <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-danger">Eliminar Definitivamente</button>
                 </form>
@@ -172,7 +417,7 @@
 </div>
 
 <div layout:fragment="scripts">
-    <!-- Script para FontAwesome (iconos) y manejo del Modal -->
+    &lt;!&ndash; Script para FontAwesome (iconos) y manejo del Modal &ndash;&gt;
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -202,3 +447,4 @@
 </div>
 </body>
 </html>
+-->

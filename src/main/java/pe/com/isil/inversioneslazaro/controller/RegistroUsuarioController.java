@@ -2,7 +2,6 @@ package pe.com.isil.inversioneslazaro.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +13,7 @@ import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 import pe.com.isil.inversioneslazaro.service.UsuarioService;
 
 import java.time.LocalDateTime;
-
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/registrar")
 public class RegistroUsuarioController {
@@ -72,11 +71,7 @@ public class RegistroUsuarioController {
         usuarioService.registrarNuevoUsuario(usuario);
 
 
-        //Asignamos el role por defecto
-//        usuario.setEstado(true);
-//        usuario.setRol(Usuario.Rol.CLIENTE);
-//        //grabamos el usuario en base de datos
-//        usuarioRepository.save(usuario);
+
         ra.addFlashAttribute("emailVerificacion", usuario.getEmail());
         return "redirect:/registrar/instrucciones-verificacion";
     }
@@ -104,14 +99,6 @@ public class RegistroUsuarioController {
         //modificacion actual
         usuarioService.activarUsuario(usuario);
 
-        //codigo anterior hasta que funcione el nuevo codigo
-
-//        // El token es válido: Activar la cuenta
-//        usuario.setEstado(true);
-//        usuario.setTokenVerificacion(null); // Limpiar el token usado
-//        usuario.setFechaExpiracionToken(null);
-//        usuarioRepository.save(usuario);
-
         model.addAttribute("mensaje", "¡Felicidades! Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión.");
         return "verificacion_resultado"; // Muestra el mensaje de éxito
     }
@@ -120,14 +107,11 @@ public class RegistroUsuarioController {
 
     @GetMapping("/instrucciones-verificacion")
     public String mostrarInstruccionesVerificacion(@ModelAttribute("emailVerificacion") final String email, Model model) {
-        // Si la redirección tiene el flash attribute, lo muestra.
-        // Si el usuario llega aquí directamente o recarga, la vista sabrá qué hacer.
 
         if (email != null && !email.isBlank()) {
             model.addAttribute("email", email);
         } else {
-            // En caso de que se recargue sin FlashAttribute (ej: recarga F5),
-            // puedes mostrar un mensaje genérico.
+
             model.addAttribute("mensajeGenerico", "Revisa tu bandeja de entrada o spam para verificar tu cuenta.");
         }
 

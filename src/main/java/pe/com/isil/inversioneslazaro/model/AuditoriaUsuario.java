@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
+@SuppressWarnings("unused")
 @Data
 @Entity
 @Table(name = "auditoriaUsuario")

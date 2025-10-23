@@ -16,6 +16,7 @@ import pe.com.isil.inversioneslazaro.repository.AuditoriaUsuarioRepository;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 
 import java.security.Principal;
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/cliente")
 public class UsuarioClienteController {

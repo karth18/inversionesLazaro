@@ -128,22 +128,27 @@
                     <!-- SUB-COLUMNA DERECHA: PRECIO Y COMPRA -->
                     <div class="col-md-6">
                         <h5 class="mb-3 text-secondary">Precio</h5>
-
-                        <!-- Precio -->
                         <p class="price-display" th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'POINT', 2, 'COMMA')}">S/ 999.00</p>
 
-                        <!-- Contador de Cantidad -->
-                        <label for="cantidad" class="form-label">Cantidad:</label>
-                        <div class="input-group mb-3" style="max-width: 150px;">
-                            <button class="btn btn-outline-secondary" type="button" id="btn-minus">-</button>
-                            <input type="number" id="cantidad" name="cantidad" value="1" min="1" th:max="*{stock}" class="form-control text-center" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="btn-plus">+</button>
-                        </div>
+                        <form th:action="@{/carrito/agregar}" method="POST">
 
-                        <!-- Botón Agregar al Carro -->
-                        <button class="btn btn-danger btn-lg w-100" type="button">
-                            <i class="fas fa-shopping-cart me-2"></i> Agregar al Carro
-                        </button>
+                            <input type="hidden" name="id" th:value="${producto.id}" />
+
+                            <label for="cantidad" class="form-label">Cantidad:</label>
+                            <div class="input-group mb-3" style="max-width: 150px;">
+                                <button class="btn btn-outline-secondary" type="button" id="btn-minus">-</button>
+
+                                <input type="number" id="cantidad" name="cantidad" value="1" min="1" th:max="*{stock}"
+                                       class="form-control text-center" />
+
+                                <button class="btn btn-outline-secondary" type="button" id="btn-plus">+</button>
+                            </div>
+
+                            <button class="btn btn-danger btn-lg w-100" type="submit">
+                                <i class="fas fa-shopping-cart me-2"></i> Agregar al Carro
+                            </button>
+
+                        </form>
                     </div>
                 </div>
             </div>
