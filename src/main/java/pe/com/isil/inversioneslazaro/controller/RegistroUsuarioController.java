@@ -64,13 +64,11 @@ public class RegistroUsuarioController {
 
         //asignamos el password encryptado
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword1()));
-        usuario.setRol(Usuario.Rol.CLIENTE);
+        usuario.setRol(Usuario.Rol.ADMIN);
 
 
         //cambios para poder validar con correo
         usuarioService.registrarNuevoUsuario(usuario);
-
-
 
         ra.addFlashAttribute("emailVerificacion", usuario.getEmail());
         return "redirect:/registrar/instrucciones-verificacion";

@@ -321,7 +321,7 @@
             const csrfToken = /*[[${_csrf?.token}]]*/ null;
             const initialTipoId = /*[[${producto.idTipo?.id}]]*/ null;
 
-            // --- Funciones Auxiliares (Sin cambios) ---
+            // --- Funciones Auxiliares ---
             function showAlert(message, type = 'danger') {
                 const container = document.getElementById('alertContainer'); // Re-seleccionar por si acaso
                 if(container) {
@@ -386,8 +386,8 @@
 
              fileInput.addEventListener('change', function(e) {
                  const files = e.target.files;
-                 // Reiniciamos filesToUpload CADA VEZ que se seleccionan archivos NUEVOS
-                 filesToUpload = new DataTransfer();
+
+<!--                 filesToUpload = new DataTransfer();-->
 
                  for (let i = 0; i < files.length; i++) {
                      const file = files[i];
