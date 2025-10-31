@@ -2,6 +2,7 @@ package pe.com.isil.inversioneslazaro.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 
@@ -18,23 +19,26 @@ public class Direccion {
     @JoinColumn(name = "user_id", nullable = false)
     private Usuario usuario;
 
-    @NotBlank
-    @Column(nullable = false, length = 100)
-    private String departamento;
+    @NotNull(message = "Debe seleccionar un departamento")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idDepartamento", nullable = false)
+    private Departamento departamento;
 
-    @NotBlank
-    @Column(nullable = false, length = 100)
-    private String provincia;
+    @NotNull(message = "Debe seleccionar una provincia")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provincia_id", nullable = false)
+    private Provincia provincia;
 
-    @NotBlank
-    @Column(nullable = false, length = 100)
-    private String distrito;
+    @NotNull(message = "Debe seleccionar un distrito")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "distrito_id", nullable = false)
+    private Distrito distrito;
 
-    @NotBlank
+    @NotBlank(message = "La calle/avenida es obligatorio")
     @Column(nullable = false, length = 200)
     private String calleAvenida;
 
-    @NotBlank
+    @NotBlank(message = "El número es obligatorio")
     @Column(nullable = false, length = 10)
     private String numeroCalle;
 

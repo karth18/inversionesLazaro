@@ -221,147 +221,149 @@
 <input type="hidden" id="loginErrorMsg"
        th:value="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}">
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener("DOMContentLoaded", () => {
-        const loginForm = document.getElementById("loginFormModal"); // El ID del form DENTRO del modal
-        const loginModalEl = document.getElementById("loginModal"); // El ID del modal en sí
-        let redirectUrlAfterLogin = null; // Variable para guardar la URL de destino
+<!--<script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+<!--    document.addEventListener("DOMContentLoaded", () => {-->
+<!--        const loginForm = document.getElementById("loginFormModal"); // El ID del form DENTRO del modal-->
+<!--        const loginModalEl = document.getElementById("loginModal"); // El ID del modal en sí-->
+<!--        let redirectUrlAfterLogin = null; // Variable para guardar la URL de destino-->
 
-        // --- Listener para CAPTURAR la URL cuando se MUESTRA el modal ---
-loginModalEl?.addEventListener('show.bs.modal', function (event) {
-    console.log("Evento 'show.bs.modal' disparado."); // LOG 1: ¿Se dispara el evento?
+<!--        // -&#45;&#45; Listener para CAPTURAR la URL cuando se MUESTRA el modal -&#45;&#45;-->
+<!--loginModalEl?.addEventListener('show.bs.modal', function (event) {-->
+<!--    console.log("Evento 'show.bs.modal' disparado."); // LOG 1: ¿Se dispara el evento?-->
 
-    const button = event.relatedTarget; // El botón que disparó el modal
-    console.log("Botón que abrió el modal:", button); // LOG 2: ¿Es el botón correcto?
+<!--    const button = event.relatedTarget; // El botón que disparó el modal-->
+<!--    console.log("Botón que abrió el modal:", button); // LOG 2: ¿Es el botón correcto?-->
 
-    if (button && button.dataset.redirectUrl) {
-        redirectUrlAfterLogin = button.dataset.redirectUrl; // Guardamos '/direccion'
-        console.log("ÉXITO: redirectUrlAfterLogin capturada:", redirectUrlAfterLogin); // LOG 3: ¿Se guardó la URL?
-    } else {
-        redirectUrlAfterLogin = null; // Si se abrió de otra forma (ej: link directo al modal), reseteamos
-        console.warn("ADVERTENCIA: No se encontró 'data-redirect-url' en el botón o no hubo botón (relatedTarget)."); // LOG 4: ¿Por qué no se encontró?
-    }
-});
+<!--    if (button && button.dataset.redirectUrl) {-->
+<!--        redirectUrlAfterLogin = button.dataset.redirectUrl; // Guardamos '/direccion'-->
+<!--        console.log("ÉXITO: redirectUrlAfterLogin capturada:", redirectUrlAfterLogin); // LOG 3: ¿Se guardó la URL?-->
+<!--    } else {-->
+<!--        redirectUrlAfterLogin = null; // Si se abrió de otra forma (ej: link directo al modal), reseteamos-->
+<!--        console.warn("ADVERTENCIA: No se encontró 'data-redirect-url' en el botón o no hubo botón (relatedTarget)."); // LOG 4: ¿Por qué no se encontró?-->
+<!--    }-->
+<!--});-->
 
-        // --- Listener para cuando se ENVÍA el formulario DENTRO del modal ---
-        loginForm?.addEventListener("submit", (e) => {
-            e.preventDefault(); // Detener envío normal
-            console.log("Login form submitted via modal."); // Log 3
+<!--        // -&#45;&#45; Listener para cuando se ENVÍA el formulario DENTRO del modal -&#45;&#45;-->
+<!--        loginForm?.addEventListener("submit", (e) => {-->
+<!--            e.preventDefault(); // Detener envío normal-->
+<!--            console.log("Login form submitted via modal."); // Log 3-->
 
-            const email = document.getElementById("emailModal").value;
-            const pass = document.getElementById("passwordModal").value;
+<!--            const email = document.getElementById("emailModal").value;-->
+<!--            const pass = document.getElementById("passwordModal").value;-->
 
-            // --- Crear el formulario REAL que se enviará a Spring Security ---
-            const realForm = document.createElement("form");
-            realForm.method = "post";
-            realForm.action = "/login"; // Endpoint que procesa Spring Security
-            realForm.style.display = "none"; // Ocultar el formulario
+<!--            // -&#45;&#45; Crear el formulario REAL que se enviará a Spring Security -&#45;&#45;-->
+<!--            const realForm = document.createElement("form");-->
+<!--            realForm.method = "post";-->
+<!--            realForm.action = "/login"; // Endpoint que procesa Spring Security-->
+<!--            realForm.style.display = "none"; // Ocultar el formulario-->
 
-            // Campo 'username'
-            const userInput = document.createElement("input");
-            userInput.type = "hidden";
-            userInput.name = "username";
-            userInput.value = email;
-            realForm.appendChild(userInput);
+<!--            // Campo 'username'-->
+<!--            const userInput = document.createElement("input");-->
+<!--            userInput.type = "hidden";-->
+<!--            userInput.name = "username";-->
+<!--            userInput.value = email;-->
+<!--            realForm.appendChild(userInput);-->
 
-            // Campo 'password'
-            const passInput = document.createElement("input");
-            passInput.type = "hidden";
-            passInput.name = "password";
-            passInput.value = pass;
-            realForm.appendChild(passInput);
+<!--            // Campo 'password'-->
+<!--            const passInput = document.createElement("input");-->
+<!--            passInput.type = "hidden";-->
+<!--            passInput.name = "password";-->
+<!--            passInput.value = pass;-->
+<!--            realForm.appendChild(passInput);-->
 
-            // --- Añadir 'targetUrl' CAPTURADO ---
-            console.log("Attempting to add targetUrl. Value is:", redirectUrlAfterLogin); // Log 4
-            if (redirectUrlAfterLogin) {
-                const redirectInput = document.createElement("input");
-                redirectInput.type = "hidden";
-                redirectInput.name = "targetUrl"; // Nombre que espera el SuccessHandler
-                redirectInput.value = redirectUrlAfterLogin; // Debería ser '/direccion'
-                realForm.appendChild(redirectInput);
-                console.log("SUCCESS: Added targetUrl input with value:", redirectUrlAfterLogin); // Log 5
-            } else {
-                console.warn("WARNING: redirectUrlAfterLogin was null or empty. targetUrl not added."); // Log 6
-            }
+<!--            // -&#45;&#45; Añadir 'targetUrl' CAPTURADO -&#45;&#45;-->
+<!--            console.log("Attempting to add targetUrl. Value is:", redirectUrlAfterLogin); // Log 4-->
+<!--            if (redirectUrlAfterLogin) {-->
+<!--                const redirectInput = document.createElement("input");-->
+<!--                redirectInput.type = "hidden";-->
+<!--                redirectInput.name = "targetUrl"; // Nombre que espera el SuccessHandler-->
+<!--                redirectInput.value = redirectUrlAfterLogin; // Debería ser '/direccion'-->
+<!--                realForm.appendChild(redirectInput);-->
+<!--                console.log("SUCCESS: Added targetUrl input with value:", redirectUrlAfterLogin); // Log 5-->
+<!--            } else {-->
+<!--                console.warn("WARNING: redirectUrlAfterLogin was null or empty. targetUrl not added."); // Log 6-->
+<!--            }-->
 
-            // --- Añadir token CSRF ---
-            // Busca el token CSRF en un input oculto (lo más común con Thymeleaf+Security)
-            const csrfInputHidden = document.querySelector('input[name="_csrf"]');
-            if (csrfInputHidden && csrfInputHidden.value) {
-                const csrfInput = document.createElement("input");
-                csrfInput.type = "hidden";
-                csrfInput.name = "_csrf"; // Nombre estándar
-                csrfInput.value = csrfInputHidden.value;
-                realForm.appendChild(csrfInput);
-                console.log("SUCCESS: Added CSRF token input."); // Log 7
-            } else {
-                 // Intenta buscar en meta tags como fallback (menos común)
-                 const csrfMeta = document.querySelector('meta[name="_csrf"]');
-                 const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]'); // Nombre del parámetro
-                 if (csrfMeta && csrfHeaderMeta && csrfMeta.content) {
-                     const csrfInput = document.createElement("input");
-                     csrfInput.type = "hidden";
-                     csrfInput.name = csrfHeaderMeta.content || "_csrf"; // Usa el nombre del header o default
-                     csrfInput.value = csrfMeta.content;
-                     realForm.appendChild(csrfInput);
-                     console.log("SUCCESS: Added CSRF token input from meta tags."); // Log 8
-                 } else {
-                    console.error("ERROR: CSRF token input/meta not found in the page. Login might fail."); // Log 9
-                 }
-            }
-            // --- Fin CSRF ---
+<!--            // -&#45;&#45; Añadir token CSRF -&#45;&#45;-->
+<!--            // Busca el token CSRF en un input oculto (lo más común con Thymeleaf+Security)-->
+<!--            const csrfInputHidden = document.querySelector('input[name="_csrf"]');-->
+<!--            if (csrfInputHidden && csrfInputHidden.value) {-->
+<!--                const csrfInput = document.createElement("input");-->
+<!--                csrfInput.type = "hidden";-->
+<!--                csrfInput.name = "_csrf"; // Nombre estándar-->
+<!--                csrfInput.value = csrfInputHidden.value;-->
+<!--                realForm.appendChild(csrfInput);-->
+<!--                console.log("SUCCESS: Added CSRF token input."); // Log 7-->
+<!--            } else {-->
+<!--                 // Intenta buscar en meta tags como fallback (menos común)-->
+<!--                 const csrfMeta = document.querySelector('meta[name="_csrf"]');-->
+<!--                 const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]'); // Nombre del parámetro-->
+<!--                 if (csrfMeta && csrfHeaderMeta && csrfMeta.content) {-->
+<!--                     const csrfInput = document.createElement("input");-->
+<!--                     csrfInput.type = "hidden";-->
+<!--                     csrfInput.name = csrfHeaderMeta.content || "_csrf"; // Usa el nombre del header o default-->
+<!--                     csrfInput.value = csrfMeta.content;-->
+<!--                     realForm.appendChild(csrfInput);-->
+<!--                     console.log("SUCCESS: Added CSRF token input from meta tags."); // Log 8-->
+<!--                 } else {-->
+<!--                    console.error("ERROR: CSRF token input/meta not found in the page. Login might fail."); // Log 9-->
+<!--                 }-->
+<!--            }-->
+<!--            // -&#45;&#45; Fin CSRF -&#45;&#45;-->
 
-            document.body.appendChild(realForm); // Añadir al DOM
-            console.log("Submitting real form to /login..."); // Log 10
-            realForm.submit(); // Enviar el formulario oculto
-        });
+<!--            document.body.appendChild(realForm); // Añadir al DOM-->
+<!--            console.log("Submitting real form to /login..."); // Log 10-->
+<!--            realForm.submit(); // Enviar el formulario oculto-->
+<!--        });-->
 
-        // --- Lógica para manejar el error de login (?error) ---
-        const params = new URLSearchParams(window.location.search);
-        if (params.has("error")) {
-            const modal = document.getElementById("loginModal");
-            const errorDiv = document.getElementById("error-modal");
-            const errorMsgInput = document.getElementById("loginErrorMsg"); // El input oculto con el mensaje
-            const errorMsg = errorMsgInput ? errorMsgInput.value : ""; // Obtener mensaje de Spring
+<!--        // -&#45;&#45; Lógica para manejar el error de login (?error) -&#45;&#45;-->
+<!--        const params = new URLSearchParams(window.location.search);-->
+<!--        if (params.has("error")) {-->
+<!--            const modal = document.getElementById("loginModal");-->
+<!--            const errorDiv = document.getElementById("error-modal");-->
+<!--            const errorMsgInput = document.getElementById("loginErrorMsg"); // El input oculto con el mensaje-->
+<!--            const errorMsg = errorMsgInput ? errorMsgInput.value : ""; // Obtener mensaje de Spring-->
 
-            console.log("Login error detected. Message:", errorMsg); // Log 11
+<!--            console.log("Login error detected. Message:", errorMsg); // Log 11-->
 
-            if (errorDiv) {
-                if (errorMsg && errorMsg.toLowerCase().includes("deshabilitada")) {
-                    errorDiv.textContent = "Tu cuenta ha sido deshabilitada. Contacta al administrador.";
-                } else {
-                    errorDiv.textContent = "Correo o contraseña incorrectos."; // Mensaje genérico
-                }
-                errorDiv.classList.remove("d-none");
-            }
+<!--            if (errorDiv) {-->
+<!--                if (errorMsg && errorMsg.toLowerCase().includes("deshabilitada")) {-->
+<!--                    errorDiv.textContent = "Tu cuenta ha sido deshabilitada. Contacta al administrador.";-->
+<!--                } else {-->
+<!--                    errorDiv.textContent = "Correo o contraseña incorrectos."; // Mensaje genérico-->
+<!--                }-->
+<!--                errorDiv.classList.remove("d-none");-->
+<!--            }-->
 
-            // Abrir el modal para mostrar el error
-            if (modal) {
-                // Evitar reabrir si ya está visible o en proceso
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                if (!modalInstance) { // Si no hay instancia, crearla y mostrarla
-                     try {
-                         console.log("Showing login modal due to error."); // Log 12
-                         const newModalInstance = new bootstrap.Modal(modal);
-                         newModalInstance.show();
-                     } catch(e) { console.error("Error trying to show login modal:", e); }
-                } else {
-                     console.log("Login modal might already be open or closing."); // Log 13
-                }
-            }
-        }
+<!--            // Abrir el modal para mostrar el error-->
+<!--            if (modal) {-->
+<!--                // Evitar reabrir si ya está visible o en proceso-->
+<!--                const modalInstance = bootstrap.Modal.getInstance(modal);-->
+<!--                if (!modalInstance) { // Si no hay instancia, crearla y mostrarla-->
+<!--                     try {-->
+<!--                         console.log("Showing login modal due to error."); // Log 12-->
+<!--                         const newModalInstance = new bootstrap.Modal(modal);-->
+<!--                         newModalInstance.show();-->
+<!--                     } catch(e) { console.error("Error trying to show login modal:", e); }-->
+<!--                } else {-->
+<!--                     console.log("Login modal might already be open or closing."); // Log 13-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
 
-        // Listener para limpiar error y URL cuando se CIERRA el modal
-        loginModalEl?.addEventListener("hidden.bs.modal", () => {
-            const errorDiv = document.getElementById("error-modal");
-            if (errorDiv) errorDiv.classList.add("d-none"); // Ocultar mensaje de error
-            redirectUrlAfterLogin = null; // Limpiar la URL para la próxima vez
-            console.log("Login modal closed. Redirect URL cleared."); // Log 14
-        });
-    });
-    /*]]>*/
-</script>
+<!--        // Listener para limpiar error y URL cuando se CIERRA el modal-->
+<!--        loginModalEl?.addEventListener("hidden.bs.modal", () => {-->
+<!--            const errorDiv = document.getElementById("error-modal");-->
+<!--            if (errorDiv) errorDiv.classList.add("d-none"); // Ocultar mensaje de error-->
+<!--            redirectUrlAfterLogin = null; // Limpiar la URL para la próxima vez-->
+<!--            console.log("Login modal closed. Redirect URL cleared."); // Log 14-->
+<!--        });-->
+<!--    });-->
+<!--    /*]]>*/-->
+
+
+<!--</script>-->
 <!--<script>-->
 <!--    document.addEventListener("DOMContentLoaded", () => {-->
 <!--      const loginForm = document.getElementById("loginFormModal");-->
@@ -587,5 +589,84 @@ loginModalEl?.addEventListener('show.bs.modal', function (event) {
 </style>
 <div layout:fragment="scripts" th:remove="tag">
 </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener("DOMContentLoaded", () => {
+        const loginForm = document.getElementById("loginFormModal"); // El form del modal
+        const loginModalEl = document.getElementById("loginModal"); // El modal
+        const errorDiv = document.getElementById("error-modal"); // El div de error
+        let redirectUrlAfterLogin = null; // Variable para guardar la URL
+
+        // 1. CAPTURAR LA URL DE REDIRECCIÓN (CUANDO SE ABRE EL MODAL)
+        loginModalEl?.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget; // El botón que disparó el modal
+
+            if (button && button.dataset.redirectUrl) {
+                redirectUrlAfterLogin = button.dataset.redirectUrl; // ej: '/compra/checkout'
+                console.log("Destino guardado:", redirectUrlAfterLogin);
+            } else {
+                redirectUrlAfterLogin = null;
+            }
+        });
+
+        // 2. MANEJAR EL ENVÍO DEL FORMULARIO CON FETCH (AJAX)
+        loginForm?.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Detener el envío normal
+            errorDiv.classList.add("d-none"); // Ocultar errores anteriores
+
+            const email = document.getElementById("emailModal").value;
+            const pass = document.getElementById("passwordModal").value;
+
+            // Preparamos los datos como 'x-www-form-urlencoded' (que Spring Security espera)
+            const formData = new URLSearchParams();
+            formData.append("username", email);
+            formData.append("password", pass);
+
+            // Si capturamos una URL (ej. '/compra/checkout'), la enviamos
+            if (redirectUrlAfterLogin) {
+                formData.append("targetUrl", redirectUrlAfterLogin);
+            }
+
+            try {
+                const response = await fetch("/login", { // POST a Spring Security
+                    method: "POST",
+                    body: formData
+                    // NO NECESITAMOS CSRF porque está deshabilitado en SecurityConfig
+                });
+
+                if (response.ok) { // Éxito (Status 200)
+                    const data = await response.json(); // Leer el JSON que enviamos
+                    // Redirigir a la URL que nos dijo el successHandler
+                    window.location.href = data.redirectUrl || "/";
+
+                } else if (response.status === 401) { // Fallo (Status 401)
+                    // La contraseña estaba mal, mostramos el error EN EL MODAL
+                    errorDiv.textContent = "Correo o contraseña incorrectos.";
+                    errorDiv.classList.remove("d-none");
+                } else {
+                    // Otro error
+                    errorDiv.textContent = "Error inesperado. Intente de nuevo.";
+                    errorDiv.classList.remove("d-none");
+                }
+
+            } catch (err) {
+                console.error("Error de red:", err);
+                errorDiv.textContent = "Error de conexión.";
+                errorDiv.classList.remove("d-none");
+            }
+        });
+
+        // 3. LIMPIAR AL CERRAR EL MODAL
+        loginModalEl?.addEventListener("hidden.bs.modal", () => {
+            errorDiv.classList.add("d-none"); // Ocultar mensaje de error
+            redirectUrlAfterLogin = null; // Limpiar la URL para la próxima vez
+        });
+
+        // 4. ELIMINAMOS LA LÓGICA de "params.has('error')"
+        // Ya no es necesaria porque no hay recarga de página por error.
+    });
+    /*]]>*/
+</script>
 </body>
 </html>

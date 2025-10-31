@@ -8,6 +8,7 @@ import pe.com.isil.inversioneslazaro.model.Producto;
 import pe.com.isil.inversioneslazaro.repository.ProductoRepository;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,9 @@ public class CarritoService {
         return carrito;
     }
 
+    public Collection<CarritoItem> getItems() {
+        return getCarrito().values();
+    }
     // Añade un producto (el que viene de detail.html)
     public void agregarAlCarrito(Long productoId, int cantidad) {
         Optional<Producto> productoOpt = productoRepository.findById(productoId);
@@ -45,6 +49,15 @@ public class CarritoService {
         Producto producto = productoOpt.get();
         Map<Long, CarritoItem> carrito = getCarrito();
 
+        int cantidadActual = 0;
+        if (carrito.containsKey(productoId)) {
+            cantidadActual = carrito.get(productoId).getCantidad();
+        }
+        // Si la cantidad que quiero agregar + la actual supera el stock, lanza error
+        if (cantidadActual + cantidad > producto.getStock()) {
+            // Puedes manejar esto de forma más elegante, pero un error es seguro
+            throw new RuntimeException("Stock insuficiente. Solo quedan " + producto.getStock() + " unidades.");
+        }
         if (carrito.containsKey(productoId)) {
             // Si ya existe, incrementamos la cantidad
             CarritoItem item = carrito.get(productoId);
@@ -65,10 +78,13 @@ public class CarritoService {
         CarritoItem item = carrito.get(productoId);
 
         if (item != null) {
+
             if (cantidad > 0) {
-                item.setCantidad(cantidad);
+                item.setCantidad(Math.min(cantidad, item.getStock()));
             } else {
+
                 carrito.remove(productoId);
+                httpSession.setAttribute(CARRITO_SESSION_KEY, carrito); // Guardar antes de salir
                 return;
             }
             item.setSeleccionado(seleccionado);
@@ -93,8 +109,8 @@ public class CarritoService {
     public Map<String, BigDecimal> calcularTotales() {
         Map<Long, CarritoItem> carrito = getCarrito();
 
-        // El subtotal ya se calcula con los precios de oferta (gracias al DTO)
-        BigDecimal subtotal = BigDecimal.ZERO;
+        // El subtotal
+        BigDecimal subtotalOriginal = BigDecimal.ZERO;
 
         // Nuevo: Calculamos cuánto se ahorró por los descuentos de producto
         BigDecimal ahorroPorProductos = BigDecimal.ZERO;
@@ -106,7 +122,7 @@ public class CarritoService {
             if (item.isSeleccionado()) { // Solo suma si está chequeado
 
                 // 1. Suma el subtotal (ya viene con el descuento)
-                subtotal = subtotal.add(item.getSubtotal());
+                subtotalOriginal = subtotalOriginal.add(item.getSubtotalOriginal());
 
                 // 2. Calcula el ahorro
                 if (item.isTieneDescuento()) {
@@ -125,10 +141,10 @@ public class CarritoService {
         //    descuentoPorCupon = subtotal.multiply(new BigDecimal("0.10")); // 10%
         // }
 
-        BigDecimal total = subtotal.subtract(descuentoPorCupon);
+        BigDecimal total = subtotalOriginal.subtract(ahorroPorProductos).subtract(descuentoPorCupon);
 
         Map<String, BigDecimal> totales = new HashMap<>();
-        totales.put("subtotal", subtotal); // Precio ya descontado
+        totales.put("subtotal", subtotalOriginal); // Precio ya descontado
         totales.put("ahorroPorProductos", ahorroPorProductos); // Cuánto ahorró
         totales.put("descuentoPorCupon", descuentoPorCupon); // Descuento de cupón
         totales.put("total", total); // Total a pagar

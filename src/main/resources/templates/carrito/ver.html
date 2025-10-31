@@ -53,7 +53,8 @@
                 <div th:each="item : ${carrito}"
                      th:id="'item-row-' + ${item.productoId}"
                      class="cart-item-card shadow-sm p-3"
-                     th:data-product-id="${item.productoId}">
+                     th:data-product-id="${item.productoId}"
+                     th:data-stock="${item.stock}">
 
                     <div class="row g-3 align-items-center">
 
@@ -118,19 +119,19 @@
                     <h5 class="card-title mb-3">Resumen de tu Orden</h5>
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Subtotal</span>
+                        <span>Total Producto(s)</span>
                         <span id="cart-subtotal"
                               th:text="${'S/ ' + #numbers.formatDecimal(totales.subtotal, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-2 text-success">
-                        <span>Ahorro por productos</span>
+                        <span>Descuento</span>
                         <span id="cart-product-saving"
                               th:text="${'-S/ ' + #numbers.formatDecimal(totales.ahorroPorProductos, 1, 'COMMA', 2, 'POINT')}">-S/ 0.00</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Descuento (Cupón)</span>
+                        <span>Cupon(descuento)</span>
                         <span id="cart-coupon-discount" class="text-danger"
                               th:text="${'-S/ ' + #numbers.formatDecimal(totales.descuentoPorCupon, 1, 'COMMA', 2, 'POINT')}">-S/ 0.00</span>
                     </div>
@@ -146,7 +147,7 @@
                     <div class="d-grid">
                         <!-- Si está autenticado, va directo a /checkout -->
                         <a sec:authorize="isAuthenticated()"
-                           th:href="@{/direccion}"
+                           th:href="@{/compra/checkout}"
                            class="btn btn-primary btn-lg">Continuar Compra</a>
 
                         <!-- Si es anónimo, va a /login guardando la intención de ir a /checkout -->
@@ -155,7 +156,7 @@
                                 class="btn btn-primary btn-lg"
                                 data-bs-toggle="modal"
                                 data-bs-target="#loginModal"
-                                data-redirect-url="/direccion">
+                                data-redirect-url="/compra/checkout">
                             Continuar Compra
                         </button>
                     </div>
@@ -194,11 +195,11 @@
                 });
             }
 
-            // Función para actualizar el resumen (Subtotal, Total)
+
 function actualizarResumen(totales) {
     document.getElementById('cart-subtotal').textContent = formatCurrency(totales.subtotal);
 
-    // --- LÍNEAS ACTUALIZADAS ---
+
     // Ahorro por productos
     document.getElementById('cart-product-saving').textContent = '-S/ ' + parseFloat(totales.ahorroPorProductos).toLocaleString('es-PE', {
         minimumFractionDigits: 2,
@@ -215,7 +216,7 @@ function actualizarResumen(totales) {
     document.getElementById('cart-total').textContent = formatCurrency(totales.total);
 }
 
-// (La función formatCurrency que ya tenías puede reutilizarse)
+
 function formatCurrency(value) {
     return 'S/ ' + parseFloat(value).toLocaleString('es-PE', {
         minimumFractionDigits: 2,
@@ -277,9 +278,14 @@ function formatCurrency(value) {
                     const input = row.querySelector('.quantity-input');
                     const checkbox = row.querySelector('.cart-item-check');
 
+                    const stock = parseInt(row.dataset.stock);
                     let cantidad = parseInt(input.value);
 
                     if (this.classList.contains('btn-qty-plus')) {
+                        if (cantidad >= stock) {
+                            alert("No hay más stock disponible para este producto.");
+                            return;
+                        }
                         cantidad++;
                     } else if (this.classList.contains('btn-qty-minus')) {
                         cantidad--;

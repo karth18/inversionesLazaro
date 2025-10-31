@@ -8,9 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.com.isil.inversioneslazaro.dto.CarritoItem;
+import pe.com.isil.inversioneslazaro.dto.CarritoTotalesDTO;
 import pe.com.isil.inversioneslazaro.service.CarritoService;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +43,17 @@ public class CarritoController {
     // 2. Endpoint para MOSTRAR la página del carrito (la que describiste)
     @GetMapping("")
     public String verCarrito(Model model) {
-        model.addAttribute("carrito", carritoService.getCarrito().values());
-        model.addAttribute("totales", carritoService.calcularTotales());
+
+        // 1. Obtiene los items
+        Collection<CarritoItem> items = carritoService.getItems();
+
+        // 2. Calcula los totales (esto devuelve un Map)
+        Map<String, BigDecimal> totalesMap = carritoService.calcularTotales();
+
+        // 3. Convierte el Map al DTO que el HTML necesita
+        CarritoTotalesDTO totalesDTO = new CarritoTotalesDTO(totalesMap);
+        model.addAttribute("carrito", items);
+        model.addAttribute("totales", totalesDTO);
         return "carrito/ver"; // La nueva vista que crearemos en el Paso 5
     }
 
