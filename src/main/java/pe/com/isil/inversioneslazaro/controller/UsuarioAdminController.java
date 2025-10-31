@@ -15,10 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.com.isil.inversioneslazaro.model.AuditoriaUsuario;
+import pe.com.isil.inversioneslazaro.model.Auditoria;
 import pe.com.isil.inversioneslazaro.model.Usuario;
-import pe.com.isil.inversioneslazaro.repository.AuditoriaUsuarioRepository;
+import pe.com.isil.inversioneslazaro.repository.AuditoriaRepository;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
+import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 
 import java.util.Optional;
 
@@ -31,9 +32,11 @@ public class UsuarioAdminController {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private  AuditoriaRepository auditoriaRepository;
 
     @Autowired
-    private AuditoriaUsuarioRepository auditoriaUsuarioRepository;
+    private AuditoriaService auditoriaService;
 
 
 
@@ -93,15 +96,12 @@ public class UsuarioAdminController {
             usuarioe.setEstado(false);
             usuarioRepository.save(usuarioe);
 
-            // Obtener el email del usuario logueado
             String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
-
-            // Registrar en auditoría
-            AuditoriaUsuario audit = new AuditoriaUsuario();
-            audit.setUsuarioAfectado(usuarioe);
-            audit.setAccion("ELIMINAR");
-            audit.setRealizadoPor(emailLogueado);
-            auditoriaUsuarioRepository.save(audit);
+            auditoriaService.registrarAccion(
+                    emailLogueado,
+                    "Usuario",
+                    usuarioe.getId(),
+                    Auditoria.AccionAuditoria.ELIMINAR);
             ra.addFlashAttribute("mensajeExito", "Usuario eliminado correctamente");
         } else {
             ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
@@ -121,12 +121,12 @@ public class UsuarioAdminController {
             // Obtener el email del usuario logueado
             String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            // Registrar en auditoría
-            AuditoriaUsuario audit = new AuditoriaUsuario();
-            audit.setUsuarioAfectado(usuarioe);
-            audit.setAccion("HABILITAR");
-            audit.setRealizadoPor(emailLogueado);
-            auditoriaUsuarioRepository.save(audit);
+            auditoriaService.registrarAccion(
+                    emailLogueado,
+                    "Usuario",
+                    usuarioe.getId(),
+                    Auditoria.AccionAuditoria.HABILITAR);
+
             ra.addFlashAttribute("mensajeExito", "Usuario Habilitado correctamente");
         } else {
             ra.addFlashAttribute("mensajeError", "Usuario no encontrado");
@@ -182,36 +182,14 @@ public class UsuarioAdminController {
         usuarioRepository.save(existente);
 
         String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
-        AuditoriaUsuario audit = new AuditoriaUsuario();
-        audit.setUsuarioAfectado(existente);
-        audit.setAccion("EDICIÓN");
-        audit.setRealizadoPor(emailLogueado);
-        auditoriaUsuarioRepository.save(audit);
+
+        auditoriaService.registrarAccion(
+                emailLogueado,
+                "Usuario",
+                existente.getId(),
+                Auditoria.AccionAuditoria.ACTUALIZAR);
 
         return "redirect:/admin/usuarios";
-    }
-
-
-    @GetMapping("/auditoria")
-    public String verAuditoria(@RequestParam(value = "busqueda", required = false) String busqueda,
-                               @RequestParam(defaultValue = "0") int page,
-                               Model model) {
-
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("fechaAccion").descending());
-        Page<AuditoriaUsuario> audi;
-
-        if (busqueda != null && !busqueda.trim().isEmpty()) {
-            audi = auditoriaUsuarioRepository.buscarAuditoria(busqueda.trim(), pageable);
-        } else {
-            audi = auditoriaUsuarioRepository.findAll(pageable);
-        }
-
-        model.addAttribute("auditorias", audi.getContent());
-        model.addAttribute("audi", audi);
-        model.addAttribute("busqueda", busqueda);
-        model.addAttribute("totalRegistros", audi.getTotalElements());
-
-        return "auditoria/index";
     }
 
 }

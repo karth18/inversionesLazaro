@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.com.isil.inversioneslazaro.model.AuditoriaUsuario;
+import pe.com.isil.inversioneslazaro.model.Auditoria;
 import pe.com.isil.inversioneslazaro.model.Usuario;
-import pe.com.isil.inversioneslazaro.repository.AuditoriaUsuarioRepository;
+import pe.com.isil.inversioneslazaro.repository.AuditoriaRepository;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
+import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 
 import java.security.Principal;
 @SuppressWarnings("unused")
@@ -23,9 +24,11 @@ public class UsuarioClienteController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private AuditoriaService auditoriaService;
 
     @Autowired
-    private AuditoriaUsuarioRepository auditoriaUsuarioRepository;
+    private AuditoriaRepository auditoriaRepository;
 
     //********************** corresponde al update de la cuenta del cliente***********************
     @GetMapping("/account/editar")
@@ -35,6 +38,7 @@ public class UsuarioClienteController {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         model.addAttribute("usuario", usuario);
+
         return "usuario/userdashboard";
     }
 
@@ -54,12 +58,11 @@ public class UsuarioClienteController {
 
         // 🔍 Registrar auditoría
         String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        AuditoriaUsuario audit = new AuditoriaUsuario();
-        audit.setUsuarioAfectado(existente);
-        audit.setAccion("EDICIÓN");
-        audit.setRealizadoPor(emailLogueado);
-        auditoriaUsuarioRepository.save(audit);
+        auditoriaService.registrarAccion(
+                emailLogueado,
+                "Usuario",
+                existente.getId(), // <-- EN ROJO (no existe)
+                Auditoria.AccionAuditoria.ACTUALIZAR); // <-- INCORRECTO
 
         ra.addFlashAttribute("mensaje", "Datos actualizados correctamente");
         return "redirect:/cliente/account/editar";

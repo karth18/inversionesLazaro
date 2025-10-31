@@ -3,56 +3,65 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{master.html}">
 <head>
-    <title>Auditoría de Usuarios</title>
+    <title>Auditoría General</title>
 </head>
 <body>
 <div class="container" layout:fragment="content">
-<h2>Auditoría de cambios en usuarios</h2>
+    <h2>Auditoría General de Cambios</h2>
 
-    <form action="" class="my-3" >
+    <form th:action="@{/admin/auditoria}" class="my-3" method="get">
         <div class="row">
             <div class="col-md-6 col-lg-4">
                 <div class="input-group">
-                    <input type="search" name="busqueda" class="form-control" placeholder="Buscar usuario por DNI, nombres, apellidos o email"
+                    <input type="search" name="busqueda" class="form-control"
+                           placeholder="Buscar por Entidad, ID, Acción o Usuario"
                            th:value="${busqueda}">
                     <button class="btn btn-primary">Buscar</button>
                 </div>
-                <a href="/admin/usuarios">Lista usuarios</a>
+
             </div>
         </div>
     </form>
-<table border="1" cellpadding="6">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Usuario afectado</th>
-        <th>Acción</th>
-        <th>Realizado por</th>
-        <th>fecha de Modificación</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="a : ${auditorias}">
-        <td th:text="${a.id}"></td>
-        <td th:text="${a.usuarioAfectado.email}"></td>
-        <td th:text="${a.accion}"></td>
-        <td th:text="${a.realizadoPor}"></td>
-        <td th:text="${#temporals.format(a.fechaAccion, 'dd/MM/yyyy HH:mm')}"></td>
-    </tr>
-    </tbody>
-</table>
+
+    <table border="1" cellpadding="6" class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Entidad Afectada</th> <th>ID Afectado</th>     <th>Acción</th>
+            <th>Realizado por</th>
+            <th>Fecha de Modificación</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="a : ${auditorias}">
+            <td th:text="${a.id}"></td>
+            <td th:text="${a.entidadAfectada}"></td>
+            <td th:text="${a.entidadId}"></td>
+
+            <td th:text="${a.accion}"></td>
+            <td th:text="${a.realizadoPor}"></td>
+            <td th:text="${#temporals.format(a.fechaAccion, 'dd/MM/yyyy HH:mm')}"></td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(auditorias)}">
+            <td colspan="6" class="text-center">No se encontraron registros de auditoría.</td>
+        </tr>
+
+        </tbody>
+    </table>
+
     <nav th:if="${audi.totalPages > 1}">
         <div class="d-flex justify-content-center my-3">
             <ul class="pagination">
                 <li class="page-item" th:classappend="${audi.first}? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${audi.number-1}, busqueda=${busqueda})}">Anterior</a>
+                    <a class="page-link" th:href="@{/admin/auditoria(page=${audi.number-1}, busqueda=${busqueda})}">Anterior</a>
                 </li>
                 <li class="page-item" th:each="i : ${#numbers.sequence(0, audi.totalPages-1)}"
                     th:classappend="${audi.number == i}? 'active'">
-                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${i}, busqueda=${busqueda})}" th:text="${i+1}">1</a>
+                    <a class="page-link" th:href="@{/admin/auditoria(page=${i}, busqueda=${busqueda})}" th:text="${i+1}">1</a>
                 </li>
                 <li class="page-item" th:classappend="${audi.last}? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/usuarios/auditoria(id=${id}, page=${audi.number+1}, busqueda=${busqueda})}">Siguiente</a>
+                    <a class="page-link" th:href="@{/admin/auditoria(page=${audi.number+1}, busqueda=${busqueda})}">Siguiente</a>
                 </li>
             </ul>
         </div>

@@ -46,12 +46,12 @@ public class CarritoItem {
         if (precioOferta != null && precioOferta.compareTo(BigDecimal.ZERO) > 0 && precioOferta.compareTo(precioRegular) < 0) {
 
             this.precioUnitario = precioOferta;
-            this.precioSinDescuento = precioRegular;
+//            this.precioSinDescuento = precioRegular;
             this.tieneDescuento = true;
         } else {
 
             this.precioUnitario = precioRegular;
-            this.precioSinDescuento = null;
+//            this.precioSinDescuento = null;
             this.tieneDescuento = false;
         }
     }

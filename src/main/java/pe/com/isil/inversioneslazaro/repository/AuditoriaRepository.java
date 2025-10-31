@@ -6,22 +6,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pe.com.isil.inversioneslazaro.model.AuditoriaUsuario;
+import pe.com.isil.inversioneslazaro.model.Auditoria;
 
 @SuppressWarnings("unused")
 @Repository
-public interface AuditoriaUsuarioRepository extends JpaRepository<AuditoriaUsuario, Integer> {
+public interface AuditoriaRepository extends JpaRepository<Auditoria, Long> {
 
     @Query("""
-        SELECT a FROM AuditoriaUsuario a
-        WHERE (:filtro IS NULL OR :filtro = '' 
+        SELECT a FROM Auditoria a
+        WHERE (:filtro IS NULL OR :filtro = ''
             OR LOWER(a.realizadoPor) LIKE LOWER(CONCAT('%', :filtro, '%'))
             OR LOWER(a.accion) LIKE LOWER(CONCAT('%', :filtro, '%'))
-            OR LOWER(a.usuarioAfectado.dni) LIKE LOWER(CONCAT('%', :filtro, '%'))
-            OR LOWER(a.usuarioAfectado.email) LIKE LOWER(CONCAT('%', :filtro, '%'))            
+            OR LOWER(a.entidadAfectada) LIKE LOWER(CONCAT('%', :filtro, '%'))
+            OR LOWER(a.entidadId) LIKE LOWER(CONCAT('%', :filtro, '%'))
         )
         ORDER BY a.fechaAccion DESC
     """)
-    Page<AuditoriaUsuario> buscarAuditoria(@Param("filtro") String filtro, Pageable pageable);
+    Page<Auditoria> buscarAuditoria(@Param("filtro") String filtro, Pageable pageable);
 
 }
