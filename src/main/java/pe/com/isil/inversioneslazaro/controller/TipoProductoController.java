@@ -2,6 +2,7 @@ package pe.com.isil.inversioneslazaro.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.com.isil.inversioneslazaro.model.Auditoria;
 import pe.com.isil.inversioneslazaro.model.TipoProducto;
 import pe.com.isil.inversioneslazaro.repository.CategoriaRepository;
 import pe.com.isil.inversioneslazaro.repository.TipoProductoRepository;
+import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,8 @@ public class TipoProductoController {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+    @Autowired
+    private AuditoriaService auditoriaService;
 
 
     @GetMapping
@@ -61,8 +66,10 @@ public class TipoProductoController {
             model.addAttribute("categorias", categoriaRepository.findByEstadoTrue());
             return "tipoProducto/form";
         }
+        Auditoria.AccionAuditoria accion = (tipoProducto.getId() == null)? Auditoria.AccionAuditoria.CREAR: Auditoria.AccionAuditoria.ACTUALIZAR;
 
-        tipoProductoRepository.save(tipoProducto);
+        TipoProducto tProducto = tipoProductoRepository.save(tipoProducto);
+        registrarAuditoria("Tipo de Producto", tProducto.getId(), accion);
         ra.addFlashAttribute("msgExito", "Tipo de Producto guardado/actualizado con éxito");
         return "redirect:/admin/tproducto";
     }
@@ -95,7 +102,8 @@ public class TipoProductoController {
         TipoProducto tipoProducto = tipoProductoOptional.get();
         try {
             tipoProducto.setEstado(false); // Desactivar
-            tipoProductoRepository.save(tipoProducto);
+            TipoProducto tProducto =  tipoProductoRepository.save(tipoProducto);
+            registrarAuditoria("Tipo de Producto", tProducto.getId(), Auditoria.AccionAuditoria.ELIMINAR);
             ra.addFlashAttribute("msgExito", "Tipo de Producto desactivado con éxito");
         } catch (Exception e) {
             ra.addFlashAttribute("msgError", "El Tipo de Producto no fue desactivado con éxito");
@@ -122,11 +130,25 @@ public class TipoProductoController {
         TipoProducto tipoProducto = tipoProductoOptional.get();
         try{
             tipoProducto.setEstado(true);
-            tipoProductoRepository.save(tipoProducto);
+           TipoProducto tProducto = tipoProductoRepository.save(tipoProducto);
+            registrarAuditoria("Tipo de Producto", tProducto.getId(), Auditoria.AccionAuditoria.HABILITAR);
             ra.addFlashAttribute("msgExito", "Tipo de Producto Activado con exito");
         }catch (Exception e){
             ra.addFlashAttribute("msgError", "El Tipo de Producto no fue Activado con exito");
         }
         return "redirect:/admin/tproducto/habilitar";
+    }
+
+    private void registrarAuditoria(String entidadNombre, Object entidadId, Auditoria.AccionAuditoria accion){
+        String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        auditoriaService.registrarAccion(
+                emailLogueado,
+                entidadNombre,
+                entidadId,
+                accion
+        );
+
+
     }
 }

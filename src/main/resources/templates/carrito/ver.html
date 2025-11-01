@@ -148,15 +148,17 @@
                         <!-- Si está autenticado, va directo a /checkout -->
                         <a sec:authorize="isAuthenticated()"
                            th:href="@{/compra/checkout}"
-                           class="btn btn-primary btn-lg">Continuar Compra</a>
+                           class="btn btn-primary btn-lg btn-continuar-compra"
+                            th:disabled="${totales == null OR totales.total <= 0}">Continuar Compra</a>
 
                         <!-- Si es anónimo, va a /login guardando la intención de ir a /checkout -->
                         <button sec:authorize="isAnonymous()"
                                 type="button"
-                                class="btn btn-primary btn-lg"
+                                class="btn btn-primary btn-lg btn-continuar-compra"
                                 data-bs-toggle="modal"
                                 data-bs-target="#loginModal"
-                                data-redirect-url="/compra/checkout">
+                                data-redirect-url="/compra/checkout"
+                                th:disabled="${totales == null OR totales.total <= 0}">
                             Continuar Compra
                         </button>
                     </div>
@@ -214,6 +216,14 @@ function actualizarResumen(totales) {
 
     // Total
     document.getElementById('cart-total').textContent = formatCurrency(totales.total);
+
+    // bloque para comparar el total y desactivar el boton
+    const totalNumerico = parseFloat(totales.total);
+    const estaDeshabilitado = (totalNumerico <= 0);
+    document.querySelectorAll('.btn-continuar-compra').forEach(boton => {
+                    boton.disabled = estaDeshabilitado;
+                });
+
 }
 
 

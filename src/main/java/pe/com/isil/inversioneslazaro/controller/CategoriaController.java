@@ -1,7 +1,9 @@
 package pe.com.isil.inversioneslazaro.controller;
 
+import com.stripe.model.tax.Registration;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,8 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.com.isil.inversioneslazaro.model.Auditoria;
 import pe.com.isil.inversioneslazaro.model.Categoria;
 import pe.com.isil.inversioneslazaro.repository.CategoriaRepository;
+import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +26,10 @@ public class CategoriaController {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+    @Autowired
+    private AuditoriaService auditoriaService;
+
+
 
     //listar categoria solo si el estado es verdadero
     @GetMapping("")
@@ -43,7 +51,7 @@ public class CategoriaController {
     @GetMapping("/habilitar/{id}")
     String habilitar(@PathVariable Long id, RedirectAttributes ra){
         Optional<Categoria> categorias = categoriaRepository.findById(id);
-
+        String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
         if(categorias.isEmpty()){
             ra.addFlashAttribute("msgError", "La categoria que intentas Habilitar no existe");
             return"redirect:/admin/categoria/habilitar";
@@ -51,18 +59,25 @@ public class CategoriaController {
         Categoria categoria = categorias.get();
         try{
             categoria.setEstado(true);
-            categoriaRepository.save(categoria);
+            Categoria categoriaGuardada = categoriaRepository.save(categoria);
+
+            auditoriaService.registrarAccion(
+                    emailLogueado,
+                    "Categoria",
+                    categoriaGuardada.getId(),
+                    Auditoria.AccionAuditoria.HABILITAR
+            );
             ra.addFlashAttribute("msgExito", "categoría Activada con exito");
         }catch (Exception e){
             ra.addFlashAttribute("msgError", "categoría no fue Activada con exito");
         }
+
         return "redirect:/admin/categoria/habilitar";
     }
 
 
     @GetMapping("/nuevo")
     String nuevo(Model model){
-
         model.addAttribute("categoria", new Categoria());
         return"categoria/form";
 
@@ -70,6 +85,7 @@ public class CategoriaController {
 
     @PostMapping("/nuevo")
     String registrar(@Valid Categoria categoria, Model model, BindingResult bindingResult, RedirectAttributes ra){
+        String emailLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(bindingResult.hasErrors()){
             return "categoria/form";
@@ -81,7 +97,18 @@ public class CategoriaController {
             bindingResult.rejectValue("nombre", "error.categoria","El nombre de la categoría ya existe");
             return"categoria/form";
         }
-        categoriaRepository.save(categoria);
+
+        Auditoria.AccionAuditoria accion = (categoria.getId()==null)? Auditoria.AccionAuditoria.CREAR
+                 : Auditoria.AccionAuditoria.ACTUALIZAR;
+
+        Categoria categoriaGuardada =  categoriaRepository.save(categoria);
+
+
+        auditoriaService.registrarAccion(
+                emailLogueado,
+                "Categoría",
+                categoriaGuardada.getId(),
+                accion);
         ra.addFlashAttribute("msgExito", "Categoria guardada/actualizada con éxito");
         return "redirect:/admin/categoria";
     }
@@ -101,7 +128,7 @@ public class CategoriaController {
     @GetMapping("/eliminar/{id}")
     String eliminar(@PathVariable Long id, RedirectAttributes ra){
         Optional<Categoria> categorias = categoriaRepository.findById(id);
-
+        String emailLogueado= SecurityContextHolder.getContext().getAuthentication().getName();
         if(categorias.isEmpty()){
             ra.addFlashAttribute("msgError", "La categoria que intentas eliminar no existe");
             return"redirect:/admin/categoria";
@@ -109,17 +136,19 @@ public class CategoriaController {
         Categoria categoria = categorias.get();
         try{
             categoria.setEstado(false);
-            categoriaRepository.save(categoria);
+            Categoria guardarCategoria = categoriaRepository.save(categoria);
+            auditoriaService.registrarAccion(
+                    emailLogueado,
+                    "Categoría",
+                    guardarCategoria.getId(),
+                    Auditoria.AccionAuditoria.ELIMINAR
+            );
+
             ra.addFlashAttribute("msgExito", "categoría desactivada con exito");
         }catch (Exception e){
             ra.addFlashAttribute("msgError", "categoría no fue desactivado con exito");
         }
         return "redirect:/admin/categoria";
     }
-
-
-
-
-
 
 }

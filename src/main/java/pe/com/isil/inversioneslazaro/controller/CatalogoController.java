@@ -23,7 +23,7 @@ public class CatalogoController {
     //listado del catálogo o productos
     @GetMapping("")
     public String catalogo(Model model) {
-        List<Producto> productos = productoRepository.findAll();
+        List<Producto> productos = productoRepository.findByEstadoIsTrue();
         model.addAttribute("productos", productos);
 
         return "producto/catalogo";

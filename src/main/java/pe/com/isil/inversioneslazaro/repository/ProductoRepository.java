@@ -18,6 +18,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     Page<Producto> findByNomProContaining(String nombre, Pageable pageable);
     Page<Producto> findByEstado(boolean estado, Pageable pageable);
     Page<Producto> findByNomProContainingAndEstado(String nombre, boolean estado, Pageable pageable);
+    List<Producto> findByEstadoIsTrue();
 
 
 }
