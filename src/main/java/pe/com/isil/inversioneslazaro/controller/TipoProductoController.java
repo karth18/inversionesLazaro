@@ -148,7 +148,5 @@ public class TipoProductoController {
                 entidadId,
                 accion
         );
-
-
     }
 }

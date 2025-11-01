@@ -68,7 +68,7 @@ public class WebSecurityConfig  {
                 // Configuración de permisos
                 .authorizeHttpRequests(authz -> authz
                         // URL públicas
-                        .requestMatchers("/", "/inicio", "/catalogo/**", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**", "/uploads/**","carrito/**").permitAll()
+                        .requestMatchers("/", "/inicio", "/catalogo/**", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**", "/uploads/**","carrito/**","/api/v1/consulta/dni/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // URLs Autenticadas. Ojo: todo usuario autenticado puede ingresar a cualquier url si no esta debidamente mapeado

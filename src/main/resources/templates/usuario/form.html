@@ -22,10 +22,16 @@
                                placeholder="Documento de Identidad"
                                th:field="*{dni}"
                                class="form-control form-underline"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{dni}" th:if="${#fields.hasErrors('dni')}"
-                        >
+                               th:errorClass="is-invalid"
+                               maxlength="8"> <div class="invalid-feedback"
+                                                   th:errors="*{dni}" th:if="${#fields.hasErrors('dni')}"
+                    >
+                    </div>
+                        <div id="dniSpinner" style="display: none;" class="form-text text-primary">
+                            Buscando...
+                        </div>
+                        <div id="dniError" style="display: none;" class="form-text text-danger">
+                            DNI no encontrado o inválido.
                         </div>
                     </div>
                     <div class="mb-2">
@@ -34,11 +40,11 @@
                                placeholder="Nombres"
                                th:field="*{nombres}"
                                class="form-control form-underline"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{nombres}" th:if="${#fields.hasErrors('nombres')}"
-                        >
-                        </div>
+                               th:errorClass="is-invalid"
+                               readonly> <div class="invalid-feedback"
+                                              th:errors="*{nombres}" th:if="${#fields.hasErrors('nombres')}"
+                    >
+                    </div>
                     </div>
 
                     <div class="mb-2">
@@ -47,11 +53,11 @@
                                placeholder="Apellidos"
                                th:field="*{apellidos}"
                                class="form-control form-underline"
-                               th:errorClass="is-invalid">
-                        <div class="invalid-feedback"
-                             th:errors="*{apellidos}" th:if="${#fields.hasErrors('apellidos')}"
-                        >
-                        </div>
+                               th:errorClass="is-invalid"
+                               readonly> <div class="invalid-feedback"
+                                              th:errors="*{apellidos}" th:if="${#fields.hasErrors('apellidos')}"
+                    >
+                    </div>
                     </div>
 
                     <div class="mb-2">
@@ -126,5 +132,44 @@
         </div>
     </div>
 </div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $(document).ready(function () {
+            // Detectar cuando el usuario deja el campo DNI
+            $("#dni").on('blur', function () {
+                var dni = $(this).val();
+
+                // Resetear campos y mensajes
+                $("#nombres").val(''); // Limpia por si acaso
+                $("#apellidos").val('');
+                $("#dniError").hide();
+
+                // Validar que sean 8 dígitos
+                if (dni.length === 8 && /^\d{8}$/.test(dni)) {
+                    $("#dniSpinner").show(); // Mostrar "Buscando..."
+
+                    // Llamada AJAX a nuestro nuevo endpoint
+                    $.ajax({
+                        url: "/api/v1/consulta/dni/" + dni, // URL de nuestro RestController
+                        type: 'GET',
+                        success: function (data) {
+                            // ¡Éxito! Autocompletar campos
+                            $("#nombres").val(data.nombres);
+                            $("#apellidos").val(data.apellidos);
+                            $("#dniSpinner").hide();
+                        },
+                        error: function (xhr) {
+                            // Error (404, 500, etc.)
+                            $("#dniSpinner").hide();
+                            $("#dniError").show(); // Mostrar "DNI no encontrado"
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</th:block>
+
 </body>
 </html>
