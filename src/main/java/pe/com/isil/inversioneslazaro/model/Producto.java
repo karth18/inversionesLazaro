@@ -73,6 +73,9 @@ public class Producto {
     @Column(length = 250)
     private String fichaTecnica;
 
+    @Column(name = "esDestacado")
+    private Boolean esDestacado;
+
     private boolean estado;
 
 

@@ -19,4 +19,9 @@ public class Categoria {
     private String nombre;
 
     private boolean estado = true;
+
+    // nuevos codigos para el index principal dinamico
+
+    @Column(name = "esDestacadaHome")
+    private Boolean esDestacadaHome;
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <title th:text="${componente.id == null} ? 'Nuevo Componente' : 'Editar Componente'">Formulario</title>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+
+    <h2 class="mb-3" th:text="${componente.id == null} ? 'Nuevo Componente' : 'Editar Componente'">Formulario</h2>
+
+    <div th:if="${info != null}" class="alert alert-info" th:text="${info}"></div>
+
+    <form th:action="@{/admin/home-editor/guardar}" method="post" th:object="${componente}"
+          enctype="multipart/form-data">
+
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{seccion}">
+        <input type="hidden" th:field="*{imagenNombre}">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" class="form-control" th:field="*{titulo}"
+                       th:readonly="${componente.seccion.name() == 'CLASIFICACION'}"
+                       placeholder="Ej: Industrial, Oferta Verano, etc.">
+
+                <div th:if="${componente.seccion.name() == 'CLASIFICACION'}" class="form-text">
+                    El título de las clasificaciones (Industrial, Hogar...) no se puede editar.
+                </div>
+                <div th:if="${componente.seccion.name() == 'ANUNCIO_TIRA'}" class="form-text">
+                    Título solo para referencia interna (no se muestra).
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="archivoImagen" class="form-label">Imagen</label>
+                <input type="file" class="form-control" name="archivoImagen" accept="image/jpeg, image/png, image/webp">
+                <div class="form-text" th:if="${componente.id == null}">* Requerido al crear.</div>
+
+                <div th:if="${componente.imagenNombre != null}" class="mt-2">
+                    <small>Imagen actual:</small><br>
+                    <img th:src="@{${componente.getImagenUrl()}}" th:alt="${componente.titulo}" style="width: 200px; height: auto; border-radius: 5px;">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="enlaceUrl" class="form-label">Enlace (URL)</label>
+                <input type="text" class="form-control" th:field="*{enlaceUrl}" placeholder="Ej: /catalogo/producto/5">
+                <div class="form-text">A dónde se dirige el usuario al hacer clic.</div>
+            </div>
+
+            <div class="col-md-6" th:if="${componente.seccion.name() != 'ANUNCIO_TIRA'}">
+                <label for="orden" class="form-label">Orden</label>
+                <input type="number" class="form-control" th:field="*{orden}">
+                <div class="form-text">El número más bajo (ej: 1) aparece primero.</div>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" role="switch" id="estaActivo" th:field="*{estaActivo}">
+                    <label class="form-check-label" for="estaActivo">¿Está Activo? (Visible en el Home)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">Guardar Componente</button>
+            <a th:href="@{/admin/home-editor}" class="btn btn-secondary">Cancelar</a>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

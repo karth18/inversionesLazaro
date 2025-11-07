@@ -14,4 +14,8 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     List<Categoria> findByEstadoTrue();
     List<Categoria> findByEstadoFalse();
+
+    //nuevo codigo para el index principal
+    // Busca solo las categorías que marcaste para mostrar en el Home
+    List<Categoria> findByEsDestacadaHomeTrue();
 }

@@ -6,53 +6,235 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
     <style>
         .hero {
-            background: url('/img/imagenFondoCocina.png') no-repeat center center;
-            background-size: cover;
-            height: 60vh;
-            display: flex;
-            align-items: center;
-            color: white;
+            height: 60vh; min-height: 400px; background-position: center;
+            background-repeat: no-repeat; background-size: cover; display: flex;
+            align-items: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .cuadro-flotante {
+            border-radius: 1rem; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease; height: 100%;
+        }
+        .cuadro-flotante:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .cuadro-flotante img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .cuadro-flotante.card {
+            display: flex; flex-direction: column;
+        }
+        .cuadro-flotante.card img {
+            height: 200px; flex-shrink: 0;
+        }
+        .cuadro-flotante.card .card-body {
+<!--            flex-grow: 1;-->
+        }
+        .anuncio-tira {
+            width: 100%; height: 100px; overflow: hidden;
+        }
+        .anuncio-tira img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .product-carousel .swiper-slide { width: auto; }
+        .product-card {
+            width: 220px; height: 100%;
+        }
+        .product-card .card-img-top { height: 150px; object-fit: cover; }
+        .product-card .card-body { padding: 0.75rem; }
+        .product-card .card-title { font-size: 0.9rem; }
+        .price-original {
+            text-decoration: line-through; color: #6c757d;
+            font-size: 0.8rem; margin-left: 5px;
+        }
+        .price-oferta {
+            color: #dc3545; font-weight: bold; font-size: 1.1rem;
+        }
+        .price-regular {
+            color: #212529; font-weight: bold; font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
+
 <section layout:fragment="content">
-    <div class="hero mb-4">
+
+    <div th:if="${bannerHero != null}" class="hero mb-4"
+         th:style="'background-image: url(\'' + @{${bannerHero.getImagenFondoUrl()}} + '\');'">
+        <div class="container">
+            <h1 th:text="${bannerHero.titulo}">Título del Banner</h1>
+            <p th:text="${bannerHero.subtitulo}">Subtítulo del banner.</p>
+            <a th:if="${bannerHero.enlaceBoton != null AND bannerHero.textoBoton != null}"
+               th:href="@{${bannerHero.enlaceBoton}}"
+               class="btn btn-primary btn-lg">
+                <span th:text="${bannerHero.textoBoton}">Ver Catálogo</span>
+            </a>
+        </div>
+    </div>
+    <div th:if="${bannerHero == null}" class="hero mb-4"
+         th:style="'background-image: url(\'/img/imagenFondoCocina.png\');'">
         <div class="container">
             <h1>Bienvenido a Inversiones Lázaro</h1>
             <p>Explora nuestro catálogo de productos.</p>
         </div>
     </div>
-
     <div class="container">
-        <h2 class="mb-3">Catálogo destacado</h2>
 
-        <div th:if="${productos == null or #lists.isEmpty(productos)}" class="alert alert-info">
-            No hay productos disponibles.
-        </div>
-
-        <div class="row" th:if="${productos != null}">
-            <div class="col-md-4 mb-4" th:each="p : ${productos}">
-                <div class="card h-100">
-                    <img th:if="${p.fotoPath != null}" th:src="@{'/uploads/' + ${p.fotoPath}}" class="card-img-top" alt="Imagen producto" style="height:200px; object-fit:cover;">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title" th:text="${p.nombre}">Nombre</h5>
-                        <p class="card-text small text-muted" th:text="${p.descripcion != null ? (p.descripcion.length() > 120 ? p.descripcion.substring(0,120) + '...' : p.descripcion) : ''}">Descripción corta</p>
-                        <div class="mt-auto">
-                            <p class="fw-bold">S/ <span th:text="${#numbers.formatDecimal(p.precio,1,2)}">0.00</span></p>
-                            <a th:href="@{/productos/{id}(id=${p.id})}" class="btn btn-primary">Ver</a>
+        <div th:if="${seccionOfertas != null and not #lists.isEmpty(seccionOfertas)}" class="my-5" data-aos="fade-up">
+            <h2 class="mb-3 text-center">🔥 OFERTAS ESPECIALES</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                <div class="col" th:each="oferta : ${seccionOfertas}">
+                    <a th:href="@{${oferta.enlaceUrl}}" class="d-block h-100">
+                        <div class="cuadro-flotante">
+                            <img th:src="@{${oferta.getImagenUrl()}}" th:alt="${oferta.titulo}"
+                                 style="height: 280px;">
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="mt-4">
-            <a th:href="@{/catalogo}" class="btn btn-outline-primary">Ver todo el catálogo</a>
+        <div th:if="${seccionAnuncio != null}" class="my-5">
+            <a th:href="@{${seccionAnuncio.enlaceUrl}}">
+                <div class="anuncio-tira">
+                    <img th:src="@{${seccionAnuncio.getImagenUrl()}}" th:alt="${seccionAnuncio.titulo}">
+                </div>
+            </a>
         </div>
+
+        <div class="my-5" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="mb-3 text-center">NUESTRAS LÍNEAS</h2>
+
+            <th:block th:with="
+                slotIndustrialList = ${seccionClasificaciones.?[titulo == 'Industrial']},
+                slotSemiList = ${seccionClasificaciones.?[titulo == 'Semi Industrial']},
+                slotHogarList = ${seccionClasificaciones.?[titulo == 'Hogar']},
+                slotNegocioList = ${seccionClasificaciones.?[titulo == 'Negocio']}
+            ">
+                <th:block th:with="
+                    slotIndustrial = ${!slotIndustrialList.isEmpty()} ? ${slotIndustrialList[0]} : null,
+                    slotSemi = ${!slotSemiList.isEmpty()} ? ${slotSemiList[0]} : null,
+                    slotHogar = ${!slotHogarList.isEmpty()} ? ${slotHogarList[0]} : null,
+                    slotNegocio = ${!slotNegocioList.isEmpty()} ? ${slotNegocioList[0]} : null
+                ">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+
+                        <div class="col">
+                            <a th:href="${slotIndustrial != null} ? @{${slotIndustrial.enlaceUrl}} : '#'" class="text-decoration-none">
+                                <div class="card cuadro-flotante text-center">
+                                    <img th:src="${slotIndustrial != null AND slotIndustrial.getImagenUrl() != null} ? @{${slotIndustrial.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Industrial">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Industrial</h5>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col">
+                            <a th:href="${slotSemi != null} ? @{${slotSemi.enlaceUrl}} : '#'" class="text-decoration-none">
+                                <div class="card cuadro-flotante text-center">
+                                    <img th:src="${slotSemi != null AND slotSemi.getImagenUrl() != null} ? @{${slotSemi.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Semi Industrial">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Semi Industrial</h5>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col">
+                            <a th:href="${slotHogar != null} ? @{${slotHogar.enlaceUrl}} : '#'" class="text-decoration-none">
+                                <div class="card cuadro-flotante text-center">
+                                    <img th:src="${slotHogar != null AND slotHogar.getImagenUrl() != null} ? @{${slotHogar.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Hogar">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Hogar</h5>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col">
+                            <a th:href="${slotNegocio != null} ? @{${slotNegocio.enlaceUrl}} : '#'" class="text-decoration-none">
+                                <div class="card cuadro-flotante text-center">
+                                    <img th:src="${slotNegocio != null AND slotNegocio.getImagenUrl() != null} ? @{${slotNegocio.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Negocio">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Negocio</h5>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
+                </th:block>
+            </th:block>
+        </div>
+
+        <div th:if="${seccionCarrusel != null and not #lists.isEmpty(seccionCarrusel)}" class="mb-5" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="mb-3 text-center">Descubre Más</h2>
+
+            <div class="swiper product-carousel">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" th:each="p : ${seccionCarrusel}">
+                        <div class="card product-card h-100">
+                            <a th:href="@{/catalogo/producto/{id}(id=${p.id})}">
+                                <img th:src="${p.getImagenPrincipalUrl()}" class="card-img-top" th:alt="${p.nomPro}">
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" th:text="${p.nomPro}">Nombre</h5>
+                                <div class="mt-auto">
+                                    <div th:if="${p.precioOferta != null AND p.precioOferta < p.precio}">
+                                        <span class="price-oferta" th:text="'S/ ' + ${#numbers.formatDecimal(p.precioOferta, 1, 2)}"></span>
+                                        <span class="price-original" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}"></span>
+                                    </div>
+                                    <div th:unless="${p.precioOferta != null AND p.precioOferta < p.precio}">
+                                        <span class="price-regular" th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}"></span>
+                                    </div>
+                                    <a th:href="@{/catalogo/producto/{id}(id=${p.id})}" class="btn btn-primary btn-sm mt-2">Ver Producto</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+        </div>
+
     </div>
 </section>
+
+<div layout:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AOS.init();
+            const swipers = document.querySelectorAll('.product-carousel');
+            swipers.forEach(function (swiperEl) {
+                new Swiper(swiperEl, {
+                    slidesPerView: 'auto',
+                    spaceBetween: 16,
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    breakpoints: {
+                        576: { slidesPerView: 2, spaceBetween: 10 },
+                        768: { slidesPerView: 3, spaceBetween: 16 },
+                        1200: { slidesPerView: 5, spaceBetween: 16 }
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+
 </body>
 </html>

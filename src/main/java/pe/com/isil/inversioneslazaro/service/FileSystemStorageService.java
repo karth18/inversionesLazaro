@@ -103,11 +103,20 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void delete(String filename) {
-        Path file = load(filename);
         try {
-            Files.delete(file);
-//            FileSystemUtils.deleteRecursively(file);
+            // 1. Si el nombre es nulo o vacío, no hagas nada.
+            if (filename == null || filename.isBlank()) {
+                return;
+            }
+
+            Path file = load(filename);
+
+            // 2. Asegúrate de que es un archivo (no una carpeta) antes de borrar
+            if (Files.exists(file) && Files.isRegularFile(file)) {
+                Files.delete(file);
+            }
         } catch (IOException e) {
+            // Lanza la excepción solo si realmente falló la eliminación
             throw new FileNotFoundException("No se pudo eliminar el archivo: " + filename, e);
         }
     }
