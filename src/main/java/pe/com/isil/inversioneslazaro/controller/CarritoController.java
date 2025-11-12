@@ -25,7 +25,7 @@ public class CarritoController {
     @Autowired
     private CarritoService carritoService;
 
-    // 1. Endpoint que recibe el FORMULARIO de tu detail.html
+    // (agregarAlCarrito y verCarrito se quedan igual)
     @PostMapping("/agregar")
     public String agregarAlCarrito(@RequestParam("id") Long productoId,
                                    @RequestParam("cantidad") int cantidad,
@@ -36,66 +36,60 @@ public class CarritoController {
         } catch (Exception e) {
             ra.addFlashAttribute("msgError", "No se pudo añadir el producto");
         }
-        // Redirige a la vista del carrito
         return "redirect:/carrito";
     }
-
-    // 2. Endpoint para MOSTRAR la página del carrito (la que describiste)
     @GetMapping("")
     public String verCarrito(Model model) {
-
-        // 1. Obtiene los items
         Collection<CarritoItem> items = carritoService.getItems();
-
-        // 2. Calcula los totales (esto devuelve un Map)
         Map<String, BigDecimal> totalesMap = carritoService.calcularTotales();
-
-        // 3. Convierte el Map al DTO que el HTML necesita
         CarritoTotalesDTO totalesDTO = new CarritoTotalesDTO(totalesMap);
         model.addAttribute("carrito", items);
         model.addAttribute("totales", totalesDTO);
-        return "carrito/ver"; // La nueva vista que crearemos en el Paso 5
+        return "carrito/ver";
     }
 
-    // 3. API para ACTUALIZAR (Checkbox y Cantidad) - Se llama con JavaScript
+    // --- API PARA ACTUALIZAR (CORREGIDA) ---
     @PostMapping("/api/actualizar")
-    @ResponseBody // Retorna JSON
+    @ResponseBody
     public ResponseEntity<Map<String, BigDecimal>> actualizarItem(
             @RequestParam("id") Long productoId,
             @RequestParam("cantidad") int cantidad,
             @RequestParam("seleccionado") boolean seleccionado) {
 
-        carritoService.actualizarItem(productoId, cantidad, seleccionado);
-        Map<String, BigDecimal> totales = carritoService.calcularTotales();
-        return ResponseEntity.ok(totales); // Devuelve los nuevos totales
+        // 1. Llama al método (que ahora actualiza Y devuelve los totales)
+        Map<String, BigDecimal> totales = carritoService.actualizarItem(productoId, cantidad, seleccionado);
+
+        // 2. Devuelve los totales (ya no llamamos a calcularTotales() aquí)
+        return ResponseEntity.ok(totales);
     }
 
-    // 4. API para ELIMINAR (Menú de 3 puntos) - Se llama con JavaScript
+    // --- API PARA ELIMINAR (CORREGIDA) ---
     @PostMapping("/api/eliminar")
-    @ResponseBody // Retorna JSON
+    @ResponseBody
     public ResponseEntity<Map<String, BigDecimal>> eliminarItem(
             @RequestParam("id") Long productoId) {
 
-        carritoService.eliminarItem(productoId);
-        Map<String, BigDecimal> totales = carritoService.calcularTotales();
-        return ResponseEntity.ok(totales); // Devuelve los nuevos totales
+        // 1. Llama al método (que ahora elimina Y devuelve los totales)
+        Map<String, BigDecimal> totales = carritoService.eliminarItem(productoId);
+
+        // 2. Devuelve los totales (ya no llamamos a calcularTotales() aquí)
+        return ResponseEntity.ok(totales);
     }
+
+    // (agregarAlCarritoApi se queda igual)
     @PostMapping("/api/agregar")
-    @ResponseBody // Important: Returns JSON, not a view or redirect
+    @ResponseBody
     public ResponseEntity<?> agregarAlCarritoApi(
             @RequestParam("id") Long productoId,
             @RequestParam(value = "cantidad", defaultValue = "1") int cantidad) {
         try {
             carritoService.agregarAlCarrito(productoId, cantidad);
-            // Return a success response (maybe include cart count later)
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Producto añadido al carrito");
-            // You could add: response.put("cartItemCount", carritoService.getItemCount());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Return an error response
-            log.error("Error adding product to cart via API: id={}", productoId, e); // Use your logger
+            log.error("Error adding product to cart via API: id={}", productoId, e);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "No se pudo añadir el producto. Intente de nuevo.");

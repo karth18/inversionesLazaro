@@ -11,10 +11,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler; // Añadido si no estaba
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
-import pe.com.isil.inversioneslazaro.security.UserDetailsServiceImpl; // Ya lo tenías
+import pe.com.isil.inversioneslazaro.security.UserDetailsServiceImpl;
+import pe.com.isil.inversioneslazaro.service.CarritoService;
 
 
 @SuppressWarnings("unused")
@@ -26,16 +27,18 @@ public class WebSecurityConfig  {
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
+    @Autowired private CarritoService carritoService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                // --- INICIO DE LA CORRECCIÓN ---
                 .formLogin(form -> form
                         .loginProcessingUrl("/login") // La URL a la que apunta el JS
 
                         // 1. En caso de ÉXITO (login correcto)
                         // Devuelve un JSON con la URL de redirección
                         .successHandler((request, response, authentication) -> {
+                            carritoService.migrarCarritoSesionADb();
                             String targetUrl = request.getParameter("targetUrl");
                             if (!StringUtils.hasText(targetUrl) || !targetUrl.startsWith("/")) {
                                 targetUrl = "/"; // URL por defecto si no hay target
@@ -55,16 +58,7 @@ public class WebSecurityConfig  {
                         })
                         .permitAll()
                 )
-                // --- FIN DE LA CORRECCIÓN ---
-//                // Configuración del login vía modal (sin loginPage)
-//                .formLogin(form -> form
-//                               // .loginPage("/")
-//                                .loginProcessingUrl("/login")            // URL a la que apunta el form del modal
-//                                //.defaultSuccessUrl("/", true)            // Redirige al inicio si login es correcto
-//                                .successHandler(myAuthenticationSuccessHandler())
-//                                .failureUrl("/?error=true")
-//                                .permitAll()
-//                )
+
                 // Configuración de permisos
                 .authorizeHttpRequests(authz -> authz
                         // URL públicas
@@ -119,52 +113,5 @@ public class WebSecurityConfig  {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-//    // codigo nuevo **********************
-//    @Bean
-//    public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
-//        return new CustomAuthenticationSuccessHandler();
-//    }
-//
-//    public static class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-//
-//        private RequestCache requestCache = new HttpSessionRequestCache();
-//
-//        @Override
-//        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-//                                            Authentication authentication) throws IOException, ServletException {
-//
-//            // 1. Intenta obtener la URL guardada por Spring Security
-//            SavedRequest savedRequest = requestCache.getRequest(request, response);
-//            if (savedRequest != null) {
-//                String targetUrlAfterLogin = savedRequest.getRedirectUrl();
-//                requestCache.removeRequest(request, response);
-//                response.sendRedirect(targetUrlAfterLogin);
-//                System.out.println("Redirigiendo a SavedRequest: " + targetUrlAfterLogin); // Log para depurar
-//                return;
-//            }
-//
-//            // 2. Busca nuestro parámetro 'targetUrl'
-//            String targetUrlParameter = request.getParameter("targetUrl");
-//            System.out.println("Valor del parámetro targetUrl recibido: " + targetUrlParameter); // Log para depurar
-//
-//            if (targetUrlParameter != null) {
-//                targetUrlParameter = targetUrlParameter.trim(); // Limpiar espacios
-//            }
-//
-//
-//            if (StringUtils.hasText(targetUrlParameter) && targetUrlParameter.startsWith("/")) {
-//
-//                response.sendRedirect(targetUrlParameter); // Redirige a /direccion
-//                System.out.println("Redirigiendo a targetUrl: " + targetUrlParameter); // Log para depurar
-//                return;
-//            }
-//
-//            // 3. Si no hay nada, redirige a la página principal
-//            System.out.println("No se encontró SavedRequest ni targetUrl. Redirigiendo a /"); // Log para depurar
-//            response.sendRedirect("/");
-//        }
-//    }
 
 }

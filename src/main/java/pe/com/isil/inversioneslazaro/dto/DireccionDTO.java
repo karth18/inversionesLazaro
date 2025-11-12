@@ -12,16 +12,17 @@ public class DireccionDTO {
     private String dptoInterior;
     private boolean esPrincipal;
 
-    // Almacenamos solo los nombres (String)
+    // Campos simples (String) para mostrar en la vista
     private String departamento;
     private String provincia;
     private String distrito;
 
+    // Campos de ID (Long) para el JavaScript (al editar)
     private Long departamentoId;
     private Long provinciaId;
     private Long distritoId;
 
-    // Constructor para mapear fácil desde la Entidad
+    // Constructor que hace la "traducción"
     public DireccionDTO(Direccion direccion) {
         this.id = direccion.getId();
         this.calleAvenida = direccion.getCalleAvenida();
@@ -29,14 +30,18 @@ public class DireccionDTO {
         this.dptoInterior = direccion.getDptoInterior();
         this.esPrincipal = direccion.isEsPrincipal();
 
-        // Asumimos que los getters inicializarán el proxy
-        // (Esto debe llamarse dentro de una transacción)
-        this.departamento = direccion.getDepartamento().getNombre();
-        this.provincia = direccion.getProvincia().getNombre();
-        this.distrito = direccion.getDistrito().getNombre();
-
-        this.departamentoId = direccion.getDepartamento().getId();
-        this.provinciaId = direccion.getProvincia().getId();
-        this.distritoId = direccion.getDistrito().getId();
+        // Evita errores si alguna relación es nula (aunque no debería)
+        if (direccion.getDepartamento() != null) {
+            this.departamento = direccion.getDepartamento().getNombre();
+            this.departamentoId = direccion.getDepartamento().getId();
+        }
+        if (direccion.getProvincia() != null) {
+            this.provincia = direccion.getProvincia().getNombre();
+            this.provinciaId = direccion.getProvincia().getId();
+        }
+        if (direccion.getDistrito() != null) {
+            this.distrito = direccion.getDistrito().getNombre();
+            this.distritoId = direccion.getDistrito().getId();
+        }
     }
 }

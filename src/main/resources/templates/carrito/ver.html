@@ -146,10 +146,11 @@
 
                     <div class="d-grid">
                         <!-- Si está autenticado, va directo a /checkout -->
-                        <a sec:authorize="isAuthenticated()"
-                           th:href="@{/compra/checkout}"
-                           class="btn btn-primary btn-lg btn-continuar-compra"
-                            th:disabled="${totales == null OR totales.total <= 0}">Continuar Compra</a>
+                        <button sec:authorize="isAuthenticated()"
+                                type="button"
+                                th:onclick="'window.location.href=\'' + @{/compra/checkout} + '\''"
+                                class="btn btn-primary btn-lg btn-continuar-compra"
+                                th:disabled="${totales == null OR totales.total <= 0}">Continuar Compra</button>
 
                         <!-- Si es anónimo, va a /login guardando la intención de ir a /checkout -->
                         <button sec:authorize="isAnonymous()"
@@ -225,15 +226,6 @@ function actualizarResumen(totales) {
                 });
 
 }
-
-
-function formatCurrency(value) {
-    return 'S/ ' + parseFloat(value).toLocaleString('es-PE', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
             /**
              * Función principal de API: Llama al backend para actualizar o eliminar
              */
