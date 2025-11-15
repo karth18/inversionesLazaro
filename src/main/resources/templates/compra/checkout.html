@@ -127,6 +127,17 @@
                 </div>
             </div>
 
+            <div class.="card shadow-sm mb-4">
+                <div class="card-header bg-light"><h2 class="h5 mb-0">3. Método de Pago</h2></div>
+                <div class.="card-body">
+                    <form id="payment-form">
+                        <div id="card-element" class="form-control" style="padding: 10px;"></div>
+
+                        <div id="card-errors" role="alert" class="text-danger small mt-2"></div>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
         <div class="col-lg-4">
@@ -221,22 +232,27 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        // Datos del Modelo (Inyectados por Thymeleaf)
+        // --- 👇 ¡AQUÍ ESTÁ TU INTERRUPTOR! 👇 ---
+        // true = Simular pago (no usa Stripe)
+        // false = Pago real (sí usa Stripe)
+        const MODO_SIMULACION = false;
+        // --- FIN DEL INTERRUPTOR ---
+
+        // --- DATOS INYECTADOS (Sin cambios) ---
         const itemsCarrito = /*[[${itemsCarrito}]]*/ [];
-        let direccionSeleccionada = /*[[${direccionSeleccionada}]]*/ null; // Objeto Direccion o null (Mutable)
-        let direccionesUsuario = /*[[${direccionesUsuario}]]*/ []; // Lista de Direccion (Mutable)
+        let direccionSeleccionada = /*[[${direccionSeleccionada}]]*/ null;
+        let direccionesUsuario = /*[[${direccionesUsuario}]]*/ [];
         const deliveryCost = 10.0;
         const csrfToken = /*[[${_csrf?.token}]]*/ null;
         const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+        const stripePublicKey = /*[[${@environment.getProperty('stripe.public.key')}]]*/ null;
 
-        // --- Funciones de Ayuda ---
+        // --- FUNCIONES DE AYUDA (Sin cambios) ---
         function formatCurrency(value) {
             const numericValue = parseFloat(value);
             if (isNaN(numericValue)) return 'S/ 0.00';
             return `S/ ${numericValue.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
-
-        // Headers para Fetch con CSRF
         function getFetchHeaders() {
             const headers = new Headers({
                 'Content-Type': 'application/json',
@@ -248,30 +264,22 @@
             return headers;
         }
 
-
         document.addEventListener('DOMContentLoaded', function() {
 
-            // --- INICIO: NUEVAS FUNCIONES DE CARGA ---
-
-            /**
-             * Carga las provincias (y devuelve una Promesa)
-             */
+            // --- FUNCIONES DE CARGA DE UBIGEO (DE TU SCRIPT ORIGINAL) ---
             async function cargarProvincias(depId) {
                 provSelect.disabled = true;
                 distSelect.disabled = true;
                 provSelect.innerHTML = '<option value="">Cargando...</option>';
                 distSelect.innerHTML = '<option value="">-- Seleccione Provincia --</option>';
-
                 if (!depId) {
                     provSelect.innerHTML = '<option value="">-- Seleccione Departamento --</option>';
-                    return; // Termina la ejecución
+                    return;
                 }
-
                 try {
                     const response = await fetch(`/api/direccion/provincias/${depId}`);
                     if (!response.ok) throw new Error('Error al cargar provincias');
                     const provincias = await response.json();
-
                     provSelect.innerHTML = '<option value="">-- Seleccione Provincia --</option>';
                     provincias.forEach(p => {
                         provSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
@@ -282,24 +290,17 @@
                     provSelect.innerHTML = '<option value="">Error al cargar</option>';
                 }
             }
-
-            /**
-             * Carga los distritos (y devuelve una Promesa)
-             */
             async function cargarDistritos(provId) {
                 distSelect.disabled = true;
                 distSelect.innerHTML = '<option value="">Cargando...</option>';
-
                 if (!provId) {
                     distSelect.innerHTML = '<option value="">-- Seleccione Provincia --</option>';
-                    return; // Termina la ejecución
+                    return;
                 }
-
                 try {
                     const response = await fetch(`/api/direccion/distritos/${provId}`);
                     if (!response.ok) throw new Error('Error al cargar distritos');
                     const distritos = await response.json();
-
                     distSelect.innerHTML = '<option value="">-- Seleccione Distrito --</option>';
                     distritos.forEach(d => {
                         distSelect.innerHTML += `<option value="${d.id}">${d.nombre}</option>`;
@@ -311,37 +312,28 @@
                 }
             }
 
-            // --- FIN: NUEVAS FUNCIONES DE CARGA ---
-
-            // --- Elementos DOM (Resumen) ---
+            // --- ELEMENTOS DOM (Completos) ---
             const summarySubtotalEl = document.getElementById('summarySubtotal');
             const summaryShippingCostEl = document.getElementById('summaryShippingCost');
             const summaryDiscountEl = document.getElementById('summaryDiscount');
             const summaryTotalEl = document.getElementById('summaryTotal');
             const deliveryCostDisplay = document.getElementById('deliveryCost');
-
-            // --- Elementos DOM (Envío y Pago) ---
             const deliveryRadio = document.getElementById('deliveryRadio');
             const pickupRadio = document.getElementById('pickupRadio');
             const goToPaymentBtn = document.getElementById('goToPaymentBtn');
             const paymentValidationMsg = document.getElementById('paymentValidationMsg');
             const selectedAddressDisplay = document.getElementById('selectedAddressDisplay');
             const changeAddressBtn = document.getElementById('changeAddressBtn');
-
-            // --- Elementos DOM (Modales de Dirección) ---
             const newAddressModalEl = document.getElementById('newAddressModal');
             const newAddressModal = new bootstrap.Modal(newAddressModalEl);
             const newAddressModalLabel = document.getElementById('newAddressModalLabel');
             const changeAddressModalEl = document.getElementById('changeAddressModal');
             const changeAddressModal = new bootstrap.Modal(changeAddressModalEl);
-
             const saveNewAddressBtn = document.getElementById('saveNewAddressBtn');
             const selectAddressBtn = document.getElementById('selectAddressBtn');
             const openNewAddressModalBtn = document.getElementById('openNewAddressModalBtn');
             const newAddressForm = document.getElementById('newAddressForm');
             const addressListContainer = document.getElementById('addressListContainer');
-
-            // --- Elementos DOM (Formulario Dirección) ---
             const formDireccionId = document.getElementById('direccionId');
             const depSelect = document.getElementById('departamentoSelect');
             const provSelect = document.getElementById('provinciaSelect');
@@ -350,12 +342,12 @@
             const numeroInput = document.getElementById('numeroCalle');
             const dptoInput = document.getElementById('dptoInterior');
             const principalCheckbox = document.getElementById('esPrincipalNew');
+            const cardErrors = document.getElementById('card-errors');
+            const cardElementDiv = document.getElementById('card-element');
 
-
+            // --- LÓGICA DE ESTADO Y RESUMEN (DE TU SCRIPT ORIGINAL) ---
             let currentShippingMethod=deliveryRadio.checked? 'delivery' : 'pickup';
-            let currentSelectedAddress = direccionSeleccionada; // Usar la variable mutable
-
-            // --- INICIO: Cargar Selección Guardada (sessionStorage) ---
+            let currentSelectedAddress = direccionSeleccionada;
             let savedAddressId = sessionStorage.getItem('checkoutSelectedAddressId');
             if (savedAddressId) {
                 savedAddressId = parseInt(savedAddressId, 10);
@@ -365,45 +357,61 @@
                     direccionSeleccionada = savedDir;
                 }
             }
-            // --- FIN: Cargar Selección Guardada ---
-
-
-            // --- Lógica de Resumen de Pedido ---
-
-            // Tomamos los totales del HTML (cargados por Thymeleaf) como base
             let initialSubtotal = parseFloat(summarySubtotalEl ? summarySubtotalEl.textContent.replace(/S\/\s*/, '').replace(',', '') : 0);
             let initialDiscount = parseFloat(summaryDiscountEl ? summaryDiscountEl.textContent.replace(/-S\/\s*/, '').replace(',', '') : 0);
-
             function updateSummary() {
                 const subtotal = initialSubtotal;
                 const discount = initialDiscount;
                 const shippingCost = currentShippingMethod === 'delivery' ? deliveryCost : 0;
                 const total = subtotal + shippingCost - discount;
-
                 if(summaryShippingCostEl) summaryShippingCostEl.textContent = formatCurrency(shippingCost);
                 if(summaryTotalEl) summaryTotalEl.textContent = formatCurrency(total);
                 if(deliveryCostDisplay) deliveryCostDisplay.textContent = deliveryCost.toFixed(2);
-
                 validatePaymentButton();
             }
-
             function validatePaymentButton() {
                  const isDisabled = (currentShippingMethod === 'delivery' && !currentSelectedAddress);
                  if (goToPaymentBtn) goToPaymentBtn.disabled = isDisabled;
                  if (paymentValidationMsg) paymentValidationMsg.style.display = isDisabled ? 'block' : 'none';
             }
 
-            // --- Lógica de Gestión de Direcciones ---
+            // --- INICIALIZACIÓN DE STRIPE (CON EL INTERRUPTOR) ---
+            let stripe, cardElement;
+            if (!MODO_SIMULACION) {
+                if (!stripePublicKey) {
+                    console.error("Error: La clave pública de Stripe no está configurada.");
+                    if (goToPaymentBtn) goToPaymentBtn.disabled = true;
+                    if (cardErrors) cardErrors.textContent = "Error de configuración de pago.";
+                    return;
+                }
+                stripe = Stripe(stripePublicKey);
+                const elements = stripe.elements();
+                const style = {
+                    base: { fontSize: '16px', color: '#212529', '::placeholder': { color: '#6c757d' } },
+                    invalid: { color: '#dc3545', iconColor: '#dc3545' }
+                };
+                cardElement = elements.create('card', { style: style });
+                if (cardElementDiv) {
+                    cardElement.mount(cardElementDiv);
+                    cardElement.on('change', function(event) {
+                        if (cardErrors) {
+                            cardErrors.textContent = event.error ? event.error.message : '';
+                        }
+                    });
+                } else {
+                     console.error("Error: No se encontró el div #card-element.");
+                     if (goToPaymentBtn) goToPaymentBtn.disabled = true;
+                }
+            } else {
+                console.warn("MODO SIMULACIÓN ACTIVO. El formulario de pago real está deshabilitado.");
+                if (cardElementDiv) cardElementDiv.style.display = 'none';
+            }
 
-            /**
-             * Actualiza el card "1. Dirección de Envío" en la página principal.
-             */
+            // --- LÓGICA DE GESTIÓN DE DIRECCIONES (DE TU SCRIPT ORIGINAL) ---
             function updateSelectedAddressUI(address) {
-                 currentSelectedAddress = address; // Actualizar estado global
+                 currentSelectedAddress = address;
                  console.log("Dirección seleccionada actualizada:", address);
                  if (address) {
-                     // Construir el HTML dinámicamente
-                     // (Usa los campos de string: address.distrito)
                      let addressHTML = `<p class="mb-1"><strong>${address.esPrincipal ? '(Principal) ' : ''}</strong></p>
                                         <p>${address.calleAvenida || ''} ${address.numeroCalle || ''}</p>
                                         <p>${address.distrito || ''}, ${address.provincia || ''}, ${address.departamento || ''}</p>`;
@@ -425,16 +433,10 @@
                  }
                  validatePaymentButton();
             }
-
-            /**
-             * Puebla la lista de direcciones en el modal "Cambiar Dirección"
-             */
             function updateChangeAddressModalList() {
                  if (!addressListContainer) return;
-
                  const noAddressMsg = document.getElementById('noAddressMessage');
                  addressListContainer.innerHTML = '';
-
                  if (direccionesUsuario.length === 0) {
                      if(noAddressMsg) noAddressMsg.style.display = 'block';
                  } else {
@@ -442,7 +444,6 @@
                      direccionesUsuario.forEach(dir => {
                          const dirElement = document.createElement('div');
                          dirElement.className = 'list-group-item list-group-item-action';
-                         // (Usa los campos de string: dir.distrito)
                          dirElement.innerHTML = `
                             <div class="address-content">
                                 <input class="form-check-input me-2" type="radio" name="selectedAddressRadio" value="${dir.id}" ${currentSelectedAddress && dir.id === currentSelectedAddress.id ? 'checked' : ''}>
@@ -464,67 +465,42 @@
                          addressListContainer.appendChild(dirElement);
                      });
                  }
-
                  if(changeAddressBtn){
                     changeAddressBtn.disabled = (direccionesUsuario.length === 0);
                  }
             }
-
-            /**
-             * Prepara el modal para "Agregar Nueva Dirección" (limpia el formulario)
-             */
             function prepareNewAddressModal() {
                 newAddressModalLabel.textContent = "Agregar Nueva Dirección";
                 newAddressForm.reset();
                 formDireccionId.value = '';
-
                 const wrapper = document.getElementById('esPrincipalWrapper');
                 const label = wrapper.querySelector('label');
-
                 if (direccionesUsuario.length === 0) {
                     wrapper.style.display = 'none';
                 } else {
                     wrapper.style.display = 'block';
                     label.textContent = '¿Quieres que esta sea tu nueva dirección principal?';
                 }
-
                 provSelect.innerHTML = '<option value="">-- Seleccione Departamento --</option>';
                 distSelect.innerHTML = '<option value="">-- Seleccione Provincia --</option>';
                 provSelect.disabled = true;
                 distSelect.disabled = true;
                 newAddressModal.show();
             }
-
-            // --- Lógica de Selects Dinámicos (Ubigeo) ---
-            depSelect.addEventListener('change', function() {
-                cargarProvincias(this.value);
-            });
-
-            provSelect.addEventListener('change', function() {
-                cargarDistritos(this.value);
-            });
-
-
-            /**
-             * Función UNIFICADA para Guardar (POST) o Actualizar (PUT) una dirección
-             */
             async function saveOrUpdateAddress() {
                 if (!newAddressForm.checkValidity()) {
                      newAddressForm.classList.add('was-validated');
                      return;
                 }
                 newAddressForm.classList.remove('was-validated');
-
                 const direccionId = formDireccionId.value;
                 const isUpdating = !!direccionId;
-
                 let esPrincipalValue;
                 if (isUpdating) {
                     esPrincipalValue = principalCheckbox.checked;
                 } else {
                     esPrincipalValue = (direccionesUsuario.length === 0) ? true : principalCheckbox.checked;
                 }
-
                 const addressData = {
                     id: isUpdating ? direccionId : null,
                     departamento: { id: depSelect.value },
@@ -535,24 +511,19 @@
                     dptoInterior:dptoInput.value || null,
                     esPrincipal: esPrincipalValue
                 };
-
                 const url = isUpdating ? `/api/direccion/${direccionId}` : '/api/direccion/nueva';
                 const method = isUpdating ? 'PUT' : 'POST';
-
                 try {
                     const response = await fetch(url, {
                         method: method,
                         headers: getFetchHeaders(),
                         body: JSON.stringify(addressData)
                     });
-
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.message || `Error ${response.status}`);
                     }
-
                     const savedAddress = await response.json();
-
                     if (isUpdating) {
                         const index = direccionesUsuario.findIndex(d => d.id === savedAddress.id);
                         if (index !== -1) {
@@ -561,7 +532,6 @@
                     } else {
                         direccionesUsuario.push(savedAddress);
                     }
-
                     if (savedAddress.esPrincipal || direccionesUsuario.length === 1) {
                         direccionesUsuario.forEach(d => {
                             if (d.id !== savedAddress.id) d.esPrincipal = false;
@@ -569,113 +539,72 @@
                         updateSelectedAddressUI(savedAddress);
                         sessionStorage.setItem('checkoutSelectedAddressId', savedAddress.id);
                     }
-
                     if (currentSelectedAddress && currentSelectedAddress.id === savedAddress.id) {
                          updateSelectedAddressUI(savedAddress);
                     }
-
                     updateChangeAddressModalList();
                     newAddressModal.hide();
-
                 } catch (error) {
                     console.error('Error al guardar la dirección:', error);
                     alert(`No se pudo guardar la dirección: ${error.message}`);
                 }
             }
-
-            // --- Funciones Globales (para onclick) ---
-
-            /**
-             * Carga los datos de una dirección en el formulario para editarla
-             * (*** VERSIÓN CORREGIDA ***)
-             */
             window.handleEdit = async function(id) {
                 console.log("Editando ID:", id);
                 try {
                     const response = await fetch(`/api/direccion/${id}`, { headers: getFetchHeaders() });
                     if (!response.ok) throw new Error('No se pudo cargar la dirección');
-
-                    // dir AHORA tiene: { id: ..., calleAvenida: ..., departamentoId: 15, provinciaId: 1501, distritoId: 150101 }
                     const dir = await response.json();
-
                     newAddressModalLabel.textContent = "Editar Dirección";
                     formDireccionId.value = dir.id;
                     calleInput.value = dir.calleAvenida;
                     numeroInput.value = dir.numeroCalle;
                     dptoInput.value = dir.dptoInterior;
                     principalCheckbox.checked = dir.esPrincipal;
-
-                    // --- INICIO: LÓGICA ASÍNCRONA CORREGIDA CON IDs PLANOS ---
-
-                    // 1. Asigna el departamento (sincrónico)
                     depSelect.value = dir.departamentoId;
-
-                    // 2. ESPERA a que la función cargarProvincias TERMINE
                     await cargarProvincias(dir.departamentoId);
-
-                    // 3. Asigna la provincia (sincrónico)
                     provSelect.value = dir.provinciaId;
-
-                    // 4. ESPERA a que la función cargarDistritos TERMINE
                     await cargarDistritos(dir.provinciaId);
-
-                    // 5. Asigna el distrito (sincrónico)
                     distSelect.value = dir.distritoId;
-
-                    // --- FIN: LÓGICA ASÍNCRONA CORREGIDA ---
-
                     changeAddressModal.hide();
                     newAddressModal.show();
-
                 } catch(error) {
                     console.error("Error al cargar dirección para editar:", error);
                     alert("Error: " + error.message);
                 }
             }
-
-            /**
-             * Elimina una dirección
-             */
             window.handleDelete = async function(id) {
                 if (!confirm("¿Estás seguro de que deseas eliminar esta dirección?")) {
                     return;
                 }
-
                 try {
                     const response = await fetch(`/api/direccion/${id}`, {
                         method: 'DELETE',
                         headers: getFetchHeaders()
                     });
-
                     if (!response.ok) {
                          throw new Error('No se pudo eliminar la dirección');
                     }
-
                     direccionesUsuario = direccionesUsuario.filter(d => d.id !== id);
                     updateChangeAddressModalList();
-
                     if (currentSelectedAddress && currentSelectedAddress.id === id) {
                         sessionStorage.removeItem('checkoutSelectedAddressId');
-
                         const newSelected = direccionesUsuario.find(d => d.esPrincipal) || direccionesUsuario[0] || null;
                         updateSelectedAddressUI(newSelected);
-
                         if (newSelected) {
                             sessionStorage.setItem('checkoutSelectedAddressId', newSelected.id);
                         }
                     }
-
                     alert("Dirección eliminada correctamente.");
-
                 } catch(error) {
                     console.error("Error al eliminar dirección:", error);
                     alert("Error: " + error.message);
                 }
             }
 
-
-            // --- Event Listeners ---
-
+            // --- LISTENERS (DE TU SCRIPT ORIGINAL) ---
+            depSelect.addEventListener('change', function() { cargarProvincias(this.value); });
+            provSelect.addEventListener('change', function() { cargarDistritos(this.value); });
             deliveryRadio.addEventListener('change', () => {
                 if (deliveryRadio.checked) {
                     currentShippingMethod = 'delivery';
@@ -688,14 +617,11 @@
                     updateSummary();
                 }
             });
-
             if(saveNewAddressBtn) saveNewAddressBtn.addEventListener('click', saveOrUpdateAddress);
-
             if(openNewAddressModalBtn) openNewAddressModalBtn.addEventListener('click', () => {
                 changeAddressModal.hide();
                 prepareNewAddressModal();
             });
-
             if(selectAddressBtn) selectAddressBtn.addEventListener('click', () => {
                 const selectedRadio = changeAddressModalEl.querySelector('input[name="selectedAddressRadio"]:checked');
                 if (selectedRadio) {
@@ -711,16 +637,378 @@
                 }
             });
 
-            // --- Inicialización ---
+            // --- (AQUÍ ESTÁ LA LÓGICA DEL "INTERRUPTOR" PARA EL PAGO) ---
+            if (goToPaymentBtn) {
+                goToPaymentBtn.addEventListener('click', async function(event) {
+                    event.preventDefault();
+
+                    if (currentShippingMethod === 'delivery' && !currentSelectedAddress) {
+                         alert("Por favor, selecciona o agrega una dirección de envío.");
+                         return;
+                    }
+
+                    goToPaymentBtn.disabled = true;
+                    goToPaymentBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+                    if(cardErrors) cardErrors.textContent = '';
+
+                    try {
+                        let fetchUrl;
+                        let fetchBody;
+
+                        if (MODO_SIMULACION) {
+                            // --- MODO SIMULACIÓN ---
+                            console.warn("MODO SIMULACIÓN: Llamando a /api/pago/simular");
+                            fetchUrl = '/api/pago/simular';
+                            fetchBody = JSON.stringify({
+                                direccionId: currentSelectedAddress.id,
+                                shippingMethod: currentShippingMethod
+                            });
+
+                        } else {
+                            // --- MODO REAL (CON STRIPE) ---
+                            console.log("MODO PAGO REAL: Creando token de Stripe...");
+                            const { token, error } = await stripe.createToken(cardElement);
+                            if (error) {
+                                if(cardErrors) cardErrors.textContent = error.message;
+                                throw new Error("Error de validación de tarjeta");
+                            }
+
+                            fetchUrl = '/api/pago/procesar';
+                            fetchBody = JSON.stringify({
+                                token: token.id,
+                                direccionId: currentSelectedAddress.id,
+                                shippingMethod: currentShippingMethod
+                            });
+                        }
+
+                        // --- LLAMADA UNIVERSAL AL BACKEND ---
+                        const response = await fetch(fetchUrl, {
+                            method: 'POST',
+                            headers: getFetchHeaders(),
+                            body: fetchBody
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.message || "Error en el servidor");
+                        }
+
+                        // 6. ¡ÉXITO! (Real o Simulado)
+                        console.log("Pago procesado:", result);
+                        window.location.href = '/compra/gracias?pedido=' + result.pedidoId;
+
+                    } catch (err) {
+                        // 7. Manejar cualquier error
+                        console.error("Falló el pago:", err);
+                        if(cardErrors) cardErrors.textContent = err.message;
+                        goToPaymentBtn.disabled = false;
+                        goToPaymentBtn.innerHTML = 'Ir a Pagar';
+                    }
+                });
+            }
+            // --- FIN DE LA MODIFICACIÓN ---
+
+            // --- Inicialización (Sin cambios) ---
             if (currentSelectedAddress) {
                 updateSelectedAddressUI(currentSelectedAddress);
             }
-
             updateChangeAddressModalList();
             updateSummary();
         });
         /*]]>*/
     </script>
+
+<!--    <script th:inline="javascript">-->
+<!--        /*<![CDATA[*/-->
+
+<!--        // -&#45;&#45; DATOS INYECTADOS POR THYMELEAF (Sin cambios) -&#45;&#45;-->
+<!--        const itemsCarrito = /*[[${itemsCarrito}]]*/ [];-->
+<!--        let direccionSeleccionada = /*[[${direccionSeleccionada}]]*/ null;-->
+<!--        let direccionesUsuario = /*[[${direccionesUsuario}]]*/ [];-->
+<!--        const deliveryCost = 10.0;-->
+<!--        const csrfToken = /*[[${_csrf?.token}]]*/ null;-->
+<!--        const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;-->
+<!--        const stripePublicKey = /*[[${@environment.getProperty('stripe.public.key')}]]*/ null;-->
+
+<!--        // -&#45;&#45; FUNCIONES DE AYUDA (Sin cambios) -&#45;&#45;-->
+<!--        function formatCurrency(value) {-->
+<!--            const numericValue = parseFloat(value);-->
+<!--            if (isNaN(numericValue)) return 'S/ 0.00';-->
+<!--            return `S/ ${numericValue.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;-->
+<!--        }-->
+
+<!--        function getFetchHeaders() {-->
+<!--            const headers = new Headers({-->
+<!--                'Content-Type': 'application/json',-->
+<!--                'X-Requested-With': 'XMLHttpRequest'-->
+<!--            });-->
+<!--            if (csrfHeader && csrfToken) {-->
+<!--                headers.append(csrfHeader, csrfToken);-->
+<!--            }-->
+<!--            return headers;-->
+<!--        }-->
+
+
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+
+<!--            // -&#45;&#45; FUNCIONES DE CARGA DE UBIGEO (Sin cambios) -&#45;&#45;-->
+<!--            async function cargarProvincias(depId) {-->
+<!--                provSelect.disabled = true;-->
+<!--                distSelect.disabled = true;-->
+<!--                provSelect.innerHTML = '<option value="">Cargando...</option>';-->
+<!--                distSelect.innerHTML = '<option value="">&#45;&#45; Seleccione Provincia &#45;&#45;</option>';-->
+
+<!--                if (!depId) {-->
+<!--                    provSelect.innerHTML = '<option value="">&#45;&#45; Seleccione Departamento &#45;&#45;</option>';-->
+<!--                    return;-->
+<!--                }-->
+<!--                try {-->
+<!--                    const response = await fetch(`/api/direccion/provincias/${depId}`);-->
+<!--                    if (!response.ok) throw new Error('Error al cargar provincias');-->
+<!--                    const provincias = await response.json();-->
+<!--                    provSelect.innerHTML = '<option value="">&#45;&#45; Seleccione Provincia &#45;&#45;</option>';-->
+<!--                    provincias.forEach(p => {-->
+<!--                        provSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;-->
+<!--                    });-->
+<!--                    provSelect.disabled = false;-->
+<!--                } catch (error) {-->
+<!--                    console.error(error);-->
+<!--                    provSelect.innerHTML = '<option value="">Error al cargar</option>';-->
+<!--                }-->
+<!--            }-->
+<!--            async function cargarDistritos(provId) {-->
+<!--                distSelect.disabled = true;-->
+<!--                distSelect.innerHTML = '<option value="">Cargando...</option>';-->
+
+<!--                if (!provId) {-->
+<!--                    distSelect.innerHTML = '<option value="">&#45;&#45; Seleccione Provincia &#45;&#45;</option>';-->
+<!--                    return;-->
+<!--                }-->
+<!--                try {-->
+<!--                    const response = await fetch(`/api/direccion/distritos/${provId}`);-->
+<!--                    if (!response.ok) throw new Error('Error al cargar distritos');-->
+<!--                    const distritos = await response.json();-->
+<!--                    distSelect.innerHTML = '<option value="">&#45;&#45; Seleccione Distrito &#45;&#45;</option>';-->
+<!--                    distritos.forEach(d => {-->
+<!--                        distSelect.innerHTML += `<option value="${d.id}">${d.nombre}</option>`;-->
+<!--                    });-->
+<!--                    distSelect.disabled = false;-->
+<!--                } catch (error) {-->
+<!--                    console.error(error);-->
+<!--                    distSelect.innerHTML = '<option value="">Error al cargar</option>';-->
+<!--                }-->
+<!--            }-->
+
+<!--            // -&#45;&#45; ELEMENTOS DOM (Tus elementos) -&#45;&#45;-->
+<!--            const summarySubtotalEl = document.getElementById('summarySubtotal');-->
+<!--            const summaryShippingCostEl = document.getElementById('summaryShippingCost');-->
+<!--            const summaryDiscountEl = document.getElementById('summaryDiscount');-->
+<!--            const summaryTotalEl = document.getElementById('summaryTotal');-->
+<!--            const deliveryCostDisplay = document.getElementById('deliveryCost');-->
+<!--            const deliveryRadio = document.getElementById('deliveryRadio');-->
+<!--            const pickupRadio = document.getElementById('pickupRadio');-->
+<!--            const goToPaymentBtn = document.getElementById('goToPaymentBtn');-->
+<!--            const paymentValidationMsg = document.getElementById('paymentValidationMsg');-->
+<!--            const selectedAddressDisplay = document.getElementById('selectedAddressDisplay');-->
+<!--            const changeAddressBtn = document.getElementById('changeAddressBtn');-->
+<!--            const newAddressModalEl = document.getElementById('newAddressModal');-->
+<!--            const newAddressModal = new bootstrap.Modal(newAddressModalEl);-->
+<!--            const newAddressModalLabel = document.getElementById('newAddressModalLabel');-->
+<!--            const changeAddressModalEl = document.getElementById('changeAddressModal');-->
+<!--            const changeAddressModal = new bootstrap.Modal(changeAddressModalEl);-->
+<!--            const saveNewAddressBtn = document.getElementById('saveNewAddressBtn');-->
+<!--            const selectAddressBtn = document.getElementById('selectAddressBtn');-->
+<!--            const openNewAddressModalBtn = document.getElementById('openNewAddressModalBtn');-->
+<!--            const newAddressForm = document.getElementById('newAddressForm');-->
+<!--            const addressListContainer = document.getElementById('addressListContainer');-->
+<!--            const formDireccionId = document.getElementById('direccionId');-->
+<!--            const depSelect = document.getElementById('departamentoSelect');-->
+<!--            const provSelect = document.getElementById('provinciaSelect');-->
+<!--            const distSelect = document.getElementById('distritoSelect');-->
+<!--            const calleInput = document.getElementById('calleAvenida');-->
+<!--            const numeroInput = document.getElementById('numeroCalle');-->
+<!--            const dptoInput = document.getElementById('dptoInterior');-->
+<!--            const principalCheckbox = document.getElementById('esPrincipalNew');-->
+
+<!--            // -&#45;&#45; 👇 1. MODIFICACIÓN: AÑADIMOS ELEMENTOS DOM DE STRIPE 👇 -&#45;&#45;-->
+<!--            const cardErrors = document.getElementById('card-errors');-->
+<!--            const cardElementDiv = document.getElementById('card-element');-->
+<!--            // -&#45;&#45; FIN DE LA MODIFICACIÓN -&#45;&#45;-->
+
+<!--            // -&#45;&#45; (Tu lógica de estado y resumen se queda igual) -&#45;&#45;-->
+<!--            let currentShippingMethod=deliveryRadio.checked? 'delivery' : 'pickup';-->
+<!--            let currentSelectedAddress = direccionSeleccionada;-->
+<!--            let savedAddressId = sessionStorage.getItem('checkoutSelectedAddressId');-->
+<!--            if (savedAddressId) {-->
+<!--                savedAddressId = parseInt(savedAddressId, 10);-->
+<!--                const savedDir = direccionesUsuario.find(dir => dir.id === savedAddressId);-->
+<!--                if (savedDir) {-->
+<!--                    currentSelectedAddress = savedDir;-->
+<!--                    direccionSeleccionada = savedDir;-->
+<!--                }-->
+<!--            }-->
+<!--            let initialSubtotal = parseFloat(summarySubtotalEl ? summarySubtotalEl.textContent.replace(/S\/\s*/, '').replace(',', '') : 0);-->
+<!--            let initialDiscount = parseFloat(summaryDiscountEl ? summaryDiscountEl.textContent.replace(/-S\/\s*/, '').replace(',', '') : 0);-->
+<!--            function updateSummary() {-->
+<!--                const subtotal = initialSubtotal;-->
+<!--                const discount = initialDiscount;-->
+<!--                const shippingCost = currentShippingMethod === 'delivery' ? deliveryCost : 0;-->
+<!--                const total = subtotal + shippingCost - discount;-->
+<!--                if(summaryShippingCostEl) summaryShippingCostEl.textContent = formatCurrency(shippingCost);-->
+<!--                if(summaryTotalEl) summaryTotalEl.textContent = formatCurrency(total);-->
+<!--                if(deliveryCostDisplay) deliveryCostDisplay.textContent = deliveryCost.toFixed(2);-->
+<!--                validatePaymentButton();-->
+<!--            }-->
+<!--            function validatePaymentButton() {-->
+<!--                 const isDisabled = (currentShippingMethod === 'delivery' && !currentSelectedAddress);-->
+<!--                 if (goToPaymentBtn) goToPaymentBtn.disabled = isDisabled;-->
+<!--                 if (paymentValidationMsg) paymentValidationMsg.style.display = isDisabled ? 'block' : 'none';-->
+<!--            }-->
+
+<!--            // -&#45;&#45; 👇 2. MODIFICACIÓN: AÑADIMOS INICIALIZACIÓN DE STRIPE 👇 -&#45;&#45;-->
+<!--            if (!stripePublicKey) {-->
+<!--                console.error("Error: La clave pública de Stripe no está configurada.");-->
+<!--                if (goToPaymentBtn) goToPaymentBtn.disabled = true;-->
+<!--                if (cardErrors) cardErrors.textContent = "Error de configuración de pago.";-->
+<!--                return; // Detiene la ejecución si no hay clave-->
+<!--            }-->
+
+<!--            const stripe = Stripe(stripePublicKey);-->
+<!--            const elements = stripe.elements();-->
+<!--            const style = {-->
+<!--                base: { fontSize: '16px', color: '#212529', '::placeholder': { color: '#6c757d' } },-->
+<!--                invalid: { color: '#dc3545', iconColor: '#dc3545' }-->
+<!--            };-->
+<!--            const cardElement = elements.create('card', { style: style });-->
+
+<!--            if (cardElementDiv) {-->
+<!--                cardElement.mount(cardElementDiv);-->
+<!--                cardElement.on('change', function(event) {-->
+<!--                    if (cardErrors) {-->
+<!--                        cardErrors.textContent = event.error ? event.error.message : '';-->
+<!--                    }-->
+<!--                });-->
+<!--            } else {-->
+<!--                 console.error("Error: No se encontró el div #card-element.");-->
+<!--                 if (goToPaymentBtn) goToPaymentBtn.disabled = true;-->
+<!--            }-->
+<!--            // -&#45;&#45; FIN DE LA MODIFICACIÓN -&#45;&#45;-->
+
+<!--            // -&#45;&#45; (Tu lógica de gestión de direcciones se queda igual) -&#45;&#45;-->
+<!--            function updateSelectedAddressUI(address) { /* ... tu código ... */ }-->
+<!--            function updateChangeAddressModalList() { /* ... tu código ... */ }-->
+<!--            function prepareNewAddressModal() { /* ... tu código ... */ }-->
+<!--            async function saveOrUpdateAddress() { /* ... tu código ... */ }-->
+<!--            window.handleEdit = async function(id) { /* ... tu código ... */ }-->
+<!--            window.handleDelete = async function(id) { /* ... tu código ... */ }-->
+
+<!--            // -&#45;&#45; (Tus listeners de Ubigeo y Modal se quedan igual) -&#45;&#45;-->
+<!--            depSelect.addEventListener('change', function() { cargarProvincias(this.value); });-->
+<!--            provSelect.addEventListener('change', function() { cargarDistritos(this.value); });-->
+<!--            deliveryRadio.addEventListener('change', () => {-->
+<!--                if (deliveryRadio.checked) {-->
+<!--                    currentShippingMethod = 'delivery';-->
+<!--                    updateSummary();-->
+<!--                }-->
+<!--            });-->
+<!--            pickupRadio.addEventListener('change', () => {-->
+<!--                 if (pickupRadio.checked) {-->
+<!--                    currentShippingMethod = 'pickup';-->
+<!--                    updateSummary();-->
+<!--                }-->
+<!--            });-->
+<!--            if(saveNewAddressBtn) saveNewAddressBtn.addEventListener('click', saveOrUpdateAddress);-->
+<!--            if(openNewAddressModalBtn) openNewAddressModalBtn.addEventListener('click', () => {-->
+<!--                changeAddressModal.hide();-->
+<!--                prepareNewAddressModal();-->
+<!--            });-->
+<!--            if(selectAddressBtn) selectAddressBtn.addEventListener('click', () => {-->
+<!--                const selectedRadio = changeAddressModalEl.querySelector('input[name="selectedAddressRadio"]:checked');-->
+<!--                if (selectedRadio) {-->
+<!--                    const selectedId = parseInt(selectedRadio.value, 10);-->
+<!--                    const selectedDir = direccionesUsuario.find(dir => dir.id === selectedId);-->
+<!--                    if (selectedDir) {-->
+<!--                        updateSelectedAddressUI(selectedDir);-->
+<!--                        sessionStorage.setItem('checkoutSelectedAddressId', selectedDir.id);-->
+<!--                    }-->
+<!--                    changeAddressModal.hide();-->
+<!--                } else {-->
+<!--                    alert("Por favor, selecciona una dirección.");-->
+<!--                }-->
+<!--            });-->
+
+<!--            // -&#45;&#45; 👇 3. MODIFICACIÓN: AÑADIMOS EL LISTENER DEL BOTÓN "IR A PAGAR" 👇 -&#45;&#45;-->
+<!--            if (goToPaymentBtn) {-->
+<!--                goToPaymentBtn.addEventListener('click', async function(event) {-->
+<!--                    event.preventDefault();-->
+
+<!--                    // 1. Validar dirección-->
+<!--                    if (currentShippingMethod === 'delivery' && !currentSelectedAddress) {-->
+<!--                         alert("Por favor, selecciona o agrega una dirección de envío.");-->
+<!--                         return;-->
+<!--                    }-->
+
+<!--                    // 2. Mostrar Spinner-->
+<!--                    goToPaymentBtn.disabled = true;-->
+<!--                    goToPaymentBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';-->
+<!--                    if(cardErrors) cardErrors.textContent = '';-->
+
+<!--                    try {-->
+<!--                        // 3. Pedir el Token a Stripe-->
+<!--                        const { token, error } = await stripe.createToken(cardElement);-->
+
+<!--                        if (error) {-->
+<!--                            if(cardErrors) cardErrors.textContent = error.message;-->
+<!--                            throw new Error("Error de validación de tarjeta");-->
+<!--                        }-->
+
+<!--                        // 4. Preparar datos para TU backend-->
+<!--                        // (Aquí es donde se enlazan el token, la dirección y el envío)-->
+<!--                        const paymentRequest = {-->
+<!--                            token: token.id,-->
+<!--                            direccionId: currentSelectedAddress.id,-->
+<!--                            shippingMethod: currentShippingMethod-->
+<!--                        };-->
+
+<!--                        // 5. Llamar a TU endpoint /api/pago/procesar-->
+<!--                        const response = await fetch('/api/pago/procesar', {-->
+<!--                            method: 'POST',-->
+<!--                            headers: getFetchHeaders(),-->
+<!--                            body: JSON.stringify(paymentRequest)-->
+<!--                        });-->
+
+<!--                        const result = await response.json();-->
+<!--                        if (!response.ok) {-->
+<!--                            throw new Error(result.message || "Error en el servidor");-->
+<!--                        }-->
+
+<!--                        // 6. ¡ÉXITO TOTAL! Redirigir-->
+<!--                        console.log("Pago exitoso:", result);-->
+<!--                        // (Debes crear esta página de "gracias" en tu backend)-->
+<!--                        window.location.href = '/compra/gracias?pedido=' + result.pedidoId;-->
+
+<!--                    } catch (err) {-->
+<!--                        // 7. Manejar cualquier error-->
+<!--                        console.error("Falló el pago:", err);-->
+<!--                        if(cardErrors) cardErrors.textContent = err.message;-->
+<!--                        goToPaymentBtn.disabled = false;-->
+<!--                        goToPaymentBtn.innerHTML = 'Ir a Pagar';-->
+<!--                    }-->
+<!--                });-->
+<!--            }-->
+<!--            // -&#45;&#45; FIN DE LA MODIFICACIÓN -&#45;&#45;-->
+
+
+<!--            // -&#45;&#45; Inicialización (Sin cambios) -&#45;&#45;-->
+<!--            if (currentSelectedAddress) {-->
+<!--                updateSelectedAddressUI(currentSelectedAddress);-->
+<!--            }-->
+<!--            updateChangeAddressModalList();-->
+<!--            updateSummary();-->
+<!--        });-->
+<!--        /*]]>*/-->
+<!--    </script>-->
+
 </div>
 </body>
 </html>

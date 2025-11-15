@@ -62,16 +62,13 @@ public class WebSecurityConfig  {
                 // Configuración de permisos
                 .authorizeHttpRequests(authz -> authz
                         // URL públicas
-                        .requestMatchers("/", "/inicio", "/catalogo/**", "/personaliza", "/css/**", "/js/**", "/img/**", "/registrar/**", "/uploads/**","carrito/**","/api/v1/consulta/dni/**").permitAll()
+                        .requestMatchers("/", "/inicio", "/catalogo/**",
+                                "/personaliza", "/css/**", "/js/**", "/img/**",
+                                "/registrar/**", "/uploads/**","carrito/**",
+                                "/api/v1/consulta/dni/**").permitAll()
                         // URLs privadas
+                        .requestMatchers("/admin/banners/**","/admin/home-editor/**").hasAnyRole("ADMIN","MARKETING")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // URLs Autenticadas. Ojo: todo usuario autenticado puede ingresar a cualquier url si no esta debidamente mapeado
-                        //por ejemplo si bien es cierto al asignarles un rol en el  front
-                        //es para que no se muestre si el usuario no tiene como rol Admin
-                        //esa url no se mostrar pero sinembargo si el usuario autenticado lo escribre la url
-                        // de manera manual en el buscador tendra acceso a dicha informacion por ello las rutas de admin estan
-                        // como admin/** siendo asi privada solo las rutas que estan en admin/** cualquier otra ruta solo
-                        // basta con autenticarse
                         .requestMatchers( "/usuario/**","/api/direccion/**","/compra/**").authenticated()
                         .anyRequest().authenticated()
                 )

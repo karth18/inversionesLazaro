@@ -65,12 +65,14 @@ public class Usuario {
 
 
     @Enumerated(EnumType.STRING)
-//    @NotNull(message = "Debe seleccionar un rol")
+    @Column(length = 20)
     private Rol rol;
 
     public enum Rol {
         ADMIN,
-        CLIENTE
+        CLIENTE,
+        DESPACHO,
+        MARKETING
 
     }
 

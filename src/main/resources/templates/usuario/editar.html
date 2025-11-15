@@ -73,6 +73,8 @@
                         <select id="rol" th:field="*{rol}" class="form-control form-underline" th:errorClass="is-invalid">
                             <option value="ADMIN">ADMIN</option>
                             <option value="CLIENTE">CLIENTE</option>
+                            <option value="MARKETING">MARKETING</option>
+                            <option value="DESPACHO">DESPACHO</option>
                         </select>
                         <div class="invalid-feedback"
                              th:errors="*{rol}" th:if="${#fields.hasErrors('rol')}">

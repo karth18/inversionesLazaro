@@ -8,14 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import pe.com.isil.inversioneslazaro.dto.CarritoItem;
 import pe.com.isil.inversioneslazaro.dto.CarritoTotalesDTO;
 import pe.com.isil.inversioneslazaro.dto.DireccionDTO;
 import pe.com.isil.inversioneslazaro.model.Departamento;
 import pe.com.isil.inversioneslazaro.model.Direccion;
+import pe.com.isil.inversioneslazaro.model.Pedido;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 import pe.com.isil.inversioneslazaro.repository.DepartamentoRepository;
 import pe.com.isil.inversioneslazaro.repository.DireccionRepository;
+import pe.com.isil.inversioneslazaro.repository.PedidoRepository;
 import pe.com.isil.inversioneslazaro.repository.UsuarioRepository;
 import pe.com.isil.inversioneslazaro.service.CarritoService;
 
@@ -33,6 +36,7 @@ public class compraProductoController {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private DireccionRepository direccionRepository;
     @Autowired private DepartamentoRepository departamentoRepository;
+    @Autowired private PedidoRepository pedidoRepository;
 
     @Autowired
     private CarritoService carritoService;
@@ -91,5 +95,24 @@ public class compraProductoController {
         model.addAttribute("totales", totales);
 
         return "compra/checkout";
+    }
+
+    /**
+     * Muestra la página de "Gracias" después de un pago exitoso.
+     */
+    @GetMapping("/gracias")
+    public String paginaGracias(@RequestParam("pedido") Long pedidoId, Model model) {
+
+        // Busca el pedido en la BD
+        Optional<Pedido> pedidoOpt = pedidoRepository.findById(pedidoId);
+
+        if (pedidoOpt.isEmpty()) {
+            // Si no se encuentra el pedido, redirige al inicio
+            return "redirect:/";
+        }
+
+        // Pasa el código del pedido (ej. ORD-123ABC) a la vista
+        model.addAttribute("codigoPedido", pedidoOpt.get().getCodigoPedido());
+        return "compra/gracias"; // -> /templates/compra/gracias.html
     }
 }

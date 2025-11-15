@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <title>¡Gracias por tu compra!</title>
+    <style>
+        .gracias-container {
+            max-width: 600px;
+            margin: 4rem auto;
+            padding: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        .gracias-icon {
+            font-size: 4rem;
+            color: #198754; /* Verde de Bootstrap */
+        }
+    </style>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+
+    <div class="gracias-container">
+
+        <i class="fas fa-check-circle gracias-icon mb-3"></i>
+
+        <h1 class="h2">¡Gracias por tu compra!</h1>
+
+        <p class="lead">Tu pedido ha sido recibido y está siendo procesado.</p>
+
+        <div class="alert alert-success">
+            El código de tu pedido es:
+            <strong class="fs-5 d-block mt-1" th:text="${codigoPedido}">ORD-XXXXXX</strong>
+        </div>
+
+        <p class="mt-4">
+            Recibirás una confirmación por correo electrónico en breve.
+        </p>
+
+        <div class="d-flex justify-content-center gap-2 mt-4">
+            <a th:href="@{/}" class="btn btn-primary">Volver al Inicio</a>
+            <a th:href="@{/misPedidos}" class="btn btn-outline-secondary">Ver mis Pedidos</a>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

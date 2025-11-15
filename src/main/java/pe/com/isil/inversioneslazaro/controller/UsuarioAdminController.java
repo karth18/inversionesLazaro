@@ -39,8 +39,6 @@ public class UsuarioAdminController {
     private AuditoriaService auditoriaService;
 
 
-
-
     @GetMapping("")
     public String index(Model model,
                         @PageableDefault(size = 8) Pageable pageable,
