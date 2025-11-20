@@ -23,7 +23,7 @@
 
             <div class="col-md-6">
                 <label for="titulo" class="form-label">Título</label>
-                <input type="text" class="form-control" th:field="*{titulo}"
+                <input type="text" class="form-control" th:field="*{titulo}" id="titulo"
                        th:readonly="${componente.seccion.name() == 'CLASIFICACION'}"
                        placeholder="Ej: Industrial, Oferta Verano, etc.">
 
@@ -37,7 +37,7 @@
 
             <div class="col-md-6">
                 <label for="archivoImagen" class="form-label">Imagen</label>
-                <input type="file" class="form-control" name="archivoImagen" accept="image/jpeg, image/png, image/webp">
+                <input type="file" class="form-control" name="archivoImagen" id="archivoImagen" accept="image/jpeg, image/png, image/webp">
                 <div class="form-text" th:if="${componente.id == null}">* Requerido al crear.</div>
 
                 <div th:if="${componente.imagenNombre != null}" class="mt-2">
@@ -48,14 +48,18 @@
 
             <div class="col-md-6">
                 <label for="enlaceUrl" class="form-label">Enlace (URL)</label>
-                <input type="text" class="form-control" th:field="*{enlaceUrl}" placeholder="Ej: /catalogo/producto/5">
+                <input type="text" class="form-control" th:field="*{enlaceUrl}" id="enlaceUrl" placeholder="Ej: /catalogo/producto/5">
                 <div class="form-text">A dónde se dirige el usuario al hacer clic.</div>
             </div>
 
             <div class="col-md-6" th:if="${componente.seccion.name() != 'ANUNCIO_TIRA'}">
                 <label for="orden" class="form-label">Orden</label>
-                <input type="number" class="form-control" th:field="*{orden}">
+                <input type="number" class="form-control" th:field="*{orden}" id="orden"
+                       th:classappend="${#fields.hasErrors('orden')} ? 'is-invalid' : ''">
                 <div class="form-text">El número más bajo (ej: 1) aparece primero.</div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('orden')}" th:errors="*{orden}">
+                    Error en el orden.
+                </div>
             </div>
 
             <div class="col-md-6 d-flex align-items-center">

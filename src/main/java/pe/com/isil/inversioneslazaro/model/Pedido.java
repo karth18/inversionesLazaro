@@ -44,6 +44,9 @@ public class Pedido {
     @Column(name = "stripe_charge_id")
     private String stripeChargeId;
 
+    @Column(length = 500)
+    private String motivoCancelacion;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoDetalle> detalles = new ArrayList<>();
 

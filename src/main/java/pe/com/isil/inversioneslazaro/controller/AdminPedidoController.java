@@ -5,19 +5,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.isil.inversioneslazaro.model.Auditoria;
 import pe.com.isil.inversioneslazaro.model.Pedido;
+import pe.com.isil.inversioneslazaro.model.PedidoDetalle;
+import pe.com.isil.inversioneslazaro.model.Producto;
 import pe.com.isil.inversioneslazaro.repository.PedidoRepository;
+import pe.com.isil.inversioneslazaro.repository.ProductoRepository;
 import pe.com.isil.inversioneslazaro.service.AuditoriaService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/pedidos")
@@ -27,7 +30,7 @@ public class AdminPedidoController {
     private PedidoRepository pedidoRepository;
     @Autowired
     private AuditoriaService auditoriaService;
-
+    @Autowired private ProductoRepository productoRepository;
     /**
      * Muestra la lista paginada de todos los pedidos
      * (¡MODIFICADO CON BÚSQUEDA!)
@@ -76,13 +79,33 @@ public class AdminPedidoController {
     @PostMapping("/actualizar-estado")
     public String actualizarEstado(@RequestParam("pedidoId") Long pedidoId,
                                    @RequestParam("estado") Pedido.EstadoPedido estado,
+                                   @RequestParam(value = "motivoCancelacion",required = false) String motivo,
                                    RedirectAttributes ra) {
         // (Este método se queda igual)
         return pedidoRepository.findById(pedidoId)
                 .map(pedido -> {
+
+                    if (estado == Pedido.EstadoPedido.CANCELADO) {
+                        // Asignamos el motivo al pedido (asegúrate de tener este campo en tu Entidad)
+                        pedido.setMotivoCancelacion(motivo);
+                        if (pedido.getEstado() != Pedido.EstadoPedido.CANCELADO) {
+                            for (PedidoDetalle detalle : pedido.getDetalles()) {
+                                Producto producto = detalle.getProducto();
+                                producto.setStock(producto.getStock() + detalle.getCantidad());
+                                productoRepository.save(producto);
+                            }
+                        }
+                    }
+
                     pedido.setEstado(estado);
                     pedidoRepository.save(pedido);
-                    registrarAuditoria("Pedido", pedido.getId(), "Estado actualizado a " + estado.name());
+
+
+                    String accionAuditoria = "Estado actualizado a " + estado.name();
+                    if (motivo != null && !motivo.isEmpty()) {
+                        accionAuditoria += " | Motivo: " + motivo;
+                    }
+                    registrarAuditoria("Pedido", pedido.getId(), accionAuditoria);
                     ra.addFlashAttribute("msgExito", "Estado del Pedido " + pedido.getCodigoPedido() + " actualizado.");
                     return "redirect:/admin/pedidos";
                 })
@@ -90,6 +113,53 @@ public class AdminPedidoController {
                     ra.addFlashAttribute("msgError", "Error al actualizar, pedido no encontrado.");
                     return "redirect:/admin/pedidos";
                 });
+    }
+
+    @PostMapping("/api/actualizar-estado") // Fíjate que la URL es distinta (/api/...)
+    @ResponseBody // Esto le dice a Spring: "No busques un HTML, devuelve datos puros"
+    public ResponseEntity<?> actualizarEstadoApi(@RequestParam("pedidoId") Long pedidoId,
+                                                 @RequestParam("estado") Pedido.EstadoPedido estado,
+                                                 @RequestParam(value = "motivoCancelacion", required = false) String motivo) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Pedido pedido = pedidoRepository.findById(pedidoId)
+                    .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+            // 1. Copiamos EXACTAMENTE tu misma lógica de negocio aquí
+            if (estado == Pedido.EstadoPedido.CANCELADO) {
+                pedido.setMotivoCancelacion(motivo);
+
+                if (pedido.getEstado() != Pedido.EstadoPedido.CANCELADO) {
+                    for (PedidoDetalle detalle : pedido.getDetalles()) {
+                        Producto producto = detalle.getProducto();
+                        producto.setStock(producto.getStock() + detalle.getCantidad());
+                        productoRepository.save(producto);
+                    }
+                }
+            }
+
+            pedido.setEstado(estado);
+            pedidoRepository.save(pedido);
+
+            // 2. Auditoría
+            String accionAuditoria = "Estado actualizado a " + estado.name();
+            if (motivo != null && !motivo.isEmpty()) {
+                accionAuditoria += " | Motivo: " + motivo;
+            }
+            registrarAuditoria("Pedido", pedido.getId(), accionAuditoria);
+
+            // 3. EN LUGAR DE REDIRECTATTRIBUTES, Enviamos JSON
+            response.put("success", true);
+            response.put("message", "Estado del Pedido " + pedido.getCodigoPedido() + " actualizado.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/imprimir/{id}")

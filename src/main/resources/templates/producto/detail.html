@@ -9,7 +9,7 @@
     <style>
         .product-image-large {
             height: 450px;
-            object-fit: contain; /* Mostrar la imagen completa sin recortar */
+            object-fit: contain;
             width: 100%;
         }
         .thumbnail-image {
@@ -21,12 +21,17 @@
             transition: border-color 0.2s;
         }
         .thumbnail-image:hover, .carousel-indicator-active {
-            border-color: #0d6efd; /* Color primario de Bootstrap */
+            border-color: #0d6efd;
         }
         .price-display {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #dc3545; /* Rojo para destacar el precio */
+            color: #dc3545;
+        }
+        .price-no-stock {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6c757d; /* Gris para indicar inactivo */
         }
         .delivery-option {
             border: 1px solid #dee2e6;
@@ -45,12 +50,9 @@
 
     <div th:unless="${producto == null}">
         <div class="row">
-            <!-- COLUMNA IZQUIERDA: CARRUSEL DE IMÁGENES -->
             <div class="col-lg-6">
-                <!-- Carrusel Principal de Imágenes -->
                 <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner border rounded shadow-sm">
-                        <!-- Iterar sobre las imágenes para crear los slides -->
                         <th:block th:each="img, stat : *{imagenes}">
                             <div class="carousel-item" th:classappend="${stat.index == 0} ? 'active'">
                                 <img th:src="@{'/uploads/' + ${img.ruta}}" class="d-block product-image-large" th:alt="${producto.nomPro} + ' - Imagen ' + ${stat.count}">
@@ -58,7 +60,6 @@
                         </th:block>
                     </div>
 
-                    <!-- Si hay más de una imagen, mostrar controles -->
                     <th:block th:if="*{imagenes.size() > 1}">
                         <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -71,7 +72,6 @@
                     </th:block>
                 </div>
 
-                <!-- Carrusel de Miniaturas (Indicadores) -->
                 <div class="d-flex justify-content-center mt-3 gap-2">
                     <th:block th:each="img, stat : *{imagenes}">
                         <img th:src="@{'/uploads/' + ${img.ruta}}"
@@ -88,94 +88,96 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: INFORMACIÓN Y COMPRA -->
             <div class="col-lg-6 ps-lg-5">
-                <!-- Nombre y Código (Extremo a Extremo) -->
                 <div class="d-flex justify-content-between align-items-baseline mb-3 border-bottom pb-2">
                     <h1 class="h3 mb-0" th:text="*{nomPro}">Nombre del Producto</h1>
                     <span class="text-muted small" th:text="'Código: ' + *{codPro}">CÓDIGO-001</span>
                 </div>
 
-                <!-- Descripción Corta -->
                 <p class="lead mb-4" th:text="*{descripcionCorta}">
-                    Descripción corta y concisa del producto, ideal para la vista previa.
+                    Descripción corta...
                 </p>
 
-                <!-- Stock Disponible -->
-                <div class="alert alert-info py-2 mb-4">
+                <div th:if="*{stock > 0}" class="alert alert-info py-2 mb-4">
                     <i class="fas fa-check-circle"></i> Stock Disponible: <span th:text="*{stock}">15</span> unidades
                 </div>
+                <div th:unless="*{stock > 0}" class="alert alert-danger py-2 mb-4">
+                    <i class="fas fa-times-circle"></i> Producto Agotado
+                </div>
 
-                <!-- SECCIÓN DETALLE (Entrega / Compra) - Dividido en 2 Sub-Columnas -->
                 <div class="row">
-                    <!-- SUB-COLUMNA IZQUIERDA: TIPO DE ENTREGA -->
                     <div class="col-md-6 border-end">
                         <h5 class="mb-3 text-secondary">Tipo de Entrega</h5>
-
-                        <!-- Fila 1: Despacho a Domicilio -->
                         <div class="delivery-option bg-light">
                             <p class="mb-0 fw-bold">Despacho a Domicilio</p>
                             <p class="mb-0 small text-muted">Recibe en 2-5 días hábiles.</p>
                         </div>
-
-                        <!-- Fila 2: Retira tu Compra -->
                         <div class="delivery-option bg-light">
                             <p class="mb-0 fw-bold">Retira tu Compra</p>
                             <p class="mb-0 small text-muted">Disponible para recojo en tienda.</p>
                         </div>
                     </div>
 
-                    <!-- SUB-COLUMNA DERECHA: PRECIO Y COMPRA -->
                     <div class="col-md-6">
                         <h5 class="mb-3 text-secondary">Precio</h5>
-                        <p class="price-display" th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'POINT', 2, 'COMMA')}">S/ 999.00</p>
 
-                        <form th:action="@{/carrito/agregar}" method="POST">
+                        <div th:if="*{stock > 0}">
+                            <p class="price-display" th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'POINT', 2, 'COMMA')}">S/ 999.00</p>
+                        </div>
+                        <div th:unless="*{stock > 0}">
+                            <p class="price-no-stock">Sin Stock Disponible</p>
+                        </div>
 
+                        <form th:if="*{stock > 0}" th:action="@{/carrito/agregar}" method="POST">
                             <input type="hidden" name="id" th:value="${producto.id}" />
 
                             <label for="cantidad" class="form-label">Cantidad:</label>
                             <div class="input-group mb-3" style="max-width: 150px;">
                                 <button class="btn btn-outline-secondary" type="button" id="btn-minus">-</button>
-
-                                <input type="number" id="cantidad" name="cantidad" value="1" min="1" th:max="*{stock}"
-                                       class="form-control text-center" />
-
+                                <input type="number" id="cantidad" name="cantidad" value="1" min="1" th:max="*{stock}" class="form-control text-center" />
                                 <button class="btn btn-outline-secondary" type="button" id="btn-plus">+</button>
                             </div>
 
                             <button class="btn btn-danger btn-lg w-100" type="submit">
                                 <i class="fas fa-shopping-cart me-2"></i> Agregar al Carro
                             </button>
-
                         </form>
+
+                        <div th:unless="*{stock > 0}" class="mt-3">
+                            <div class="alert alert-warning text-center p-2 mb-3" role="alert" style="font-size: 0.9rem;">
+                                <strong>Lo sentimos.</strong><br>
+                                Ya no contamos con stock de este producto.
+                            </div>
+
+                            <button class="btn btn-secondary btn-lg w-100" disabled>
+                                <i class="fas fa-ban me-2"></i> Agotado
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Fin de las dos columnas principales -->
-
-        <!-- Detalles extendidos (opcional) -->
         <div class="mt-5 border-top pt-4">
             <h4 class="mb-3">Descripción Completa</h4>
-            <p th:text="*{descripcionLarga}">Aquí iría la descripción larga del producto, con más detalles técnicos y beneficios.</p>
+            <p th:text="*{descripcionLarga}">Descripción larga...</p>
         </div>
     </div>
 
 </div>
 
 <div layout:fragment="scripts">
-    <!-- Script para FontAwesome y manejo del Modal -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
-        // Lógica simple del contador de cantidad
         document.addEventListener('DOMContentLoaded', function () {
             const btnMinus = document.getElementById('btn-minus');
             const btnPlus = document.getElementById('btn-plus');
             const cantidadInput = document.getElementById('cantidad');
-            const maxStock = parseInt(cantidadInput.getAttribute('max'));
 
+            // VALIDACIÓN EXTRA: Solo ejecutamos esto si existen los botones (si hay stock)
             if (btnMinus && btnPlus && cantidadInput) {
+                const maxStock = parseInt(cantidadInput.getAttribute('max'));
+
                 btnPlus.addEventListener('click', function() {
                     let currentVal = parseInt(cantidadInput.value);
                     if (currentVal < maxStock) {
@@ -191,26 +193,20 @@
                 });
             }
 
-            // Lógica para cambiar la imagen del carrusel al hacer clic en las miniaturas
+            // Lógica del carrusel (se mantiene igual)
             const carousel = document.getElementById('productCarousel');
             if (carousel) {
                 const thumbnails = document.querySelectorAll('.thumbnail-image');
 
                 thumbnails.forEach(thumbnail => {
                     thumbnail.addEventListener('click', function() {
-                        // Remover clase activa de todas las miniaturas
                         thumbnails.forEach(t => t.classList.remove('carousel-indicator-active'));
-                        // Añadir clase activa a la miniatura clickeada
                         this.classList.add('carousel-indicator-active');
-
-                        // Usar el API de Bootstrap para controlar el carrusel
                         const slideTo = this.getAttribute('data-bs-slide-to');
                         const bsCarousel = new bootstrap.Carousel(carousel);
                         bsCarousel.to(parseInt(slideTo));
                     });
                 });
-
-                // Actualizar la clase activa de la miniatura cuando el carrusel cambie
                 carousel.addEventListener('slide.bs.carousel', function (e) {
                     const nextIndex = e.to;
                     thumbnails.forEach(t => t.classList.remove('carousel-indicator-active'));
@@ -222,3 +218,229 @@
 </div>
 </body>
 </html>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorate="~{master.html}">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8"/>-->
+<!--    <title th:text="'Detalle de ' + ${producto.nomPro}"></title>-->
+<!--    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">-->
+<!--    <style>-->
+<!--        .product-image-large {-->
+<!--            height: 450px;-->
+<!--            object-fit: contain; /* Mostrar la imagen completa sin recortar */-->
+<!--            width: 100%;-->
+<!--        }-->
+<!--        .thumbnail-image {-->
+<!--            width: 80px;-->
+<!--            height: 80px;-->
+<!--            object-fit: cover;-->
+<!--            border: 2px solid transparent;-->
+<!--            cursor: pointer;-->
+<!--            transition: border-color 0.2s;-->
+<!--        }-->
+<!--        .thumbnail-image:hover, .carousel-indicator-active {-->
+<!--            border-color: #0d6efd; /* Color primario de Bootstrap */-->
+<!--        }-->
+<!--        .price-display {-->
+<!--            font-size: 2.5rem;-->
+<!--            font-weight: bold;-->
+<!--            color: #dc3545; /* Rojo para destacar el precio */-->
+<!--        }-->
+<!--        .delivery-option {-->
+<!--            border: 1px solid #dee2e6;-->
+<!--            border-radius: 6px;-->
+<!--            padding: 10px;-->
+<!--            margin-bottom: 10px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="container py-5" layout:fragment="content" th:object="${producto}">-->
+
+<!--    <div th:if="${producto == null}" class="alert alert-danger text-center">-->
+<!--        Producto no encontrado.-->
+<!--    </div>-->
+
+<!--    <div th:unless="${producto == null}">-->
+<!--        <div class="row">-->
+<!--            &lt;!&ndash; COLUMNA IZQUIERDA: CARRUSEL DE IMÁGENES &ndash;&gt;-->
+<!--            <div class="col-lg-6">-->
+<!--                &lt;!&ndash; Carrusel Principal de Imágenes &ndash;&gt;-->
+<!--                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">-->
+<!--                    <div class="carousel-inner border rounded shadow-sm">-->
+<!--                        &lt;!&ndash; Iterar sobre las imágenes para crear los slides &ndash;&gt;-->
+<!--                        <th:block th:each="img, stat : *{imagenes}">-->
+<!--                            <div class="carousel-item" th:classappend="${stat.index == 0} ? 'active'">-->
+<!--                                <img th:src="@{'/uploads/' + ${img.ruta}}" class="d-block product-image-large" th:alt="${producto.nomPro} + ' - Imagen ' + ${stat.count}">-->
+<!--                            </div>-->
+<!--                        </th:block>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Si hay más de una imagen, mostrar controles &ndash;&gt;-->
+<!--                    <th:block th:if="*{imagenes.size() > 1}">-->
+<!--                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">-->
+<!--                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>-->
+<!--                            <span class="visually-hidden">Anterior</span>-->
+<!--                        </button>-->
+<!--                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">-->
+<!--                            <span class="carousel-control-next-icon" aria-hidden="true"></span>-->
+<!--                            <span class="visually-hidden">Siguiente</span>-->
+<!--                        </button>-->
+<!--                    </th:block>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Carrusel de Miniaturas (Indicadores) &ndash;&gt;-->
+<!--                <div class="d-flex justify-content-center mt-3 gap-2">-->
+<!--                    <th:block th:each="img, stat : *{imagenes}">-->
+<!--                        <img th:src="@{'/uploads/' + ${img.ruta}}"-->
+<!--                             class="thumbnail-image rounded"-->
+<!--                             th:classappend="${stat.index == 0} ? 'carousel-indicator-active'"-->
+<!--                             th:data-bs-target="'#productCarousel'"-->
+<!--                             th:data-bs-slide-to="${stat.index}"-->
+<!--                             th:alt="'Miniatura ' + ${stat.count}">-->
+<!--                    </th:block>-->
+<!--                </div>-->
+
+<!--                <div th:if="*{imagenes.isEmpty()}" class="alert alert-warning mt-3 text-center">-->
+<!--                    No hay imágenes disponibles para este producto.-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; COLUMNA DERECHA: INFORMACIÓN Y COMPRA &ndash;&gt;-->
+<!--            <div class="col-lg-6 ps-lg-5">-->
+<!--                &lt;!&ndash; Nombre y Código (Extremo a Extremo) &ndash;&gt;-->
+<!--                <div class="d-flex justify-content-between align-items-baseline mb-3 border-bottom pb-2">-->
+<!--                    <h1 class="h3 mb-0" th:text="*{nomPro}">Nombre del Producto</h1>-->
+<!--                    <span class="text-muted small" th:text="'Código: ' + *{codPro}">CÓDIGO-001</span>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Descripción Corta &ndash;&gt;-->
+<!--                <p class="lead mb-4" th:text="*{descripcionCorta}">-->
+<!--                    Descripción corta y concisa del producto, ideal para la vista previa.-->
+<!--                </p>-->
+
+<!--                &lt;!&ndash; Stock Disponible &ndash;&gt;-->
+<!--                <div class="alert alert-info py-2 mb-4">-->
+<!--                    <i class="fas fa-check-circle"></i> Stock Disponible: <span th:text="*{stock}">15</span> unidades-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; SECCIÓN DETALLE (Entrega / Compra) - Dividido en 2 Sub-Columnas &ndash;&gt;-->
+<!--                <div class="row">-->
+<!--                    &lt;!&ndash; SUB-COLUMNA IZQUIERDA: TIPO DE ENTREGA &ndash;&gt;-->
+<!--                    <div class="col-md-6 border-end">-->
+<!--                        <h5 class="mb-3 text-secondary">Tipo de Entrega</h5>-->
+
+<!--                        &lt;!&ndash; Fila 1: Despacho a Domicilio &ndash;&gt;-->
+<!--                        <div class="delivery-option bg-light">-->
+<!--                            <p class="mb-0 fw-bold">Despacho a Domicilio</p>-->
+<!--                            <p class="mb-0 small text-muted">Recibe en 2-5 días hábiles.</p>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Fila 2: Retira tu Compra &ndash;&gt;-->
+<!--                        <div class="delivery-option bg-light">-->
+<!--                            <p class="mb-0 fw-bold">Retira tu Compra</p>-->
+<!--                            <p class="mb-0 small text-muted">Disponible para recojo en tienda.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; SUB-COLUMNA DERECHA: PRECIO Y COMPRA &ndash;&gt;-->
+<!--                    <div class="col-md-6">-->
+<!--                        <h5 class="mb-3 text-secondary">Precio</h5>-->
+<!--                        <p class="price-display" th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'POINT', 2, 'COMMA')}">S/ 999.00</p>-->
+
+<!--                        <form th:action="@{/carrito/agregar}" method="POST">-->
+
+<!--                            <input type="hidden" name="id" th:value="${producto.id}" />-->
+
+<!--                            <label for="cantidad" class="form-label">Cantidad:</label>-->
+<!--                            <div class="input-group mb-3" style="max-width: 150px;">-->
+<!--                                <button class="btn btn-outline-secondary" type="button" id="btn-minus">-</button>-->
+
+<!--                                <input type="number" id="cantidad" name="cantidad" value="1" min="1" th:max="*{stock}"-->
+<!--                                       class="form-control text-center" />-->
+
+<!--                                <button class="btn btn-outline-secondary" type="button" id="btn-plus">+</button>-->
+<!--                            </div>-->
+
+<!--                            <button class="btn btn-danger btn-lg w-100" type="submit">-->
+<!--                                <i class="fas fa-shopping-cart me-2"></i> Agregar al Carro-->
+<!--                            </button>-->
+
+<!--                        </form>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; Fin de las dos columnas principales &ndash;&gt;-->
+
+<!--        &lt;!&ndash; Detalles extendidos (opcional) &ndash;&gt;-->
+<!--        <div class="mt-5 border-top pt-4">-->
+<!--            <h4 class="mb-3">Descripción Completa</h4>-->
+<!--            <p th:text="*{descripcionLarga}">Aquí iría la descripción larga del producto, con más detalles técnicos y beneficios.</p>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<div layout:fragment="scripts">-->
+<!--    &lt;!&ndash; Script para FontAwesome y manejo del Modal &ndash;&gt;-->
+<!--    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>-->
+<!--    <script>-->
+<!--        // Lógica simple del contador de cantidad-->
+<!--        document.addEventListener('DOMContentLoaded', function () {-->
+<!--            const btnMinus = document.getElementById('btn-minus');-->
+<!--            const btnPlus = document.getElementById('btn-plus');-->
+<!--            const cantidadInput = document.getElementById('cantidad');-->
+<!--            const maxStock = parseInt(cantidadInput.getAttribute('max'));-->
+
+<!--            if (btnMinus && btnPlus && cantidadInput) {-->
+<!--                btnPlus.addEventListener('click', function() {-->
+<!--                    let currentVal = parseInt(cantidadInput.value);-->
+<!--                    if (currentVal < maxStock) {-->
+<!--                        cantidadInput.value = currentVal + 1;-->
+<!--                    }-->
+<!--                });-->
+
+<!--                btnMinus.addEventListener('click', function() {-->
+<!--                    let currentVal = parseInt(cantidadInput.value);-->
+<!--                    if (currentVal > 1) {-->
+<!--                        cantidadInput.value = currentVal - 1;-->
+<!--                    }-->
+<!--                });-->
+<!--            }-->
+
+<!--            // Lógica para cambiar la imagen del carrusel al hacer clic en las miniaturas-->
+<!--            const carousel = document.getElementById('productCarousel');-->
+<!--            if (carousel) {-->
+<!--                const thumbnails = document.querySelectorAll('.thumbnail-image');-->
+
+<!--                thumbnails.forEach(thumbnail => {-->
+<!--                    thumbnail.addEventListener('click', function() {-->
+<!--                        // Remover clase activa de todas las miniaturas-->
+<!--                        thumbnails.forEach(t => t.classList.remove('carousel-indicator-active'));-->
+<!--                        // Añadir clase activa a la miniatura clickeada-->
+<!--                        this.classList.add('carousel-indicator-active');-->
+
+<!--                        // Usar el API de Bootstrap para controlar el carrusel-->
+<!--                        const slideTo = this.getAttribute('data-bs-slide-to');-->
+<!--                        const bsCarousel = new bootstrap.Carousel(carousel);-->
+<!--                        bsCarousel.to(parseInt(slideTo));-->
+<!--                    });-->
+<!--                });-->
+
+<!--                // Actualizar la clase activa de la miniatura cuando el carrusel cambie-->
+<!--                carousel.addEventListener('slide.bs.carousel', function (e) {-->
+<!--                    const nextIndex = e.to;-->
+<!--                    thumbnails.forEach(t => t.classList.remove('carousel-indicator-active'));-->
+<!--                    thumbnails[nextIndex].classList.add('carousel-indicator-active');-->
+<!--                });-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

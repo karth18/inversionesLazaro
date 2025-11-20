@@ -14,7 +14,8 @@
                 overflow: hidden;
                 height: 100%;
             }
-            .product-card-link:hover .product-card {
+            /* Efecto hover solo en la tarjeta, no en el botón */
+            .product-card:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
@@ -34,7 +35,10 @@
             .price-offer { color: #dc3545; font-weight: bold; }
             .price-regular-offer { text-decoration: line-through; color: #6c757d; font-size: 0.9em; }
             .product-price-normal { font-size: 1.2rem; font-weight: bold; color: #212529; }
+
+            /* Estilos para botón y link */
             .add-to-cart-btn { position: relative; z-index: 2; }
+            .product-card-link { text-decoration: none; color: inherit; flex-grow: 1; display: block;}
             .card-img-top { height: 180px; object-fit: cover; }
         </style>
     </th:block>
@@ -52,78 +56,121 @@
         Actualmente no hay productos disponibles en el catálogo.
     </div>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${productos == null or productos.isEmpty()}">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+         th:unless="${productos == null or productos.isEmpty()}">
+
         <div class="col" th:each="p : ${productos}">
-            <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="text-decoration-none text-dark d-block h-100 product-card-link">
-                <div class="card product-card">
+
+            <div class="card product-card h-100" th:if="${p != null}">
+
+                <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="product-card-link" style="text-decoration: none; color: inherit; flex-grow: 1; display: block;">
+
                     <div class="product-image-container">
-                        <img th:src="@{${p.getImagenPrincipalUrl()}}" alt="Imagen de Producto" class="product-image card-img-top">
+                        <img th:src="@{${p.getImagenPrincipalUrl()}}"
+                             alt="Imagen de Producto"
+                             class="product-image card-img-top">
                     </div>
+
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-truncate" th:text="${p.nomPro}">Nombre del Producto</h5>
-                        <p class="card-text mb-1 text-muted small">Marca: <span th:text="${p.idMarca.nombre}">Marca</span></p>
+
+                        <p class="card-text mb-1 text-muted small">
+                            Marca: <span th:text="${p.idMarca != null ? p.idMarca.nombre : 'General'}">Marca</span>
+                        </p>
+
                         <div class="mt-auto pt-2">
-                            <div th:if="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
-                                <p class="mb-0 price-regular-offer">
-                                    S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
-                                </p>
-                                <p class="mb-1 fw-bold price-offer" style="font-size: 1.2rem;">
-                                    S/ [[${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}]]
-                                </p>
-                            </div>
-                            <div th:unless="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
-                                <p class="mb-1 product-price-normal">
-                                    S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
-                                </p>
-                            </div>
-                            <small class="text-muted">Stock: [[${p.stock}]]</small>
+
+                            <th:block th:if="${p.precio != null}">
+                                <div th:if="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                    <p class="mb-0 price-regular-offer">
+                                        S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
+                                    </p>
+                                    <p class="mb-1 fw-bold price-offer" style="font-size: 1.2rem;">
+                                        S/ [[${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}]]
+                                    </p>
+                                </div>
+
+                                <div th:unless="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                    <p class="mb-1 product-price-normal">
+                                        S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
+                                    </p>
+                                </div>
+                            </th:block>
+
+                            <small th:if="${p.stock != null and p.stock > 0}" class="text-muted">
+                                Stock: [[${p.stock}]]
+                            </small>
+                            <small th:if="${p.stock == null or p.stock <= 0}" class="text-danger fw-bold">
+                                <i class="fas fa-times-circle"></i> Agotado
+                            </small>
                         </div>
-                    </div> <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
-                    <button type="button" class="btn btn-sm btn-danger w-100 add-to-cart-btn"
-                            th:data-product-id="${p.id}"
-                            onclick="event.stopPropagation(); event.preventDefault();"> <i class="fas fa-cart-plus me-1"></i> Agregar
+                    </div>
+                </a>
+                <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+
+                    <button th:if="${p.stock != null and p.stock > 0}"
+                            type="button"
+                            class="btn btn-sm btn-danger w-100 add-to-cart-btn"
+                            th:data-product-id="${p.id}">
+                        <i class="fas fa-cart-plus me-1"></i> Agregar
+                    </button>
+
+                    <button th:if="${p.stock == null or p.stock <= 0}"
+                            type="button"
+                            class="btn btn-sm btn-secondary w-100"
+                            disabled
+                            style="cursor: not-allowed; background-color: #e9ecef; border-color: #dee2e6; color: #6c757d;">
+                        Agotado
                     </button>
                 </div>
-                </div> </a> </div> </div> <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addToCartModalLabel">
-                    <i class="fas fa-check-circle text-success me-2"></i>Producto Agregado
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ¡El producto se ha añadido a tu carrito!
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-shopping-bag me-1"></i> Seguir comprando
-                </button>
-                <a th:href="@{/carrito}" class="btn btn-primary">
-                    <i class="fas fa-shopping-cart me-1"></i> Ir al carrito
-                </a>
+
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToCartModalLabel">
+                        <i class="fas fa-check-circle text-success me-2"></i>Producto Agregado
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¡El producto se ha añadido a tu carrito!
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-shopping-bag me-1"></i> Seguir comprando
+                    </button>
+                    <a th:href="@{/carrito}" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart me-1"></i> Ir al carrito
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-</div> <div layout:fragment="scripts">
+
+<div layout:fragment="scripts">
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
+            // Tu lógica del Modal y CSRF se queda igual...
             const cartModalElement = document.getElementById('addToCartModal');
             let cartModalInstance = null;
             if (cartModalElement && typeof bootstrap !== 'undefined') {
                  cartModalInstance = new bootstrap.Modal(cartModalElement);
-            } else {
-                console.error("Bootstrap Modal JS not found or modal element missing!");
             }
 
             const csrfToken = /*[[${_csrf?.token}]]*/ null;
             const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
 
+            // IMPORTANTE: Este selector '.add-to-cart-btn' SOLO encuentra los botones rojos
+            // Los botones de "Agotado" no tienen esa clase, así que el JS no intentará agregar nada.
             document.querySelectorAll('.add-to-cart-btn').forEach(button => {
                 button.addEventListener('click', function (event) {
-                    // Prevent link navigation if something went wrong before JS attached
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -131,7 +178,7 @@
                     const addButton = this;
 
                     addButton.disabled = true;
-                    addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'; // Just spinner
+                    addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
                     const formData = new FormData();
                     formData.append('id', productId);
@@ -143,34 +190,26 @@
                     }
                     fetchHeaders.append('X-Requested-With', 'XMLHttpRequest');
 
-                    fetch('/carrito/api/agregar', { // Make sure this URL is correct
+                    fetch('/carrito/api/agregar', {
                         method: 'POST',
                         body: formData,
                         headers: fetchHeaders
                     })
                     .then(response => {
-                        if (!response.ok) {
-                            // Try to parse error JSON, otherwise use status text
-                            return response.json().catch(() => {
-                                throw new Error(response.statusText || 'Error del servidor');
-                            }).then(err => { throw new Error(err.message || response.statusText); });
-                        }
+                        if (!response.ok) throw new Error('Error');
                         return response.json();
                     })
                     .then(data => {
                         if (data.success && cartModalInstance) {
-                            cartModalInstance.show(); // Show success modal
+                            cartModalInstance.show();
                         } else {
-                            alert(data.message || 'No se pudo agregar el producto.');
+                            alert(data.message || 'No se pudo agregar.');
                         }
                     })
                     .catch(error => {
-                        console.error('Error adding to cart:', error);
-                        // Provide more specific feedback if possible
-                        alert('Error al agregar: ' + error.message);
+                        console.error('Error:', error);
                     })
                     .finally(() => {
-                        // Restore button
                         addButton.disabled = false;
                         addButton.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Agregar';
                     });

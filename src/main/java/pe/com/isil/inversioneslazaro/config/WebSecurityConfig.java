@@ -65,9 +65,10 @@ public class WebSecurityConfig  {
                         .requestMatchers("/", "/inicio", "/catalogo/**",
                                 "/personaliza", "/css/**", "/js/**", "/img/**",
                                 "/registrar/**", "/uploads/**","carrito/**",
-                                "/api/v1/consulta/dni/**").permitAll()
+                                "/api/v1/consulta/dni/**","/cotizador/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/banners/**","/admin/home-editor/**").hasAnyRole("ADMIN","MARKETING")
+                        .requestMatchers("admin/pedidos/**").hasAnyRole("ADMIN","DESPACHO")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers( "/usuario/**","/api/direccion/**","/compra/**").authenticated()
                         .anyRequest().authenticated()

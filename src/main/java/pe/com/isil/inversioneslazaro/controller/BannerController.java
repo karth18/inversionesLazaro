@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -36,7 +37,18 @@ public class BannerController {
     }
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
-        model.addAttribute("banner", new BannerHome());
+
+        BannerHome banner = new BannerHome();
+        // LÓGICA PARA AUTOGENERAR EL ORDEN
+        // 1. Buscamos el máximo actual
+        Integer maxOrden = bannerHomeRepository.findMaxOrden();
+
+        // 2. Si es null (tabla vacía), empezamos en 1. Si no, sumamos 1.
+        int siguienteOrden = (maxOrden == null) ? 1 : maxOrden + 1;
+
+        // 3. Se lo asignamos al objeto antes de enviarlo al HTML
+        banner.setOrden(siguienteOrden);
+        model.addAttribute("banner", banner);
         return "admin/banner/form";
     }
     @GetMapping("/editar/{id}")
@@ -51,13 +63,42 @@ public class BannerController {
         }
     }
     @PostMapping("/guardar")
-    public String guardar(BannerHome banner,
+    public String guardar(@ModelAttribute("banner") BannerHome banner,
+                          BindingResult bindingResult, Model model,
                           @RequestParam("archivoImagen") MultipartFile archivoImagen,
                           RedirectAttributes ra) {
 
         Auditoria.AccionAuditoria accion = (banner.getId() == null)
                 ? Auditoria.AccionAuditoria.CREAR
                 : Auditoria.AccionAuditoria.ACTUALIZAR;
+
+        // --- VALIDACIÓN 1: ORDEN ÚNICO ---
+        if (banner.getOrden() != null) {
+            Optional<BannerHome> existente = bannerHomeRepository.findByOrden(banner.getOrden());
+
+            // Si existe alguien con ese orden Y no soy yo mismo (por ID)
+            if (existente.isPresent()) {
+                if (banner.getId() == null || !existente.get().getId().equals(banner.getId())) {
+                    bindingResult.rejectValue("orden", "error.orden", "El número de orden " + banner.getOrden() + " ya está ocupado.");
+                }
+            }
+        }
+
+        // --- VALIDACIÓN 2: IMAGEN OBLIGATORIA AL CREAR ---
+        // Si es nuevo y no subió imagen, agregamos el error manualmente al BindingResult
+        if (banner.getId() == null && archivoImagen.isEmpty()) {
+            // "reject" agrega un error global (no ligado a un campo específico, o puedes ligarlo a 'imagenNombre')
+            model.addAttribute("msgError", "Se requiere una imagen para crear un banner.");
+            // Marcamos que hay un error para detener el proceso
+            bindingResult.reject("imagen.faltante");
+        }
+
+        // --- SI HAY ERRORES, VOLVEMOS AL FORMULARIO ---
+        if (bindingResult.hasErrors()) {
+            // Importante: Poner la ruta exacta donde está tu archivo HTML de banners
+            // Supongo que es "admin/banners/form", ajusta si es diferente.
+            return "admin/banner/form";
+        }
 
         if (!archivoImagen.isEmpty()) {
             if (accion == Auditoria.AccionAuditoria.ACTUALIZAR && banner.getImagenNombre() != null) {

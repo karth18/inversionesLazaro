@@ -41,4 +41,6 @@ public class CatalogoController {
         model.addAttribute("producto", productoOpt.get());
         return "producto/detail";
     }
+
+
 }

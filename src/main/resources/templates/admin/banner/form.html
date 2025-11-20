@@ -55,9 +55,16 @@
 
             <div class="col-md-6">
                 <label for="orden" class="form-label">Orden</label>
-                <input type="number" class="form-control" id="orden" th:field="*{orden}">
-                <div class="form-text">
+
+                <input type="number" class="form-control" id="orden" th:field="*{orden}"
+                       th:classappend="${#fields.hasErrors('orden')} ? 'is-invalid' : ''">
+
+                <div class="form-text" th:unless="${#fields.hasErrors('orden')}">
                     El número más bajo (ej: 1) aparece primero.
+                </div>
+
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('orden')}" th:errors="*{orden}">
+                    Error en el orden.
                 </div>
             </div>
 

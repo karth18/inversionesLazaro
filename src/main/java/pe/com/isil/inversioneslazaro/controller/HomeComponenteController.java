@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils; // <-- IMPORTAR ESTO
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -41,6 +42,12 @@ public class HomeComponenteController {
     public String nuevoComponente(@RequestParam("seccion") HomeComponente.Seccion seccion, Model model) {
         HomeComponente componente = new HomeComponente();
         componente.setSeccion(seccion);
+        Integer maxOrden = homeRepo.findMaxOrdenBySeccion(seccion);
+
+        // Si no hay nadie (null), es el 1. Si hay, es el siguiente.
+        int siguienteOrden = (maxOrden == null) ? 1 : maxOrden + 1;
+        componente.setOrden(siguienteOrden);
+
         if (seccion == HomeComponente.Seccion.CLASIFICACION) {
             model.addAttribute("info", "Estás creando una nueva Clasificación (ej: Industrial, Hogar...)");
         }
@@ -64,23 +71,40 @@ public class HomeComponenteController {
      * Guarda (Crea o Actualiza) un componente
      */
     @PostMapping("/guardar")
-    public String guardarComponente(HomeComponente componente, RedirectAttributes ra) {
+    public String guardarComponente(@ModelAttribute("componente") HomeComponente componente,BindingResult bindingResult, RedirectAttributes ra ) {
 
         Auditoria.AccionAuditoria accion = (componente.getId() == null)
                 ? Auditoria.AccionAuditoria.CREAR
                 : Auditoria.AccionAuditoria.ACTUALIZAR;
 
+        // 1. VALIDACIÓN DE ORDEN ÚNICO
+        if (componente.getSeccion() != HomeComponente.Seccion.CLASIFICACION && componente.getOrden() != null) {
+            // Buscamos si ya existe alguien con esa sección y ese orden
+            Optional<HomeComponente> existente = homeRepo.findBySeccionAndOrden(componente.getSeccion(), componente.getOrden());
+
+            if (existente.isPresent()) {
+                // Si existe, verificamos que NO sea el mismo que estamos editando (por ID)
+                // Si es nuevo (id null) o el id es diferente, entonces es un duplicado ilegal.
+                if (componente.getId() == null || !existente.get().getId().equals(componente.getId())) {
+                    bindingResult.rejectValue("orden", "error.orden", "El número de orden " + componente.getOrden() + " ya está ocupado en esta sección.");
+                }
+            }
+        }
+
+        // 2. Si hay errores (incluyendo el que acabamos de crear), volvemos al formulario
+        if (bindingResult.hasErrors()) {
+            // Asegúrate de volver a cargar cosas necesarias si tu HTML las usa (listas, etc.)
+            return "admin/home-editor/form"; // Pon aquí la ruta a tu archivo HTML
+        }
+
         // Lógica de subida de archivo
         MultipartFile archivo = componente.getArchivoImagen();
         if (archivo != null && !archivo.isEmpty()) {
 
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Reemplaza '!= null' por 'StringUtils.hasText()'
-            // Esto comprueba que no sea null Y TAMPOCO esté vacío.
             if (StringUtils.hasText(componente.getImagenNombre())) {
                 storageService.delete(componente.getImagenNombre());
             }
-            // --- FIN DE LA CORRECCIÓN ---
+
 
             String nombreArchivo = storageService.store(archivo);
             componente.setImagenNombre(nombreArchivo);

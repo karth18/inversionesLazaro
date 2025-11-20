@@ -33,6 +33,7 @@ public class HomeComponente {
     private String enlaceUrl;
 
     // Para ordenar los items (ej: Oferta 1, Oferta 2...)
+
     private Integer orden;
 
     // Para ocultar/mostrar secciones (como pediste para Ofertas)

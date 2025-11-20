@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{master.html}">
 <head>
     <title>Gestión de Pedidos</title>
+
+    <th:block th:if="${_csrf != null}">
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </th:block>
 </head>
 <body>
 <div class="container" layout:fragment="content">
     <h2 class="mb-3">Gestión de Pedidos</h2>
-
 
     <form th:action="@{/admin/pedidos}" method="get" class="mb-3">
         <div class="row">
             <div class="col-md-6 col-lg-4">
                 <div class="input-group">
                     <input type="search" name="busqueda" class="form-control"
-                           placeholder="Buscar por Cód. Pedido o Email"
-                           th:value="${busqueda}"> <button class="btn btn-primary" type="submit">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
+                           placeholder="Buscar por Cód. Pedido o Email" th:value="${busqueda}">
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Buscar</button>
                 </div>
             </div>
         </div>
     </form>
+
     <table class="table table-striped table-bordered table-hover align-middle">
         <thead class="table-dark">
         <tr>
-            <th>Código Pedido</th>
+            <th>Código</th>
             <th>Cliente</th>
             <th>Fecha</th>
             <th>Total</th>
@@ -35,52 +39,62 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="pedido : ${pedidosPage.content}">
-            <td>
-                <a th:href="@{/admin/pedidos/detalle/{id}(id=${pedido.id})}" th:text="${pedido.codigoPedido}"></a>
-            </td>
+        <tr th:each="pedido : ${pedidosPage.content}" th:id="'fila-pedido-' + ${pedido.id}">
+            <td><a th:href="@{/admin/pedidos/detalle/{id}(id=${pedido.id})}" th:text="${pedido.codigoPedido}"></a></td>
             <td th:text="${pedido.usuario.email}"></td>
             <td th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
             <td th:text="'S/' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}"></td>
+
             <td style="min-width: 220px;">
-                <form th:action="@{/admin/pedidos/actualizar-estado}" method="post" class="d-flex align-items-center">
+                <form th:id="'form-estado-' + ${pedido.id}" class="d-flex align-items-center">
                     <input type="hidden" name="pedidoId" th:value="${pedido.id}">
 
-                    <th:block th:with="colorClass = ${pedido.estado.name() == 'CANCELADO'} ? 'text-secondary-emphasis border-secondary' : (${pedido.estado.name() == 'PENDIENTE'} ? 'text-danger-emphasis border-danger' : (${pedido.estado.name() == 'ORDEN_RECIBIDA'} ? 'text-info-emphasis border-info' : (${pedido.estado.name() == 'EN_PREPARACION'} ? 'text-warning-emphasis border-warning' : (${pedido.estado.name() == 'EN_CAMINO'} ? 'text-primary-emphasis border-primary' : (${pedido.estado.name() == 'FINALIZADO'} ? 'text-success-emphasis border-success' : '')))))">
+                    <th:block th:with="isAdmin=${#authorization.expression('hasRole(''ADMIN'')')},
+                                       isCancelado=${pedido.estado.name() == 'CANCELADO'},
+                                       isCanceladoPorCliente=${pedido.estado.name() == 'CANCELADO' and (pedido.motivoCancelacion == null or pedido.motivoCancelacion.trim().isEmpty())}">
 
                         <select name="estado" class="form-select form-select-sm me-2 fw-bold"
-                                th:classappend="${colorClass}"
-                                th:disabled="${pedido.estado.name() == 'CANCELADO'}">
+                                th:classappend="${pedido.estado.name() == 'CANCELADO' ? 'text-secondary-emphasis border-secondary' :
+                                                 (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'text-info-emphasis border-info' :
+                                                 (pedido.estado.name() == 'EN_PREPARACION' ? 'text-warning-emphasis border-warning' :
+                                                 (pedido.estado.name() == 'EN_CAMINO' ? 'text-primary-emphasis border-primary' :
+                                                 (pedido.estado.name() == 'FINALIZADO' ? 'text-success-emphasis border-success' : ''))))}"
+
+                                th:disabled="${isCanceladoPorCliente or (isCancelado and !isAdmin)}"
+                                th:id="'select-estado-' + ${pedido.id}">
+
                             <option th:each="est : ${estados}"
                                     th:value="${est}"
                                     th:text="${est.name().replace('_', ' ')}"
-                                    th:selected="${est == pedido.estado}"></option>
+                                    th:selected="${est == pedido.estado}"
+                                    th:if="${est.name() != 'PENDIENTE'}"
+
+                                    th:disabled="${!isAdmin
+                                        and est.name() != 'CANCELADO'
+                                        and est != pedido.estado
+                                        and !(
+                                            (pedido.estado.name() == 'ORDEN_RECIBIDA' and est.name() == 'EN_PREPARACION') or
+                                            (pedido.estado.name() == 'EN_PREPARACION' and est.name() == 'EN_CAMINO') or
+                                            (pedido.estado.name() == 'EN_CAMINO'      and est.name() == 'FINALIZADO')
+                                        )
+                                    }">
+                            </option>
                         </select>
 
-                        <button type="submit" class="btn btn-sm btn-primary"
-                                th:disabled="${pedido.estado.name() == 'CANCELADO'}">
+                        <button type="button" class="btn btn-sm btn-primary"
+                                th:onclick="'prepararEnvio(' + ${pedido.id} + ')'"
+                                th:disabled="${isCanceladoPorCliente or (isCancelado and !isAdmin)}">
                             <i class="fas fa-save"></i>
                         </button>
 
                     </th:block>
-
                 </form>
             </td>
 
             <td>
-                <a th:href="@{/admin/pedidos/detalle/{id}(id=${pedido.id})}" class="btn btn-sm btn-info" title="Ver Detalle">
-                    <i class="fas fa-eye"></i>
-                </a>
-                <a th:href="@{/admin/pedidos/imprimir/{id}(id=${pedido.id})}"
-                   target="_blank"
-                   class="btn btn-sm btn-secondary"
-                   title="Imprimir Pedido">
-                    <i class="fas fa-print"></i>
-                </a>
+                <a th:href="@{/admin/pedidos/detalle/{id}(id=${pedido.id})}" class="btn btn-sm btn-info" title="Ver Detalle"><i class="fas fa-eye"></i></a>
+                <a th:href="@{/admin/pedidos/imprimir/{id}(id=${pedido.id})}" target="_blank" class="btn btn-sm btn-secondary" title="Imprimir"><i class="fas fa-print"></i></a>
             </td>
-
-
-
         </tr>
         <tr th:if="${pedidosPage.empty}">
             <td colspan="6" class="text-center">No hay pedidos registrados.</td>
@@ -103,6 +117,171 @@
         </ul>
     </nav>
 
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"> <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Cancelar Pedido
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="fw-bold text-secondary">Estás a punto de cancelar este pedido.</p>
+                <p class="small text-muted mb-3">Por favor, indica el motivo para informar al cliente (Ej: Stock agotado, error en precio, etc).</p>
+
+                <label for="txtMotivo" class="form-label fw-bold">Motivo de cancelación:</label>
+                <textarea id="txtMotivo" class="form-control border-danger" rows="3" placeholder="Escribe el motivo aquí..."></textarea>
+
+                <div id="msgErrorMotivo" class="text-danger mt-2 fw-bold small" style="display:none;">
+                    <i class="fas fa-times-circle"></i> Debes ingresar un motivo obligatorio.
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger px-4" onclick="ejecutarAjaxCancelacion()">
+                    Confirmar Cancelación
+                </button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">Estado actualizado.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<div layout:fragment="scripts">
+    <script>
+        let pedidoIdEnProceso = null;
+
+        // 1. CSRF
+        const csrfMeta = document.querySelector("meta[name='_csrf']");
+        const csrfHeaderMeta = document.querySelector("meta[name='_csrf_header']");
+        const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : null;
+        const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute("content") : null;
+
+        // 2. Detectar Admin
+        // Si hay algún option disabled al inicio, NO es admin.
+        const esAdmin = !document.querySelector('option[disabled]');
+
+        function prepararEnvio(pedidoId) {
+            const select = document.getElementById('select-estado-' + pedidoId);
+            const estadoSeleccionado = select.value;
+
+            if (estadoSeleccionado === 'CANCELADO') {
+                pedidoIdEnProceso = pedidoId;
+                document.getElementById('txtMotivo').value = '';
+                document.getElementById('msgErrorMotivo').style.display = 'none';
+                new bootstrap.Modal(document.getElementById('cancelModal')).show();
+            } else {
+                enviarAjax(pedidoId, estadoSeleccionado, null);
+            }
+        }
+
+        function ejecutarAjaxCancelacion() {
+            const motivo = document.getElementById('txtMotivo').value.trim();
+            if (motivo === "") {
+                document.getElementById('msgErrorMotivo').style.display = 'block';
+                return;
+            }
+            const modalEl = document.getElementById('cancelModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+            enviarAjax(pedidoIdEnProceso, 'CANCELADO', motivo);
+        }
+
+        function enviarAjax(pedidoId, estado, motivo) {
+            const formData = new FormData();
+            formData.append('pedidoId', pedidoId);
+            formData.append('estado', estado);
+            if (motivo) formData.append('motivoCancelacion', motivo);
+
+            const headers = {};
+            if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+            document.body.style.cursor = 'wait';
+
+            fetch('/admin/pedidos/api/actualizar-estado', {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    mostrarToast(data.message, 'bg-success');
+                    actualizarVisual(pedidoId, estado);
+                    actualizarReglasDeNegocio(pedidoId, estado); // Actualizar bloqueos sin F5
+                } else {
+                    mostrarToast(data.message, 'bg-danger');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                mostrarToast('Error al actualizar.', 'bg-danger');
+            })
+            .finally(() => {
+                document.body.style.cursor = 'default';
+            });
+        }
+
+        function mostrarToast(mensaje, claseBg) {
+            const toastEl = document.getElementById('liveToast');
+            const toastBody = document.getElementById('toastMessage');
+            toastEl.className = `toast align-items-center text-white border-0 ${claseBg}`;
+            toastBody.innerText = mensaje;
+            new bootstrap.Toast(toastEl).show();
+        }
+
+        function actualizarVisual(id, nuevoEstado) {
+            const select = document.getElementById('select-estado-' + id);
+            select.className = "form-select form-select-sm me-2 fw-bold";
+
+            if(nuevoEstado === 'CANCELADO') select.classList.add('text-secondary-emphasis', 'border-secondary');
+            else if(nuevoEstado === 'ORDEN_RECIBIDA') select.classList.add('text-info-emphasis', 'border-info');
+            else if(nuevoEstado === 'EN_PREPARACION') select.classList.add('text-warning-emphasis', 'border-warning');
+            else if(nuevoEstado === 'EN_CAMINO') select.classList.add('text-primary-emphasis', 'border-primary');
+            else if(nuevoEstado === 'FINALIZADO') select.classList.add('text-success-emphasis', 'border-success');
+        }
+
+        // REGLAS DE NEGOCIO JS (Replica la lógica de Thymeleaf para AJAX)
+        function actualizarReglasDeNegocio(id, estadoActual) {
+            if (esAdmin) return; // Admin tiene todo libre
+
+            const select = document.getElementById('select-estado-' + id);
+            const opciones = select.querySelectorAll('option');
+
+            opciones.forEach(opcion => {
+                const estOpcion = opcion.value;
+                let habilitar = false;
+
+                // 1. Cancelado y Actual: Siempre ON
+                if (estOpcion === 'CANCELADO' || estOpcion === estadoActual) {
+                    habilitar = true;
+                }
+                // 2. Secuencia Lógica
+                else if (estadoActual === 'ORDEN_RECIBIDA' && estOpcion === 'EN_PREPARACION') habilitar = true;
+                else if (estadoActual === 'EN_PREPARACION' && estOpcion === 'EN_CAMINO') habilitar = true;
+                else if (estadoActual === 'EN_CAMINO' && estOpcion === 'FINALIZADO') habilitar = true;
+
+                opcion.disabled = !habilitar;
+            });
+        }
+    </script>
+</div>
+
 </body>
 </html>
