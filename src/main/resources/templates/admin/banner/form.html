@@ -38,9 +38,11 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label for="subtitulo" class="form-label">Subtítulo (Texto del banner)</label>
-                <input type="text" class="form-control" id="subtitulo" th:field="*{subtitulo}" placeholder="Ej: Hasta 50% de descuento">
+                <textarea class="form-control" id="subtitulo" th:field="*{subtitulo}"
+                          rows="3" placeholder="Ej: Hasta 50% de descuento&#10;Solo por tiempo limitado"></textarea>
+                <div class="form-text">Puedes presionar Enter para crear nuevas líneas.</div>
             </div>
 
             <div class="col-md-6">

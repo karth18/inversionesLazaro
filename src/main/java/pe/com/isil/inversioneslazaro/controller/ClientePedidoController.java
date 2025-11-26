@@ -41,16 +41,29 @@ public class ClientePedidoController {
     @GetMapping("")
     public String verMisPedidos(Model model,
                                 @AuthenticationPrincipal UserDetails userDetails,
-                                @PageableDefault(size = 10, sort = "fechaCreacion", direction = Sort.Direction.DESC) Pageable pageable) {
+                                @PageableDefault(size = 10, sort = "fechaCreacion", direction = Sort.Direction.DESC) Pageable pageable,
+                                @RequestParam(value = "palabraClave", required = false) String palabraClave){
 
         // 1. Obtener el usuario logueado
         Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+
         // 2. Buscar pedidos SOLO de ese usuario
-        Page<Pedido> pedidos = pedidoRepository.findByUsuario(usuario, pageable);
+        Page<Pedido> pedidos;
+        if (palabraClave != null && !palabraClave.isEmpty()) {
+            // Si escribieron algo en el buscador:
+            pedidos = pedidoRepository.findByUsuarioAndCodigoPedidoContainingIgnoreCase(usuario, palabraClave, pageable);
+        } else {
+            // Si no, trae todo el historial:
+            pedidos = pedidoRepository.findByUsuario(usuario, pageable);
+        }
+
+
 
         model.addAttribute("pedidosPage", pedidos);
+        model.addAttribute("palabraClave", palabraClave);
+
         return "cliente/misPedidos"; // -> /templates/cliente/mis-pedidos.html
     }
 
@@ -58,7 +71,10 @@ public class ClientePedidoController {
      * Muestra el detalle de UN pedido, pero con seguridad
      */
     @GetMapping("/detalle/{id}")
-    public String verDetallePedido(@PathVariable Long id, Model model,
+    public String verDetallePedido(@PathVariable Long id,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(required = false) String palabraClave,
+                                   Model model,
                                    @AuthenticationPrincipal UserDetails userDetails,
                                    RedirectAttributes ra) {
 
@@ -75,7 +91,9 @@ public class ClientePedidoController {
                     }
 
                     model.addAttribute("pedido", pedido);
-                    // Reutilizamos la misma vista de detalle del admin
+                    model.addAttribute("page", page);
+                    model.addAttribute("palabraClave", palabraClave);
+
                     return "cliente/detalle";
                 })
                 .orElseGet(() -> {

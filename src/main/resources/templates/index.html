@@ -86,7 +86,7 @@
          th:style="'background-image: url(\'' + @{${bannerHero.getImagenFondoUrl()}} + '\');'">
         <div class="container">
             <h1 th:text="${bannerHero.titulo}">Título del Banner</h1>
-            <p th:text="${bannerHero.subtitulo}">Subtítulo del banner.</p>
+            <p th:text="${bannerHero.subtitulo}" style="white-space: pre-line;">Subtítulo del banner.</p>
             <a th:if="${bannerHero.enlaceBoton != null AND bannerHero.textoBoton != null}"
                th:href="@{${bannerHero.enlaceBoton}}"
                class="btn btn-primary btn-lg">
@@ -140,15 +140,15 @@
 
             <th:block th:with="
                 slotIndustrialList = ${seccionClasificaciones.?[titulo == 'Industrial']},
-                slotSemiList = ${seccionClasificaciones.?[titulo == 'Semi Industrial']},
+                slotNegocioList = ${seccionClasificaciones.?[titulo == 'Negocio']},
                 slotHogarList = ${seccionClasificaciones.?[titulo == 'Hogar']},
-                slotNegocioList = ${seccionClasificaciones.?[titulo == 'Negocio']}
+                slotMobiliarioList = ${seccionClasificaciones.?[titulo == 'Mobiliario']}
             ">
                 <th:block th:with="
                     slotIndustrial = ${!slotIndustrialList.isEmpty()} ? ${slotIndustrialList[0]} : null,
-                    slotSemi = ${!slotSemiList.isEmpty()} ? ${slotSemiList[0]} : null,
+                    slotNegocio = ${!slotNegocioList.isEmpty()} ? ${slotNegocioList[0]} : null,
                     slotHogar = ${!slotHogarList.isEmpty()} ? ${slotHogarList[0]} : null,
-                    slotNegocio = ${!slotNegocioList.isEmpty()} ? ${slotNegocioList[0]} : null
+                    slotMobiliario = ${!slotMobiliarioList.isEmpty()} ? ${slotMobiliarioList[0]} : null
                 ">
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
@@ -165,12 +165,12 @@
                         </div>
 
                         <div class="col">
-                            <a th:href="${slotSemi != null} ? @{${slotSemi.enlaceUrl}} : '#'" class="text-decoration-none">
+                            <a th:href="${slotNegocio != null} ? @{${slotNegocio.enlaceUrl}} : '#'" class="text-decoration-none">
                                 <div class="card cuadro-flotante text-center">
-                                    <img th:src="${slotSemi != null AND slotSemi.getImagenUrl() != null} ? @{${slotSemi.getImagenUrl()}} : @{/img/placeholder.png}"
-                                         style="height: 250px;" alt="Semi Industrial">
+                                    <img th:src="${slotNegocio != null AND slotNegocio.getImagenUrl() != null} ? @{${slotNegocio.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Negocio">
                                     <div class="card-body">
-                                        <h5 class="card-title">Semi Industrial</h5>
+                                        <h5 class="card-title">Negocio</h5>
                                     </div>
                                 </div>
                             </a>
@@ -189,12 +189,12 @@
                         </div>
 
                         <div class="col">
-                            <a th:href="${slotNegocio != null} ? @{${slotNegocio.enlaceUrl}} : '#'" class="text-decoration-none">
+                            <a th:href="${slotMobiliario != null} ? @{${slotMobiliario.enlaceUrl}} : '#'" class="text-decoration-none">
                                 <div class="card cuadro-flotante text-center">
-                                    <img th:src="${slotNegocio != null AND slotNegocio.getImagenUrl() != null} ? @{${slotNegocio.getImagenUrl()}} : @{/img/placeholder.png}"
-                                         style="height: 250px;" alt="Negocio">
+                                    <img th:src="${slotMobiliario != null AND slotMobiliario.getImagenUrl() != null} ? @{${slotMobiliario.getImagenUrl()}} : @{/img/placeholder.png}"
+                                         style="height: 250px;" alt="Mobiliario">
                                     <div class="card-body">
-                                        <h5 class="card-title">Negocio</h5>
+                                        <h5 class="card-title">Mobiliario</h5>
                                     </div>
                                 </div>
                             </a>

@@ -4,59 +4,151 @@
       layout:decorate="~{master.html}">
 <head>
     <title>Mis Pedidos</title>
+    <style>
+        .card-pedido {
+            transition: transform 0.2s;
+            border: none;
+            background-color: #fff;
+        }
+        .card-pedido:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        .estado-pill {
+            font-size: 0.85rem;
+            padding: 0.35em 0.8em;
+            letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 <body>
 <div class="container" layout:fragment="content">
-    <h2 class="mb-3">Mi Historial de Pedidos</h2>
 
-    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible fade show" role="alert">...</div>
-    <div th:if="${msgError != null}" class="alert alert-danger alert-dismissible fade show" role="alert">...</div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Mis Pedidos</h2>
+    </div>
 
-    <table class="table table-striped table-bordered table-hover align-middle">
-        <thead class="table-dark">
-        <tr>
-            <th>Código Pedido</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Acción</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="pedido : ${pedidosPage.content}">
-            <td th:text="${pedido.codigoPedido}"></td>
-            <td th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy')}"></td>
-            <td th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td>
-                <span th:text="${pedido.estado.name().replace('_', ' ')}" class="fw-bold"></span>
-            </td>
+    <div class="row mb-3">
+        <div class="col-md-10 col-lg-8 mx-auto">
+            <form th:action="@{/misPedidos}" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="palabraClave"
+                           th:value="${palabraClave}"
+                           placeholder="Buscar por código de pedido..." aria-label="Buscar pedido">
 
-            <td>
-                <a th:href="@{/misPedidos/detalle/{id}(id=${pedido.id})}" class="btn btn-sm btn-info" title="Ver Detalle">
-                    Ver Detalle
-                </a>
-
-                <th:block th:if="${pedido.estado.name() == 'ORDEN_RECIBIDA' or pedido.estado.name() == 'EN_PREPARACION'}">
-                    <button type="button" class="btn btn-sm btn-danger ms-2 btn-cancelar"
-                            data-bs-toggle="modal"
-                            data-bs-target="#cancelModal"
-                            th:data-pedido-id="${pedido.id}"
-                            th:data-pedido-codigo="${pedido.codigoPedido}"
-                            th:data-productos="${#strings.arrayJoin(pedido.detalles.![producto.nomPro], ', ')}">
-                        Cancelar
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Buscar
                     </button>
-                </th:block>
 
-                <span th:if="${pedido.estado.name() == 'CANCELADO'}" class="badge bg-danger ms-2">Cancelado</span>
-            </td>
-        </tr>
-        <tr th:if="${pedidosPage.empty}">
-            <td colspan="5" class="text-center">No has realizado ningún pedido aún.</td>
-        </tr>
-        </tbody>
-    </table>
+                    <a th:if="${palabraClave != null && palabraClave != ''}"
+                       th:href="@{/misPedidos}"
+                       class="btn btn-outline-secondary" title="Ver todos">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${msgExito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${msgError != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${msgError}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-    <nav th:if="${pedidosPage.totalPages > 1}"> ... </nav>
+    <div class="row">
+        <div class="col-md-10 col-lg-8 mx-auto">
+
+            <div th:each="pedido : ${pedidosPage.content}" class="card card-pedido shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-end mb-2">
+                        <small class="text-muted fw-bold">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            <span th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy')}"></span>
+                        </small>
+                    </div>
+
+                    <div class="row align-items-center mb-4">
+                        <div class="col-4 text-start">
+                            <span class="text-muted small d-block">COD:</span>
+                            <span class="fs-5 fw-bold text-dark" th:text="${pedido.codigoPedido}"></span>
+                        </div>
+
+                        <div class="col-4 text-center">
+                            <span class="badge rounded-pill estado-pill"
+                                  th:classappend="${pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'bg-primary' :
+                                                   (pedido.estado.name() == 'CANCELADO' ? 'bg-danger' :
+                                                   (pedido.estado.name() == 'ENTREGADO' ? 'bg-success' : 'bg-secondary'))}"
+                                  th:text="${pedido.estado.name().replace('_', ' ')}">
+                            </span>
+                        </div>
+
+                        <div class="col-4 text-end">
+                            <span class="fs-4 fw-bold text-success"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a th:href="@{/misPedidos/detalle/{id}(id=${pedido.id},page=${pedidosPage.number}, palabraClave=${palabraClave})}"
+                           class="btn btn-outline-info rounded-pill px-4 fw-bold btn-sm">
+                            Ver Detalle
+                        </a>
+
+                        <th:block th:if="${pedido.estado.name() == 'ORDEN_RECIBIDA' or pedido.estado.name() == 'EN_PREPARACION'}">
+                            <button type="button"
+                                    class="btn btn-outline-danger rounded-pill px-4 fw-bold btn-sm btn-cancelar"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#cancelModal"
+                                    th:data-pedido-id="${pedido.id}"
+                                    th:data-pedido-codigo="${pedido.codigoPedido}"
+                                    th:data-productos="${#strings.arrayJoin(pedido.detalles.![producto.nomPro], ', ')}">
+                                Cancelar
+                            </button>
+                        </th:block>
+
+                        <span th:if="${pedido.estado.name() == 'CANCELADO'}" class="text-danger fw-bold align-self-center small ms-2">
+                            (Pedido Cancelado)
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div th:if="${pedidosPage.empty}" class="text-center py-5">
+                <div class="alert alert-light border shadow-sm rounded-4">
+                    <h4 th:text="${palabraClave != null} ? 'No encontramos pedidos con ese código.' : 'No has realizado ningún pedido aún.'"></h4>
+
+                    <a th:if="${palabraClave == null}" href="/catalogo" class="btn btn-primary mt-3 rounded-pill">Ir a comprar</a>
+                    <a th:if="${palabraClave != null}" th:href="@{/misPedidos}" class="btn btn-secondary mt-3 rounded-pill">Ver todos</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <nav th:if="${pedidosPage.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${pedidosPage.first}? 'disabled'">
+                <a class="page-link rounded-start-pill"
+                   th:href="@{/misPedidos(page=${pedidosPage.number - 1}, palabraClave=${palabraClave})}">Anterior</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages - 1)}"
+                th:classappend="${pedidosPage.number == i}? 'active'">
+                <a class="page-link"
+                   th:href="@{/misPedidos(page=${i}, palabraClave=${palabraClave})}"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${pedidosPage.last}? 'disabled'">
+                <a class="page-link rounded-end-pill"
+                   th:href="@{/misPedidos(page=${pedidosPage.number + 1}, palabraClave=${palabraClave})}">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
 
     <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -83,38 +175,6 @@
         </div>
     </div>
 
-    <nav th:if="${pedidosPage.totalPages > 1}">
-        <ul class="pagination justify-content-center">
-
-            <!-- Botón ANTERIOR -->
-            <li class="page-item" th:classappend="${pedidosPage.first}? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/misPedidos(page=${pedidosPage.number - 1})}">
-                    Anterior
-                </a>
-            </li>
-
-            <!-- Números -->
-            <li class="page-item"
-                th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages - 1)}"
-                th:classappend="${pedidosPage.number == i}? 'active'">
-                <a class="page-link"
-                   th:href="@{/misPedidos(page=${i})}"
-                   th:text="${i + 1}"></a>
-            </li>
-
-            <!-- Botón SIGUIENTE -->
-            <li class="page-item" th:classappend="${pedidosPage.last}? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/misPedidos(page=${pedidosPage.number + 1})}">
-                    Siguiente
-                </a>
-            </li>
-
-        </ul>
-    </nav>
-
-
 </div>
 
 <div layout:fragment="scripts">
@@ -129,20 +189,17 @@
                 const errorDiv = document.getElementById('cancel-error-msg');
                 let pedidoIdToCancel = null;
 
-                // 1. Cuando se muestra el modal, rellenar con datos
                 cancelModal.addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
                     pedidoIdToCancel = button.getAttribute('data-pedido-id');
                     modalCodigo.textContent = button.getAttribute('data-pedido-codigo');
                     modalProductos.textContent = button.getAttribute('data-productos');
 
-                    // Resetear estado
                     errorDiv.classList.add('d-none');
                     btnConfirmar.disabled = false;
                     btnSpinner.classList.add('d-none');
                 });
 
-                // 2. Cuando se hace clic en el botón de confirmar
                 btnConfirmar.addEventListener('click', async function() {
                     if (!pedidoIdToCancel) return;
 
@@ -168,7 +225,6 @@
                         const result = await response.json();
 
                         if (response.ok && result.success) {
-                            // ¡Éxito! Recargar la página para ver el estado "CANCELADO"
                             window.location.reload();
                         } else {
                             throw new Error(result.message || 'Error desconocido');
@@ -186,71 +242,240 @@
 </div>
 </body>
 </html>
-
 <!--<!DOCTYPE html>-->
 <!--<html xmlns:th="http://www.thymeleaf.org"-->
 <!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
 <!--      layout:decorate="~{master.html}">-->
 <!--<head>-->
 <!--    <title>Mis Pedidos</title>-->
+<!--    <style>-->
+<!--        /* Un poco de estilo extra para que las cards se vean flotantes */-->
+<!--        .card-pedido {-->
+<!--            transition: transform 0.2s;-->
+<!--            border: none;-->
+<!--            background-color: #fff;-->
+<!--        }-->
+<!--        .card-pedido:hover {-->
+<!--            transform: translateY(-3px);-->
+<!--            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;-->
+<!--        }-->
+<!--        .estado-pill {-->
+<!--            font-size: 0.85rem;-->
+<!--            padding: 0.35em 0.8em;-->
+<!--            letter-spacing: 0.5px;-->
+<!--        }-->
+<!--    </style>-->
 <!--</head>-->
 <!--<body>-->
 <!--<div class="container" layout:fragment="content">-->
-<!--    <h2 class="mb-3">Mi Historial de Pedidos</h2>-->
 
-<!--    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible fade show" role="alert">-->
-<!--        [[${msgExito}]]-->
-<!--        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
-<!--    </div>-->
-<!--    <div th:if="${msgError != null}" class="alert alert-danger alert-dismissible fade show" role="alert">-->
-<!--        [[${msgError}]]-->
-<!--        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
+<!--    <div class="d-flex justify-content-between align-items-center mb-4">-->
+<!--        <h2 class="mb-0">Mis Pedidos</h2>-->
 <!--    </div>-->
 
-<!--    <table class="table table-striped table-bordered table-hover align-middle">-->
-<!--        <thead class="table-dark">-->
-<!--        <tr>-->
-<!--            <th>Código Pedido</th>-->
-<!--            <th>Fecha</th>-->
-<!--            <th>Total</th>-->
-<!--            <th>Estado</th>-->
-<!--            <th>Acción</th>-->
-<!--        </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--        <tr th:each="pedido : ${pedidosPage.content}">-->
-<!--            <td th:text="${pedido.codigoPedido}"></td>-->
-<!--            <td th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy')}"></td>-->
-<!--            <td th:text="'S/' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}"></td>-->
-<!--            <td>-->
-<!--                <span th:text="${pedido.estado.name().replace('_', ' ')}" class="fw-bold"></span>-->
-<!--            </td>-->
-<!--            <td>-->
-<!--                <a th:href="@{/misPedidos/detalle/{id}(id=${pedido.id})}" class="btn btn-sm btn-info" title="Ver Detalle">-->
-<!--                    Ver Detalle-->
-<!--                </a>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--        <tr th:if="${pedidosPage.empty}">-->
-<!--            <td colspan="5" class="text-center">No has realizado ningún pedido aún.</td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--    </table>-->
-
-<!--    <nav th:if="${pedidosPage.totalPages > 1}">-->
+<!--    <nav th:if="${pedidosPage.totalPages > 1}" class="mt-4">-->
 <!--        <ul class="pagination justify-content-center">-->
 <!--            <li class="page-item" th:classappend="${pedidosPage.first}? 'disabled'">-->
-<!--                <a class="page-link" th:href="@{/misPedidos(page=${pedidosPage.number-1})}">Anterior</a>-->
+<!--                <a class="page-link rounded-start-pill" th:href="@{/misPedidos(page=${pedidosPage.number - 1})}">Anterior</a>-->
 <!--            </li>-->
-<!--            <li class="page-item" th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages-1)}"-->
+<!--            <li class="page-item" th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages - 1)}"-->
 <!--                th:classappend="${pedidosPage.number == i}? 'active'">-->
-<!--                <a class="page-link" th:href="@{/misPedidos(page=${i})}" th:text="${i+1}"></a>-->
+<!--                <a class="page-link" th:href="@{/misPedidos(page=${i})}" th:text="${i + 1}"></a>-->
 <!--            </li>-->
 <!--            <li class="page-item" th:classappend="${pedidosPage.last}? 'disabled'">-->
-<!--                <a class="page-link" th:href="@{/misPedidos(page=${pedidosPage.number+1})}">Siguiente</a>-->
+<!--                <a class="page-link rounded-end-pill" th:href="@{/misPedidos(page=${pedidosPage.number + 1})}">Siguiente</a>-->
 <!--            </li>-->
 <!--        </ul>-->
 <!--    </nav>-->
+<!--    <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible fade show" role="alert">-->
+<!--        <span th:text="${msgExito}"></span>-->
+<!--        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
+<!--    </div>-->
+<!--    <div th:if="${msgError != null}" class="alert alert-danger alert-dismissible fade show" role="alert">-->
+<!--        <span th:text="${msgError}"></span>-->
+<!--        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
+<!--    </div>-->
+
+<!--    <div class="row">-->
+<!--        <div class="col-md-10 col-lg-8 mx-auto"> <div th:each="pedido : ${pedidosPage.content}" class="card card-pedido shadow-sm rounded-4 mb-4">-->
+<!--            <div class="card-body p-4">-->
+
+<!--                <div class="d-flex justify-content-end mb-2">-->
+<!--                    <small class="text-muted fw-bold">-->
+<!--                        <i class="bi bi-calendar-event me-1"></i>-->
+<!--                        <span th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy')}"></span>-->
+<!--                    </small>-->
+<!--                </div>-->
+
+<!--                <div class="row align-items-center mb-4">-->
+
+<!--                    <div class="col-4 text-start">-->
+<!--                        <span class="text-muted small d-block">COD:</span>-->
+<!--                        <span class="fs-5 fw-bold text-dark" th:text="${pedido.codigoPedido}"></span>-->
+<!--                    </div>-->
+
+<!--                    <div class="col-4 text-center">-->
+<!--                            <span class="badge rounded-pill estado-pill"-->
+<!--                                  th:classappend="${pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'bg-primary' :-->
+<!--                                                   (pedido.estado.name() == 'CANCELADO' ? 'bg-danger' :-->
+<!--                                                   (pedido.estado.name() == 'ENTREGADO' ? 'bg-success' : 'bg-secondary'))}"-->
+<!--                                  th:text="${pedido.estado.name().replace('_', ' ')}">-->
+<!--                            </span>-->
+<!--                    </div>-->
+
+<!--                    <div class="col-4 text-end">-->
+<!--                            <span class="fs-4 fw-bold text-success"-->
+<!--                                  th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}">-->
+<!--                            </span>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="d-flex justify-content-end gap-2 pt-3 border-top">-->
+
+<!--                    <a th:href="@{/misPedidos/detalle/{id}(id=${pedido.id})}"-->
+<!--                       class="btn btn-outline-info rounded-pill px-4 fw-bold btn-sm">-->
+<!--                        Ver Detalle-->
+<!--                    </a>-->
+
+<!--                    <th:block th:if="${pedido.estado.name() == 'ORDEN_RECIBIDA' or pedido.estado.name() == 'EN_PREPARACION'}">-->
+<!--                        <button type="button"-->
+<!--                                class="btn btn-outline-danger rounded-pill px-4 fw-bold btn-sm btn-cancelar"-->
+<!--                                data-bs-toggle="modal"-->
+<!--                                data-bs-target="#cancelModal"-->
+<!--                                th:data-pedido-id="${pedido.id}"-->
+<!--                                th:data-pedido-codigo="${pedido.codigoPedido}"-->
+<!--                                th:data-productos="${#strings.arrayJoin(pedido.detalles.![producto.nomPro], ', ')}">-->
+<!--                            Cancelar-->
+<!--                        </button>-->
+<!--                    </th:block>-->
+
+<!--                    <span th:if="${pedido.estado.name() == 'CANCELADO'}" class="text-danger fw-bold align-self-center small ms-2">-->
+<!--                            (Pedido Cancelado)-->
+<!--                        </span>-->
+<!--                </div>-->
+
+<!--            </div>-->
+<!--        </div>-->
+
+<!--            <div th:if="${pedidosPage.empty}" class="text-center py-5">-->
+<!--                <div class="alert alert-light border shadow-sm rounded-4">-->
+<!--                    <h4>No has realizado ningún pedido aún.</h4>-->
+<!--                    <a href="/catalogo" class="btn btn-primary mt-3 rounded-pill">Ir a comprar</a>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <nav th:if="${pedidosPage.totalPages > 1}" class="mt-4">-->
+<!--        <ul class="pagination justify-content-center">-->
+<!--            <li class="page-item" th:classappend="${pedidosPage.first}? 'disabled'">-->
+<!--                <a class="page-link rounded-start-pill" th:href="@{/misPedidos(page=${pedidosPage.number - 1})}">Anterior</a>-->
+<!--            </li>-->
+<!--            <li class="page-item" th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages - 1)}"-->
+<!--                th:classappend="${pedidosPage.number == i}? 'active'">-->
+<!--                <a class="page-link" th:href="@{/misPedidos(page=${i})}" th:text="${i + 1}"></a>-->
+<!--            </li>-->
+<!--            <li class="page-item" th:classappend="${pedidosPage.last}? 'disabled'">-->
+<!--                <a class="page-link rounded-end-pill" th:href="@{/misPedidos(page=${pedidosPage.number + 1})}">Siguiente</a>-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--    </nav>-->
+
+
+<!--    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">-->
+<!--        <div class="modal-dialog">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="cancelModalLabel">Confirmar Cancelación</h5>-->
+<!--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <p>¿Estás seguro de que deseas cancelar el siguiente pedido?</p>-->
+<!--                    <p><strong>Código:</strong> <span id="modalPedidoCodigo"></span></p>-->
+<!--                    <p><strong>Productos:</strong> <span id="modalPedidoProductos"></span></p>-->
+
+<!--                    <div id="cancel-error-msg" class="alert alert-danger d-none mt-3"></div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>-->
+<!--                    <button type="button" class="btn btn-danger" id="btnConfirmarCancelacion">-->
+<!--                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>-->
+<!--                        Sí, cancelar pedido-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<div layout:fragment="scripts">-->
+<!--    <script th:inline="javascript">-->
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            const cancelModal = document.getElementById('cancelModal');-->
+<!--            if (cancelModal) {-->
+<!--                const modalCodigo = document.getElementById('modalPedidoCodigo');-->
+<!--                const modalProductos = document.getElementById('modalPedidoProductos');-->
+<!--                const btnConfirmar = document.getElementById('btnConfirmarCancelacion');-->
+<!--                const btnSpinner = btnConfirmar.querySelector('.spinner-border');-->
+<!--                const errorDiv = document.getElementById('cancel-error-msg');-->
+<!--                let pedidoIdToCancel = null;-->
+
+<!--                // 1. Cuando se muestra el modal, rellenar con datos-->
+<!--                cancelModal.addEventListener('show.bs.modal', function (event) {-->
+<!--                    const button = event.relatedTarget;-->
+<!--                    pedidoIdToCancel = button.getAttribute('data-pedido-id');-->
+<!--                    modalCodigo.textContent = button.getAttribute('data-pedido-codigo');-->
+<!--                    modalProductos.textContent = button.getAttribute('data-productos');-->
+
+<!--                    // Resetear estado-->
+<!--                    errorDiv.classList.add('d-none');-->
+<!--                    btnConfirmar.disabled = false;-->
+<!--                    btnSpinner.classList.add('d-none');-->
+<!--                });-->
+
+<!--                // 2. Cuando se hace clic en el botón de confirmar-->
+<!--                btnConfirmar.addEventListener('click', async function() {-->
+<!--                    if (!pedidoIdToCancel) return;-->
+
+<!--                    btnConfirmar.disabled = true;-->
+<!--                    btnSpinner.classList.remove('d-none');-->
+<!--                    errorDiv.classList.add('d-none');-->
+
+<!--                    const csrfToken = /*[[${_csrf?.token}]]*/ null;-->
+<!--                    const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;-->
+<!--                    const headers = new Headers({-->
+<!--                        'X-Requested-With': 'XMLHttpRequest'-->
+<!--                    });-->
+<!--                    if (csrfHeader && csrfToken) {-->
+<!--                        headers.append(csrfHeader, csrfToken);-->
+<!--                    }-->
+
+<!--                    try {-->
+<!--                        const response = await fetch(`/misPedidos/cancelar/${pedidoIdToCancel}`, {-->
+<!--                            method: 'POST',-->
+<!--                            headers: headers-->
+<!--                        });-->
+
+<!--                        const result = await response.json();-->
+
+<!--                        if (response.ok && result.success) {-->
+<!--                            // ¡Éxito! Recargar la página para ver el estado "CANCELADO"-->
+<!--                            window.location.reload();-->
+<!--                        } else {-->
+<!--                            throw new Error(result.message || 'Error desconocido');-->
+<!--                        }-->
+<!--                    } catch (err) {-->
+<!--                        errorDiv.textContent = err.message;-->
+<!--                        errorDiv.classList.remove('d-none');-->
+<!--                        btnConfirmar.disabled = false;-->
+<!--                        btnSpinner.classList.add('d-none');-->
+<!--                    }-->
+<!--                });-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
 <!--</div>-->
 <!--</body>-->
 <!--</html>-->

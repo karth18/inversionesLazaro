@@ -157,7 +157,7 @@
 <div layout:fragment="scripts">
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
-            // Tu lógica del Modal y CSRF se queda igual...
+
             const cartModalElement = document.getElementById('addToCartModal');
             let cartModalInstance = null;
             if (cartModalElement && typeof bootstrap !== 'undefined') {

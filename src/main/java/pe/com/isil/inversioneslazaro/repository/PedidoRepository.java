@@ -18,4 +18,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             "LOWER(p.codigoPedido) LIKE LOWER(CONCAT('%', :busqueda, '%')) OR " +
             "LOWER(p.usuario.email) LIKE LOWER(CONCAT('%', :busqueda, '%'))")
     Page<Pedido> searchByCodigoOrEmail(@Param("busqueda") String busqueda, Pageable pageable);
+
+    // Busca por código (ignorando mayúsculas/minúsculas) y filtra por usuario
+    Page<Pedido> findByUsuarioAndCodigoPedidoContainingIgnoreCase(Usuario usuario, String codigo, Pageable pageable);
 }

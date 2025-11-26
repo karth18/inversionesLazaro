@@ -16,9 +16,9 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Asegura que los 4 slots de Clasificación SIEMPRE existan
         crearSlotSiNoExiste("Industrial", HomeComponente.Seccion.CLASIFICACION, 1);
-        crearSlotSiNoExiste("Semi Industrial", HomeComponente.Seccion.CLASIFICACION, 2);
+        crearSlotSiNoExiste("Negocio", HomeComponente.Seccion.CLASIFICACION, 2);
         crearSlotSiNoExiste("Hogar", HomeComponente.Seccion.CLASIFICACION, 3);
-        crearSlotSiNoExiste("Negocio", HomeComponente.Seccion.CLASIFICACION, 4);
+        crearSlotSiNoExiste("Mobiliario", HomeComponente.Seccion.CLASIFICACION, 4);
     }
 
     private void crearSlotSiNoExiste(String titulo, HomeComponente.Seccion seccion, int orden) {

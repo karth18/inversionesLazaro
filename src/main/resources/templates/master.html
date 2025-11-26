@@ -22,9 +22,127 @@
 
 
     <style>
-        .bg-navbar{
-            background-color: #07003c! important;
-        }
+        /*------------------------------------*/
+    /* --- NAVBAR INDUSTRIAL PREMIUM --- */
+    /*----------------------------------*/
+    .navbar-industrial {
+        background-color: #0f172a; /* Slate Dark (Color Acero Oscuro) */
+        background: linear-gradient(to right, #0f172a, #1e293b); /* Degradado sutil */
+        padding: 1rem 0; /* Más espacio arriba y abajo */
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25); /* Sombra elegante */
+    }
+
+    /* Marca / Logo */
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #ffffff !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .navbar-brand i {
+        color: #f59e0b; /* Icono dorado/naranja */
+        margin-right: 8px;
+    }
+
+    /* Enlaces del menú */
+    .nav-link {
+        color: #e2e8f0 !important; /* Blanco hueso */
+        font-weight: 500;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    /* Efecto Hover en enlaces (Subrayado animado) */
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #f59e0b; /* Naranja industrial */
+        transition: width 0.3s;
+    }
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    .nav-link:hover {
+        color: #ffffff !important;
+    }
+
+    /* Barra de Búsqueda */
+    .search-input-group .form-control {
+        background-color: rgba(255, 255, 255, 0.1); /* Transparente */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+    }
+    .search-input-group .form-control::placeholder {
+        color: #94a3b8;
+    }
+    .search-input-group .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: none;
+        border-color: #f59e0b;
+    }
+    .search-input-group .btn-search {
+        background-color: #f59e0b; /* Botón naranja */
+        border: none;
+        color: white;
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        transition: background 0.3s;
+    }
+    .search-input-group .btn-search:hover {
+        background-color: #d97706; /* Naranja más oscuro */
+    }
+
+    /* Botones de Usuario y Carrito */
+    .user-actions .dropdown-toggle {
+        color: white !important;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cart-icon-container {
+        position: relative;
+        background: rgba(255,255,255,0.1);
+        padding: 8px;
+        border-radius: 50%;
+        transition: background 0.3s;
+    }
+    .cart-icon-container:hover {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.05);
+    }
+    .cart-icon-container i {
+        color: #f59e0b;
+        font-size: 1.2rem;
+    }
+
+    /* Divider vertical */
+    .vertical-divider {
+        width: 1px;
+        height: 25px;
+        background-color: rgba(255,255,255,0.2);
+        margin: 0 15px;
+    }
+
+    /* Dropdown Menus */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+    .dropdown-item:active {
+        background-color: #0f172a;
+    }
     </style>
 
     <div layout:fragment="styles" th:remove="tag">
@@ -32,49 +150,50 @@
 
 </head>
 <body>
-<nav class="navbar navbar-expand-lg " style="background-color: #FFEAA3;" data-bs-theme="light">
+<nav class="navbar navbar-expand-lg  navbar-industrial sticky-top" >
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button"
+        <button class="navbar-toggler" type="button" style="border-color: rgba(255,255,255,0.5);"
                 data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
                 aria-controls="navbarTogglerDemo03" aria-expanded="false"
                 aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
         </button>
         <a class="navbar-brand" href="/">Metal mecanica</a>
+
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <li class="nav-item"><a class="nav-link" aria-current="page" href="/">Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="/catalogo">Catalogo</a></li>
                 <li class="nav-item"><a class="nav-link" href="/cotizador">Personaliza</a></li>
             </ul>
 
-            <form action="/catalogo" method="get" class="d-flex my-2 my-lg-0 mx-auto w-50">
+            <form action="/catalogo" method="get" class="d-flex my-2 my-lg-0 mx-lg-auto w-50 search-input-group">
                 <div class="input-group">
                     <input type="search" name="busqueda" class="form-control"
                            placeholder="Buscar productos en el catálogo"
                            aria-label="Buscar productos">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-search px-4" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </form>
 
-            <div class="d-flex align-items-center ms-auto gap-3">
+            <div class="d-flex align-items-center ms-auto gap-3 user-actions">
 
                 <!--                inicio de sesion-->
                 <div class="dropdown" sec:authorize="!isAuthenticated()">
 
-                    <a class="link-float dropdown-toggle" href="#" role="button" id="sesionDropdown"
+                    <a class="dropdown-toggle" href="#" role="button" id="sesionDropdown"
                        data-bs-toggle="dropdown" aria-expanded="false"
-                    >Inicia Sesión
+                    > <i class="fa-regular fa-user"></i>Hola, Ingresa
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sesionDropdown">
                         <li><a class="dropdown-item" href="" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            Inicia Sesión
+                            <i class="fa-solid fa-right-to-bracket me-2"></i>Inicia Sesión
                         </a></li>
-                        <li><a class="dropdown-item" href="/registrar/registro">Registrate</a></li>
+                        <li><a class="dropdown-item" href="/registrar/registro"><i class="fa-solid fa-user-plus me-2"></i> Registrate</a></li>
                     </ul>
                 </div> <!--find de inicio de sesion -->
 
@@ -85,7 +204,7 @@
 
                         <a class="resource-menu-link" href="#" role="button" id="recursosDropdown"
                            data-bs-toggle="dropdown" aria-expanded="false" title="Recursos de Administración">
-                            <i class="fa fa-grip"></i> Resources
+                            <i class="fa-solid fa-layer-group"></i> Resources
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="recursosDropdown">
@@ -118,44 +237,7 @@
 
                         </ul>
                     </div>
-<!--                    <div class="dropdown" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MARKETING', 'ROLE_DESPACHO')">-->
 
-<!--                        <a class="resource-menu-link" href="#" role="button" id="recursosDropdown"-->
-<!--                           data-bs-toggle="dropdown" aria-expanded="false" title="Recursos de Administración">-->
-<!--                            <i class="fa fa-grip"></i> Resources-->
-<!--                        </a>-->
-
-<!--                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="recursosDropdown">-->
-<!--                            <li><h6 class="dropdown-header">Administración de Datos</h6></li>-->
-<!--                            <li><hr class="dropdown-divider"></li>-->
-
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/categoria}">Categoría</a></li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/marca}">Marca</a></li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/tproducto}">Tipo de Producto</a></li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/productos}">Productos</a></li>-->
-
-<!--                            <li><hr class="dropdown-divider"></li>-->
-
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/usuarios}">Usuarios</a></li>-->
-<!--&lt;!&ndash;                            <li><a class="dropdown-item" th:href="@{/admin/usuarios}">Despacho</a></li>&ndash;&gt;-->
-<!--&lt;!&ndash;                            <li><a class="dropdown-item" th:href="@{/admin/usuarios}">Vendedor</a></li>&ndash;&gt;-->
-
-<!--                            <li><hr class="dropdown-divider"></li>-->
-
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/banners}">Banner Principal</a></li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/home-editor}">Banners Secundarios</a></li>-->
-
-<!--                            <li>-->
-<!--                                <hr class="dropdown-divider">-->
-<!--                            </li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/pedidos}">Gestion de Pedidos</a></li>-->
-
-<!--                            <li>-->
-<!--                                <hr class="dropdown-divider">-->
-<!--                            </li>-->
-<!--                            <li><a class="dropdown-item" th:href="@{/admin/auditoria}">Auditoria</a></li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
                     <div class="dropdown">
 
                         <a class="resource-menu-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -173,10 +255,12 @@
                         </ul>
                     </div>
                 </div>
+
                 <span style="width: 2px; height: 20px; background-color: #ccc; display: inline-block;"></span>
                 <div>
-                    <a th:href="@{/carrito}"><i class="fa-solid fa-cart-shopping"
-                                                style="color: gray; font-size: 20px;"></i></a>
+                    <a th:href="@{/carrito}" class="cart-icon-container d-inline-block" title="Ver Carrito">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -184,6 +268,7 @@
 
 
 </nav>
+
 
 <main>
     <div class="container">
@@ -213,7 +298,7 @@
     });
 
 </script>
-<footer class="bg-dark text-light mt-5">
+<footer class="navbar-industrial text-light mt-5">
     <div class="container py-4">
         <div class="row">
             <!-- Sección 1 -->
@@ -280,279 +365,6 @@
 </div>
 <input type="hidden" id="loginErrorMsg"
        th:value="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}">
-
-<!--<script th:inline="javascript">-->
-<!--    /*<![CDATA[*/-->
-<!--    document.addEventListener("DOMContentLoaded", () => {-->
-<!--        const loginForm = document.getElementById("loginFormModal"); // El ID del form DENTRO del modal-->
-<!--        const loginModalEl = document.getElementById("loginModal"); // El ID del modal en sí-->
-<!--        let redirectUrlAfterLogin = null; // Variable para guardar la URL de destino-->
-
-<!--        // -&#45;&#45; Listener para CAPTURAR la URL cuando se MUESTRA el modal -&#45;&#45;-->
-<!--loginModalEl?.addEventListener('show.bs.modal', function (event) {-->
-<!--    console.log("Evento 'show.bs.modal' disparado."); // LOG 1: ¿Se dispara el evento?-->
-
-<!--    const button = event.relatedTarget; // El botón que disparó el modal-->
-<!--    console.log("Botón que abrió el modal:", button); // LOG 2: ¿Es el botón correcto?-->
-
-<!--    if (button && button.dataset.redirectUrl) {-->
-<!--        redirectUrlAfterLogin = button.dataset.redirectUrl; // Guardamos '/direccion'-->
-<!--        console.log("ÉXITO: redirectUrlAfterLogin capturada:", redirectUrlAfterLogin); // LOG 3: ¿Se guardó la URL?-->
-<!--    } else {-->
-<!--        redirectUrlAfterLogin = null; // Si se abrió de otra forma (ej: link directo al modal), reseteamos-->
-<!--        console.warn("ADVERTENCIA: No se encontró 'data-redirect-url' en el botón o no hubo botón (relatedTarget)."); // LOG 4: ¿Por qué no se encontró?-->
-<!--    }-->
-<!--});-->
-
-<!--        // -&#45;&#45; Listener para cuando se ENVÍA el formulario DENTRO del modal -&#45;&#45;-->
-<!--        loginForm?.addEventListener("submit", (e) => {-->
-<!--            e.preventDefault(); // Detener envío normal-->
-<!--            console.log("Login form submitted via modal."); // Log 3-->
-
-<!--            const email = document.getElementById("emailModal").value;-->
-<!--            const pass = document.getElementById("passwordModal").value;-->
-
-<!--            // -&#45;&#45; Crear el formulario REAL que se enviará a Spring Security -&#45;&#45;-->
-<!--            const realForm = document.createElement("form");-->
-<!--            realForm.method = "post";-->
-<!--            realForm.action = "/login"; // Endpoint que procesa Spring Security-->
-<!--            realForm.style.display = "none"; // Ocultar el formulario-->
-
-<!--            // Campo 'username'-->
-<!--            const userInput = document.createElement("input");-->
-<!--            userInput.type = "hidden";-->
-<!--            userInput.name = "username";-->
-<!--            userInput.value = email;-->
-<!--            realForm.appendChild(userInput);-->
-
-<!--            // Campo 'password'-->
-<!--            const passInput = document.createElement("input");-->
-<!--            passInput.type = "hidden";-->
-<!--            passInput.name = "password";-->
-<!--            passInput.value = pass;-->
-<!--            realForm.appendChild(passInput);-->
-
-<!--            // -&#45;&#45; Añadir 'targetUrl' CAPTURADO -&#45;&#45;-->
-<!--            console.log("Attempting to add targetUrl. Value is:", redirectUrlAfterLogin); // Log 4-->
-<!--            if (redirectUrlAfterLogin) {-->
-<!--                const redirectInput = document.createElement("input");-->
-<!--                redirectInput.type = "hidden";-->
-<!--                redirectInput.name = "targetUrl"; // Nombre que espera el SuccessHandler-->
-<!--                redirectInput.value = redirectUrlAfterLogin; // Debería ser '/direccion'-->
-<!--                realForm.appendChild(redirectInput);-->
-<!--                console.log("SUCCESS: Added targetUrl input with value:", redirectUrlAfterLogin); // Log 5-->
-<!--            } else {-->
-<!--                console.warn("WARNING: redirectUrlAfterLogin was null or empty. targetUrl not added."); // Log 6-->
-<!--            }-->
-
-<!--            // -&#45;&#45; Añadir token CSRF -&#45;&#45;-->
-<!--            // Busca el token CSRF en un input oculto (lo más común con Thymeleaf+Security)-->
-<!--            const csrfInputHidden = document.querySelector('input[name="_csrf"]');-->
-<!--            if (csrfInputHidden && csrfInputHidden.value) {-->
-<!--                const csrfInput = document.createElement("input");-->
-<!--                csrfInput.type = "hidden";-->
-<!--                csrfInput.name = "_csrf"; // Nombre estándar-->
-<!--                csrfInput.value = csrfInputHidden.value;-->
-<!--                realForm.appendChild(csrfInput);-->
-<!--                console.log("SUCCESS: Added CSRF token input."); // Log 7-->
-<!--            } else {-->
-<!--                 // Intenta buscar en meta tags como fallback (menos común)-->
-<!--                 const csrfMeta = document.querySelector('meta[name="_csrf"]');-->
-<!--                 const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]'); // Nombre del parámetro-->
-<!--                 if (csrfMeta && csrfHeaderMeta && csrfMeta.content) {-->
-<!--                     const csrfInput = document.createElement("input");-->
-<!--                     csrfInput.type = "hidden";-->
-<!--                     csrfInput.name = csrfHeaderMeta.content || "_csrf"; // Usa el nombre del header o default-->
-<!--                     csrfInput.value = csrfMeta.content;-->
-<!--                     realForm.appendChild(csrfInput);-->
-<!--                     console.log("SUCCESS: Added CSRF token input from meta tags."); // Log 8-->
-<!--                 } else {-->
-<!--                    console.error("ERROR: CSRF token input/meta not found in the page. Login might fail."); // Log 9-->
-<!--                 }-->
-<!--            }-->
-<!--            // -&#45;&#45; Fin CSRF -&#45;&#45;-->
-
-<!--            document.body.appendChild(realForm); // Añadir al DOM-->
-<!--            console.log("Submitting real form to /login..."); // Log 10-->
-<!--            realForm.submit(); // Enviar el formulario oculto-->
-<!--        });-->
-
-<!--        // -&#45;&#45; Lógica para manejar el error de login (?error) -&#45;&#45;-->
-<!--        const params = new URLSearchParams(window.location.search);-->
-<!--        if (params.has("error")) {-->
-<!--            const modal = document.getElementById("loginModal");-->
-<!--            const errorDiv = document.getElementById("error-modal");-->
-<!--            const errorMsgInput = document.getElementById("loginErrorMsg"); // El input oculto con el mensaje-->
-<!--            const errorMsg = errorMsgInput ? errorMsgInput.value : ""; // Obtener mensaje de Spring-->
-
-<!--            console.log("Login error detected. Message:", errorMsg); // Log 11-->
-
-<!--            if (errorDiv) {-->
-<!--                if (errorMsg && errorMsg.toLowerCase().includes("deshabilitada")) {-->
-<!--                    errorDiv.textContent = "Tu cuenta ha sido deshabilitada. Contacta al administrador.";-->
-<!--                } else {-->
-<!--                    errorDiv.textContent = "Correo o contraseña incorrectos."; // Mensaje genérico-->
-<!--                }-->
-<!--                errorDiv.classList.remove("d-none");-->
-<!--            }-->
-
-<!--            // Abrir el modal para mostrar el error-->
-<!--            if (modal) {-->
-<!--                // Evitar reabrir si ya está visible o en proceso-->
-<!--                const modalInstance = bootstrap.Modal.getInstance(modal);-->
-<!--                if (!modalInstance) { // Si no hay instancia, crearla y mostrarla-->
-<!--                     try {-->
-<!--                         console.log("Showing login modal due to error."); // Log 12-->
-<!--                         const newModalInstance = new bootstrap.Modal(modal);-->
-<!--                         newModalInstance.show();-->
-<!--                     } catch(e) { console.error("Error trying to show login modal:", e); }-->
-<!--                } else {-->
-<!--                     console.log("Login modal might already be open or closing."); // Log 13-->
-<!--                }-->
-<!--            }-->
-<!--        }-->
-
-<!--        // Listener para limpiar error y URL cuando se CIERRA el modal-->
-<!--        loginModalEl?.addEventListener("hidden.bs.modal", () => {-->
-<!--            const errorDiv = document.getElementById("error-modal");-->
-<!--            if (errorDiv) errorDiv.classList.add("d-none"); // Ocultar mensaje de error-->
-<!--            redirectUrlAfterLogin = null; // Limpiar la URL para la próxima vez-->
-<!--            console.log("Login modal closed. Redirect URL cleared."); // Log 14-->
-<!--        });-->
-<!--    });-->
-<!--    /*]]>*/-->
-
-
-<!--</script>-->
-<!--<script>-->
-<!--    document.addEventListener("DOMContentLoaded", () => {-->
-<!--      const loginForm = document.getElementById("loginFormModal");-->
-
-<!--      //****** Inicio del codigo nuevo ingresado temporal**************-->
-<!--      const loginModalEl = document.getElementById("loginModal");-->
-<!--      let redirectUrlAfterLogin = null;-->
-
-<!--      loginModalEl?.addEventListener('show.bs.modal', function (event){-->
-<!--        const button = event.relatedTarget;-->
-<!--        if(button && button.dataset.redirectUrl){-->
-<!--            redirectUrlAfterLogin = button.dataset.redirectUrl;-->
-<!--            console.log("LOGIN REDIRECT: Intencion de ir a: ", redirectUrlAfterLogin);-->
-<!--        }else{-->
-<!--            redirectUrlAfterLogin = null;-->
-<!--        }-->
-<!--      });-->
-
-<!--      // *******Fin del codigo nuevo*******-->
-
-
-<!--      // Cuando se envía el modal-->
-<!--      loginForm?.addEventListener("submit", (e) => {-->
-<!--        e.preventDefault();-->
-
-<!--        const email = document.getElementById("emailModal").value;-->
-<!--        const pass = document.getElementById("passwordModal").value;-->
-
-<!--        // Crea el formulario real y lo envía a /login (Spring Security)-->
-<!--        const realForm = document.createElement("form");-->
-<!--        realForm.method = "post";-->
-<!--        realForm.action = "/login";-->
-
-
-<!--        const userInput = document.createElement("input");-->
-<!--        userInput.type = "hidden";-->
-<!--        userInput.name = "username";-->
-<!--        userInput.value = email;-->
-
-
-<!--        const passInput = document.createElement("input");-->
-<!--        passInput.type = "hidden";-->
-<!--        passInput.name = "password";-->
-<!--        passInput.value = pass;-->
-
-
-<!--        realForm.appendChild(userInput);-->
-<!--        realForm.appendChild(passInput);-->
-
-<!--        // ***** Otro codigo nuego ingresado de manera temporal******************************-->
-<!--        console.log("LOGIN SUBMIT: Valor de redirectUrlAfterLogin:", redirectUrlAfterLogin);-->
-<!--        if (redirectUrlAfterLogin) {-->
-<!--            const redirectInput = document.createElement("input");-->
-<!--            redirectInput.type = "hidden";-->
-<!--            redirectInput.name = "targetUrl"; // Parámetro para el SuccessHandler-->
-<!--            redirectInput.value = redirectUrlAfterLogin; // Debería ser '/direccion'-->
-<!--            realForm.appendChild(redirectInput);-->
-<!--            console.log("LOGIN SUBMIT: Añadiendo input targetUrl:", redirectUrlAfterLogin);-->
-<!--        } else {-->
-<!--             console.log("LOGIN SUBMIT: No se encontró redirectUrlAfterLogin.");-->
-<!--        }-->
-
-<!--         // Añadir token CSRF (Intenta buscarlo en toda la página)-->
-<!--         // Busca un meta tag o un input oculto que ya exista-->
-<!--         const csrfMeta = document.querySelector('meta[name="_csrf"]');-->
-<!--         const csrfHeader = document.querySelector('meta[name="_csrf_header"]');-->
-<!--         let csrfTokenValue = null;-->
-<!--         let csrfParamName = "_csrf"; // Default-->
-
-<!--         if (csrfMeta && csrfHeader) {-->
-<!--            csrfTokenValue = csrfMeta.content;-->
-<!--            csrfParamName = csrfHeader.content; // El nombre real puede variar-->
-<!--         } else {-->
-<!--             // Intenta buscar un input oculto (más común con Thymeleaf + Spring Security)-->
-<!--             const csrfInputHidden = document.querySelector('input[name="_csrf"]');-->
-<!--             if (csrfInputHidden) {-->
-<!--                 csrfTokenValue = csrfInputHidden.value;-->
-<!--             }-->
-<!--         }-->
-
-<!--         if (csrfTokenValue) {-->
-<!--             const csrfInput = document.createElement("input");-->
-<!--             csrfInput.type = "hidden";-->
-<!--             csrfInput.name = csrfParamName; // Usar el nombre correcto-->
-<!--             csrfInput.value = csrfTokenValue;-->
-<!--             realForm.appendChild(csrfInput);-->
-<!--             console.log("LOGIN SUBMIT: Añadiendo CSRF Token:", csrfParamName);-->
-<!--         } else {-->
-<!--              console.warn("LOGIN SUBMIT: No se encontró token CSRF en la página.");-->
-<!--         }-->
-
-
-<!--         // ***************fin de codigo nuevo temporal**********************-->
-
-<!--        document.body.appendChild(realForm);-->
-
-<!--        realForm.submit();-->
-<!--      });-->
-
-<!--      // Si Spring Security redirige con ?error-->
-<!--      const params = new URLSearchParams(window.location.search);-->
-<!--      if (params.has("error")) {-->
-<!--        const modal = document.getElementById("loginModal");-->
-<!--        const errorDiv = document.getElementById("error-modal");-->
-<!--        const errorMsg = document.getElementById("loginErrorMsg")?.value || "";-->
-
-<!--        if (errorMsg.includes("deshabilitada")) {-->
-<!--          errorDiv.textContent = "Tu cuenta ha sido deshabilitada. contacta al administrador";-->
-<!--          errorDiv.classList.remove("d-none");-->
-
-<!--        }else{-->
-<!--            errorDiv.textContent = "Correo o contraseña incorrectos"-->
-<!--            errorDiv.classList.remove("d-none");-->
-<!--        }-->
-
-<!--        if (modal) {-->
-<!--          const loginModal = new bootstrap.Modal(modal);-->
-<!--          loginModal.show();-->
-<!--        }-->
-<!--      }-->
-<!--    });-->
-<!--    document.getElementById("loginModal")-->
-<!--      ?.addEventListener("hidden.bs.modal", () => {-->
-<!--        const errorDiv = document.getElementById("error-modal");-->
-<!--        if (errorDiv) errorDiv.classList.add("d-none");-->
-<!--});-->
-<!--</script>-->
-
-
 <style>
 
 
@@ -618,7 +430,7 @@
 
     /* 1. Estilo Base: Negro, sin fondo, sin subrayado, sin flecha (ya quitamos dropdown-toggle en HTML) */
 .resource-menu-link {
-    color: #333 !important; /* Texto y ícono en color negro/gris oscuro */
+    color: #ffffff !important; /* Texto y ícono en color negro/gris oscuro */
     background-color: transparent !important; /* Asegura que no tenga color de fondo */
     border: none !important; /* Elimina cualquier borde si lo tuviera */
     text-decoration: none !important; /* Elimina el subrayado */
@@ -646,6 +458,7 @@
     color: #007bff !important;
     background-color: rgba(0, 123, 255, 0.15) !important;
 }
+
 </style>
 <div layout:fragment="scripts" th:remove="tag">
 </div>
