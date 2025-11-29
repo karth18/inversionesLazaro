@@ -17,7 +17,7 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // <-- ID Interno (rápido, para la BD)
 
-    // --- ¡NUEVO! ---
+
     @Column(name = "codigo_pedido", unique = true, nullable = false, length = 36)
     private String codigoPedido; // <-- ID Público (para el cliente)
 
@@ -32,7 +32,7 @@ public class Pedido {
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
-    // --- ¡MEJORADO! ---
+
     // Usamos un Enum para los estados
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -52,24 +52,85 @@ public class Pedido {
 
     @PrePersist
     protected void onCreate() {
+        // 1. Fecha de creación
         this.fechaCreacion = LocalDateTime.now();
-        // --- ¡NUEVO! ---
-        // Genera un código único al crear el pedido
+
+        // 2. Código único
         if (this.codigoPedido == null) {
-            // Genera un UUID (ej: f47ac10b-58cc-4372-a567-0e02b2c3d479)
-            // y toma los primeros 8 caracteres para hacerlo más corto
             this.codigoPedido = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
+
+        // 3. CALCULO AUTOMÁTICO DE FECHA DE ENTREGA (NUEVO)
+        if (this.fechaEntregaEstimada == null) {
+            int diasTransporteEstandar = 3; // Tú defines cuántos días tarda el envío base
+            int maxDiasProducto = 0;
+
+            // Revisamos qué producto tarda más en estar listo
+            if (this.detalles != null && !this.detalles.isEmpty()) {
+                for (PedidoDetalle d : this.detalles) {
+                    // Verificamos que el producto y sus días no sean nulos para evitar errores
+                    if (d.getProducto() != null && d.getProducto().getDiasProcesamiento() != null) {
+                        if (d.getProducto().getDiasProcesamiento() > maxDiasProducto) {
+                            maxDiasProducto = d.getProducto().getDiasProcesamiento();
+                        }
+                    }
+                }
+            }
+            // Fecha Estimada = Hoy + Días del producto más lento + Días de viaje
+            this.fechaEntregaEstimada = LocalDateTime.now().plusDays(maxDiasProducto + diasTransporteEstandar);
+        }
+
+        // 4. Primer historial (Lo que ya tenías)
+        if (this.historialEstados == null) {
+            this.historialEstados = new ArrayList<>();
+        }
+        if (this.historialEstados.isEmpty()) {
+            if (this.estado == null) {
+                this.estado = EstadoPedido.PENDIENTE;
+            }
+            PedidoSeguimiento primerPaso = new PedidoSeguimiento();
+            primerPaso.setPedido(this);
+            primerPaso.setEstado(this.estado);
+            primerPaso.setFechaCambio(LocalDateTime.now());
+            primerPaso.setUsuarioResponsable("Sistema");
+            primerPaso.setComentario("Orden creada. Fecha estimada de entrega calculada.");
+            this.historialEstados.add(primerPaso);
+        }
+    }
+//codigo nuevo revision
+    @Column(name = "fecha_entrega_estimada")
+    private LocalDateTime fechaEntregaEstimada;
+
+    // Relación para poder pintar el historial en el HTML
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("fechaCambio ASC") // Importante para que salga en orden cronológico
+    private List<PedidoSeguimiento> historialEstados = new ArrayList<>();
+
+    // Método helper para calcular la entrega basada en los productos
+    public void calcularFechaEntrega(int diasTransporteEstandar) {
+        int maxDiasProducto = 0;
+        for (PedidoDetalle d : this.detalles) {
+            if (d.getProducto().getDiasProcesamiento() > maxDiasProducto) {
+                maxDiasProducto = d.getProducto().getDiasProcesamiento();
+            }
+        }
+        // Fecha hoy + lo que tarda el producto más lento + tiempo de viaje
+        this.fechaEntregaEstimada = LocalDateTime.now().plusDays(maxDiasProducto + diasTransporteEstandar);
     }
 
-    // --- ¡NUEVO! ---
+//    fin de codigo nuevo
+
+
     // Enum para tus 4 estados
     public enum EstadoPedido {
+        PENDIENTE,
         ORDEN_RECIBIDA, // (Estado inicial después de PENDIENTE)
         EN_PREPARACION,
         EN_CAMINO,
+        REAGENDADO,
+        ENTREGADO,
         FINALIZADO,
-        PENDIENTE, // (Para el pago)
         CANCELADO
+
     }
 }

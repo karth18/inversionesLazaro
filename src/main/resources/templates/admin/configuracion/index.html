@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master.html}">
+<head>
+    <title>Configuración de Correos</title>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+    <h2 class="mb-4">Configuración de Plantillas de Correo</h2>
+
+    <div th:if="${msgExito}" class="alert alert-success" th:text="${msgExito}"></div>
+
+    <form th:action="@{/admin/configuracion/guardar}" method="post" th:object="${config}">
+
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">General</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label>URL del Logo</label>
+                    <input type="text" th:field="*{urlLogo}" class="form-control" placeholder="https://...">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Texto Botón</label>
+                        <input type="text" th:field="*{textoBoton}" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Pie de página (Footer)</label>
+                        <input type="text" th:field="*{footerAgradecimiento}" class="form-control">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Recomendaciones de Entrega</label>
+                    <textarea th:field="*{recomendacionesEntrega}" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">1. Correo de Bienvenida (Orden Recibida)</div>
+            <div class="card-body">
+                <small class="text-muted d-block mb-2">Variables: <b>{cliente}</b></small>
+                <div class="mb-2">
+                    <label>Asunto</label>
+                    <input type="text" th:field="*{asuntoBienvenida}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label>Mensaje</label>
+                    <textarea th:field="*{mensajeBienvenida}" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">2. Correo En Camino</div>
+            <div class="card-body">
+                <small class="text-muted d-block mb-2">Variables: <b>{cliente}</b>, <b>{codigo}</b></small>
+                <div class="mb-2">
+                    <label>Asunto</label>
+                    <input type="text" th:field="*{asuntoEnCamino}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label>Mensaje</label>
+                    <textarea th:field="*{mensajeEnCamino}" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-warning">3. Correo Reagendado</div>
+            <div class="card-body">
+                <small class="text-muted d-block mb-2">Variables: <b>{cliente}</b>, <b>{motivo}</b>, <b>{fecha}</b></small>
+                <div class="mb-2">
+                    <label>Asunto</label>
+                    <input type="text" th:field="*{asuntoReagendado}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label>Mensaje</label>
+                    <textarea th:field="*{mensajeReagendado}" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">4. Correo Entregado</div>
+            <div class="card-body">
+                <small class="text-muted d-block mb-2">Variables: <b>{cliente}</b></small>
+                <div class="mb-2">
+                    <label>Asunto</label>
+                    <input type="text" th:field="*{asuntoEntregado}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label>Mensaje</label>
+                    <textarea th:field="*{mensajeEntregado}" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">5. Correo Cancelado</div>
+            <div class="card-body">
+                <small class="text-muted d-block mb-2">Variables: <b>{cliente}</b>, <b>{motivo}</b></small>
+                <div class="mb-2">
+                    <label>Asunto</label>
+                    <input type="text" th:field="*{asuntoCancelado}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label>Mensaje</label>
+                    <textarea th:field="*{mensajeCancelado}" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 mb-5">Guardar Configuración</button>
+    </form>
+</div>
+</body>
+</html>

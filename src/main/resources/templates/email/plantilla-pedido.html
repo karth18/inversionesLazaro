@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Estilos en línea para compatibilidad con correos */
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #28a745; } /* Color verde Saga */
+        .header img { max-height: 60px; }
+
+        .content { padding: 30px 20px; }
+        .status-title { color: #333; font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+        .status-message { color: #555; font-size: 16px; text-align: center; margin-bottom: 30px; line-height: 1.5; }
+
+        .info-box { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #007bff; }
+        .info-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .info-value { font-size: 16px; color: #333; font-weight: bold; margin-top: 5px; }
+
+        .recommendations { background-color: #fff3cd; padding: 15px; border-radius: 5px; color: #856404; font-size: 14px; margin-bottom: 25px; }
+
+        .product-list { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .product-list td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+
+        .btn-action { display: block; width: 200px; margin: 0 auto; padding: 12px; background-color: #28a745; color: #ffffff !important; text-align: center; text-decoration: none; border-radius: 25px; font-weight: bold; }
+
+        .footer { background-color: #333; color: #aaa; text-align: center; padding: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <div class="header">
+        <img th:src="${config.urlLogo != null ? config.urlLogo : 'https://tuservidor.com/images/logo-default.png'}" alt="Inversiones Lázaro">
+    </div>
+
+    <div class="content">
+        <h1 class="status-title" th:text="${titulo}">Tu pedido está en camino</h1>
+        <p class="status-message" th:text="${mensaje}">
+            Hola Juan, tu pedido ha salido de nuestro almacén.
+        </p>
+
+        <div class="info-box">
+            <div class="info-label">Fecha Estimada de Entrega</div>
+            <div class="info-value"
+                 th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es','ES'))}">
+                04 de Diciembre
+            </div>
+        </div>
+
+        <div class="info-box" style="border-left-color: #6c757d;">
+            <div class="info-label">Dirección de Entrega</div>
+            <div class="info-value">
+                <span th:text="${pedido.direccion.calleAvenida} + ' ' + ${pedido.direccion.numeroCalle}">Av. Larco 123</span><br>
+                <span style="font-size: 14px; font-weight: normal;" th:text="${pedido.direccion.distrito.nombre} + ', ' + ${pedido.direccion.departamento.nombre}">Miraflores, Lima</span>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <strong><i class="fas fa-info-circle"></i> Importante:</strong>
+            <p style="margin: 5px 0 0 0;" th:text="${config.recomendacionesEntrega}">
+                Recuerda tener tu DNI a la mano al momento de la entrega.
+            </p>
+        </div>
+
+        <h3 style="font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Resumen de tu compra</h3>
+        <table class="product-list">
+            <tr th:each="d : ${pedido.detalles}">
+                <td width="60">
+                    <img th:src="${'https://tuservidor.com' + d.producto.imagenPrincipalUrl}" class="product-img">
+                </td>
+                <td>
+                    <span style="font-weight: bold; display: block;" th:text="${d.producto.nomPro}">Producto</span>
+                    <span style="font-size: 12px; color: #777;" th:text="'Cant: ' + ${d.cantidad}">Cant: 1</span>
+                </td>
+                <td align="right" style="font-weight: bold;" th:text="'S/ ' + ${d.precioUnitario}">S/ 100.00</td>
+            </tr>
+        </table>
+
+        <a href="https://tuservidor.com/misPedidos" class="btn-action" th:text="${config.textoBoton}">Ir a mis Compras</a>
+    </div>
+
+    <div class="footer">
+        <p th:text="${config.footerAgradecimiento}">Gracias por confiar en Inversiones Lázaro.</p>
+        <p>Este es un correo automático, por favor no responder.</p>
+    </div>
+</div>
+
+</body>
+</html>

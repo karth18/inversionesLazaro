@@ -99,85 +99,35 @@
                 </div>
             </div>
         </div>
+        <!--        trasabilidad-->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Seguimiento del Pedido</h5>
+                <small class="text-muted">
+                    Entrega estimada:
+                    <span class="text-primary fw-bold text-capitalize"
+                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es', 'ES'))}">
+            </span>
+                </small>
+            </div>
+            <div class="card-body">
+                <div class="tracking-timeline">
+
+                    <div th:each="log : ${pedido.historialEstados}" class="timeline-item">
+                        <div class="timeline-marker"
+                             th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold mb-0" th:text="${log.estado.name().replace('_', ' ')}"></h6>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>
+                            <p class="mb-0 small text-secondary" th:if="${log.comentario}" th:text="${log.comentario}"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
 </html>
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org"-->
-<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
-<!--      layout:decorate="~{master.html}">-->
-<!--<head>-->
-<!--    <title th:text="'Detalle Pedido ' + ${pedido.codigoPedido}">Detalle de Pedido</title>-->
-<!--</head>-->
-<!--<body>-->
-<!--<div class="container" layout:fragment="content">-->
-<!--    <h2 class="mb-3">-->
-<!--        Detalle del Pedido: <span class="text-primary" th:text="${pedido.codigoPedido}"></span>-->
-<!--    </h2>-->
-
-<!--    <a th:href="@{/admin/pedidos}" class="btn btn-secondary mb-3">-->
-<!--        <i class="fas fa-arrow-left"></i> Volver a la lista-->
-<!--    </a>-->
-
-<!--    <div class="row g-4">-->
-<!--        <div class="col-md-4">-->
-<!--            <div class="card shadow-sm mb-3">-->
-<!--                <div class="card-header"><h5 class="mb-0">Información del Pedido</h5></div>-->
-<!--                <div class="card-body">-->
-<!--                    <p><strong>Cliente:</strong> <span th:text="${pedido.usuario.nombres} + ' ' + ${pedido.usuario.apellidos}"></span></p>-->
-<!--                    <p><strong>Email:</strong> <span th:text="${pedido.usuario.email}"></span></p>-->
-<!--                    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></p>-->
-<!--                    <p><strong>Estado:</strong> <span th:text="${pedido.estado.name().replace('_', ' ')}" class="fw-bold"></span></p>-->
-<!--                    <p><strong>Total Pagado:</strong> <span th:text="'S/' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}" class="h5 text-success fw-bold"></span></p>-->
-<!--                    <p><strong>ID Stripe:</strong> <span th:text="${pedido.stripeChargeId}" class="small text-muted"></span></p>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="card shadow-sm">-->
-<!--                <div class="card-header"><h5 class="mb-0">Dirección de Envío</h5></div>-->
-<!--                <div class="card-body">-->
-<!--                    <p class="mb-1" th:text="${pedido.direccion.calleAvenida} + ' ' + ${pedido.direccion.numeroCalle}"></p>-->
-<!--                    <p class.="mb-1" th:text="${pedido.direccion.dptoInterior}"></p>-->
-<!--                    <p class="mb-1" th:text="${pedido.direccion.distrito.nombre} + ', ' + ${pedido.direccion.provincia.nombre}"></p>-->
-<!--                    <p class="mb-0" th:text="${pedido.direccion.departamento.nombre}"></p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        <div class="col-md-8">-->
-<!--            <div class="card shadow-sm">-->
-<!--                <div class="card-header"><h5 class="mb-0">Productos Incluidos</h5></div>-->
-<!--                <div class="card-body">-->
-<!--                    <table class="table align-middle">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th>Producto</th>-->
-<!--                            <th>codPro</th>-->
-<!--                            <th>Precio Unit.</th>-->
-<!--                            <th>Cantidad</th>-->
-<!--                            <th>Subtotal</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                        <tr th:each="detalle : ${pedido.detalles}">-->
-<!--                            <td>-->
-<!--                                <div class="d-flex align-items-center">-->
-<!--                                    <img th:src="${detalle.producto.getImagenPrincipalUrl()}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" class="me-2">-->
-<!--                                    <span th:text="${detalle.producto.nomPro}"></span>-->
-<!--                                </div>-->
-<!--                            </td>-->
-<!--                            <td th:text="${detalle.producto.codPro}"></td>-->
-<!--                            <td th:text="'S/' + ${#numbers.formatDecimal(detalle.precioUnitario, 1, 'COMMA', 2, 'POINT')}"></td>-->
-<!--                            <td th:text="${detalle.cantidad}"></td>-->
-<!--                            <td th:text="'S/' + ${#numbers.formatDecimal(detalle.precioUnitario * detalle.cantidad, 1, 'COMMA', 2, 'POINT')}"></td>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->

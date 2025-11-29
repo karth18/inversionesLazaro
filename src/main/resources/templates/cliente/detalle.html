@@ -4,6 +4,32 @@
       layout:decorate="~{master.html}">
 <head>
     <title th:text="'Detalle Pedido ' + ${pedido.codigoPedido}">Detalle de Pedido</title>
+
+    <style>
+        /* CSS para el Timeline Vertical */
+        .tracking-timeline {
+            border-left: 3px solid #e9ecef;
+            margin-left: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: -28px; /* Ajustar según borde */
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #e9ecef;
+        }
+        .bg-success { background-color: #28a745 !important; }
+        .bg-primary { background-color: #0d6efd !important; }
+    </style>
 </head>
 <body>
 <div class="container" layout:fragment="content">
@@ -29,11 +55,18 @@
                     <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></p>
 
                     <p><strong>Estado:</strong>
-                        <span th:text="${pedido.estado.name().replace('_', ' ')}"
-                              class="fw-bold"
-                              th:classappend="${pedido.estado.name() == 'CANCELADO'} ? 'text-danger'">
-                        </span>
+                        <span class="fw-bold"
+                              th:classappend="${pedido.estado.name() == 'PENDIENTE' ? 'text-secondary' :
+                           (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'text-info' :
+                           (pedido.estado.name() == 'CANCELADO' ? 'text-danger' : 'text-success'))}"
+
+                              th:text="${pedido.estado.name() == 'PENDIENTE' ? 'Validando Pago' :
+                   (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'Pago Aceptado' :
+                   pedido.estado.name().replace('_', ' '))}">
+    </span>
                     </p>
+
+                    <div class="mt-2">
 
                     <div th:if="${pedido.estado.name() == 'CANCELADO'
                                   and pedido.motivoCancelacion != null
@@ -43,6 +76,18 @@
                         <strong class="d-block"><i class="fas fa-store-slash"></i> Nota de la Tienda:</strong>
                         <span th:text="${pedido.motivoCancelacion}"></span>
                     </div>
+                    <div th:if="${pedido.estado.name() == 'REAGENDADO'
+                  and not #lists.isEmpty(pedido.historialEstados)}"
+                         class="alert alert-warning p-2" style="font-size: 0.9rem;">
+
+                        <strong class="d-block"><i class="fas fa-clock"></i> Entrega Reprogramada:</strong>
+
+                        <span th:text="${pedido.historialEstados[pedido.historialEstados.size() - 1].comentario.replace('REAGENDADO:', '').trim()}">
+            Motivo del cambio
+        </span>
+                    </div>
+
+                </div>
                     <p><strong>Total Pagado:</strong> <span th:text="'S/' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}" class="h5 text-success fw-bold"></span></p>
                     <p><strong>ID Stripe:</strong> <span th:text="${pedido.stripeChargeId}" class="small text-muted"></span></p>
                 </div>
@@ -91,7 +136,39 @@
                 </div>
             </div>
         </div>
+        <!--        trasabilidad-->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Seguimiento del Pedido</h5>
+                <small class="text-muted">
+                    Entrega estimada:
+                    <span class="text-primary fw-bold text-capitalize"
+                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es', 'ES'))}">
+            </span>
+                </small>
+            </div>
+            <div class="card-body">
+                <div class="tracking-timeline">
+
+                    <div th:each="log : ${pedido.historialEstados}" class="timeline-item">
+                        <div class="timeline-marker"
+                             th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold mb-0"
+                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Pedido Recibido (Validando)' : log.estado.name().replace('_', ' ')}">
+                            </h6>
+
+                            <small class="text-muted" th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>
+                            <p class="mb-0 small text-secondary" th:if="${log.comentario}" th:text="${log.comentario}"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
 </body>
 </html>

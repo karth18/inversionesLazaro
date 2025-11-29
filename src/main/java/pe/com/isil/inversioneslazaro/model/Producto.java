@@ -50,6 +50,11 @@ public class Producto {
     @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
 
+    @NotNull(message = "El tiempo de despacho es obligatorio")
+    @Min(value = 0)
+    @Column(name = "dias_procesamiento", nullable = false)
+    private Integer diasProcesamiento;
+
     // Datos adicionales de la descripcion de productos
     private Double altoCm;
     private Double anchoCm;

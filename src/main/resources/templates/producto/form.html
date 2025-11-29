@@ -142,6 +142,21 @@
                                  th:errors="*{stock}"
                                  th:if="${#fields.hasErrors('stock')}" > </div>
                         </div>
+<!--                    codigo nuevo dias de procesamiento-->
+                        <div class="col-md-3 mb-3">
+                            <label for="diasProcesamiento" class="form-label text-primary fw-bold">Días Despacho</label>
+                            <div class="input-group">
+                                <input type="number" th:field="*{diasProcesamiento}" id="diasProcesamiento"
+                                       class="form-control" th:errorClass="is-invalid" required min="0" value="0">
+                                <span class="input-group-text">días</span>
+                            </div>
+                            <div class="invalid-feedback"
+                                 th:errors="*{diasProcesamiento}"
+                                 th:if="${#fields.hasErrors('diasProcesamiento')}"></div>
+                            <small class="form-text text-muted" style="font-size: 0.75rem;">
+                                0 = Sale hoy mismo.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="mb-3">

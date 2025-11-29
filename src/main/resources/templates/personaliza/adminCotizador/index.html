@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{master.html}">
+<body>
+<div class="container py-4" layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestor Cotizador Express</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo">
+            <i class="fas fa-plus"></i> Nuevo Equipo
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <div th:each="prod : ${productos}" class="col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm" th:classappend="${!prod.activo} ? 'opacity-50'">
+                <img th:src="@{'/media/' + ${prod.imagenUrl}}" class="card-img-top p-3" style="height: 150px; object-fit: contain;">
+                <div class="card-body text-center">
+                    <h5 class="card-title" th:text="${prod.nombre}">Mesa</h5>
+                    <p class="small text-muted">Alto: <span th:text="${prod.altoEstandar}"></span> cm</p>
+
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <a th:href="@{/admin/cotizador/configurar/{id}(id=${prod.id})}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-cogs"></i> Configurar
+                        </a>
+
+                        <a th:href="@{/admin/cotizador/producto/toggle/{id}(id=${prod.id})}"
+                           class="btn btn-sm"
+                           th:classappend="${prod.activo} ? 'btn-success' : 'btn-secondary'">
+                            <i class="fas" th:classappend="${prod.activo} ? 'fa-eye' : 'fa-eye-slash'"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalNuevo" tabindex="-1">
+        <div class="modal-dialog">
+            <form action="/admin/cotizador/producto/guardar" method="post" enctype="multipart/form-data" class="modal-content">
+                <div class="modal-header"><h5>Nuevo Producto</h5></div>
+                <div class="modal-body">
+                    <label class="form-label">Nombre del Equipo</label>
+                    <input type="text" name="nombre" class="form-control mb-3" placeholder="Ej: Mesa de Trabajo" required>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Alto Estándar (cm)</label>
+                            <input type="number" name="alto" class="form-control" placeholder="Ej: 90" step="0.1" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Fondo Estándar (cm)</label>
+                            <input type="number" name="fondo" class="form-control" placeholder="Ej: 60" step="0.1" required>
+                        </div>
+                    </div>
+
+                    <label class="form-label">Imagen Referencial</label>
+                    <input type="file" name="imagen" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

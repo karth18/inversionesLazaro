@@ -249,6 +249,14 @@
                 new Swiper(swiperEl, {
                     slidesPerView: 'auto',
                     spaceBetween: 16,
+
+<!--                    *****Opcional para que el carrusel se mueva automaticamente ***********-->
+                    loop: true,
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+<!--                    ***** fin Opcional***************-->
                     navigation: {
                         nextEl: '.swiper-button-next',
                         prevEl: '.swiper-button-prev',
@@ -273,10 +281,10 @@
             slidesPerGroup: 1,
 
             // (Opcional) Autoplay:  se mueva solo cada 3 segundos
-            // autoplay: {
-            //   delay: 3000,
-            //   disableOnInteraction: false,
-            // },
+             autoplay: {
+              delay: 3000,
+               disableOnInteraction: false,
+             },
 
             navigation: {
                 nextEl: '.swiper-button-next',

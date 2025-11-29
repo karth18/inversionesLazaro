@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{master.html}">
+<body>
+<div class="container py-4" layout:fragment="content">
+
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/cotizador" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h2 th:text="'Configurando: ' + ${producto.nombre}">Configurando Mesa</h2>
+    </div>
+
+    <div class="row">
+        <div class="card shadow-sm mb-4 bg-light border-light">
+            <div class="card-body py-3">
+                <form action="/admin/cotizador/producto/actualizar-dimensiones" method="post" class="row align-items-end">
+                    <input type="hidden" name="id" th:value="${producto.id}">
+
+                    <div class="col-md-4">
+                        <h4 class="mb-0 text-primary" th:text="${producto.nombre}">Nombre Producto</h4>
+                        <small class="text-muted">Edita las dimensiones estándar aquí</small>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="small fw-bold text-secondary">Alto (cm):</label>
+                        <input type="number" name="alto" class="form-control" th:value="${producto.altoEstandar}" step="0.1">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="small fw-bold text-secondary">Fondo/Profundidad (cm):</label>
+                        <input type="number" name="fondo" class="form-control" th:value="${producto.fondoEstandar}" step="0.1">
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save"></i> Actualizar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h5 class="mb-0">Tabla de Precios por Medida</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle"></i> Define precios fijos por rangos de largo. El ancho se maneja estándar.
+                    </div>
+
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Desde (cm)</th>
+                            <th>Hasta (cm)</th>
+                            <th>Precio Económico (201)</th>
+                            <th>Precio Quirúrgico (304)</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="rango : ${producto.rangos}">
+                            <td th:text="${rango.minLargo} + ' cm'"></td>
+                            <td th:text="${rango.maxLargo} + ' cm'"></td>
+                            <td class="text-success fw-bold" th:text="'S/ ' + ${rango.precio201}"></td>
+                            <td class="text-primary fw-bold" th:text="'S/ ' + ${rango.precio304}"></td>
+                            <td><a href="#" class="text-danger"><i class="fas fa-trash"></i></a></td>
+                        </tr>
+
+                        <form action="/admin/cotizador/rango/guardar" method="post">
+                            <input type="hidden" name="productoId" th:value="${producto.id}">
+                            <tr>
+                                <td><input type="number" name="minLargo" class="form-control form-control-sm" placeholder="Min" required></td>
+                                <td><input type="number" name="maxLargo" class="form-control form-control-sm" placeholder="Max" required></td>
+                                <td><input type="number" name="precio201" class="form-control form-control-sm" placeholder="S/ Eco" step="0.01" required></td>
+                                <td><input type="number" name="precio304" class="form-control form-control-sm" placeholder="S/ Quir" step="0.01" required></td>
+                                <td><button type="submit" class="btn btn-sm btn-success"><i class="fas fa-plus"></i></button></td>
+                            </tr>
+                        </form>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Componentes / Detalles</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            th:each="comp : ${producto.componentes}">
+                            <span>
+                                <i class="fas fa-check-square text-primary me-2"></i>
+                                <span th:text="${comp.nombre}">Ruedas</span>
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                + S/ <span th:text="${comp.precio}">100</span>
+                            </span>
+                            <a href="#" class="text-danger small ms-2">&times;</a>
+                        </li>
+                    </ul>
+
+                    <form action="/admin/cotizador/componente/guardar" method="post" class="border-top pt-3">
+                        <input type="hidden" name="productoId" th:value="${producto.id}">
+                        <h6>Agregar Nuevo Detalle:</h6>
+                        <div class="mb-2">
+                            <input type="text" name="nombre" class="form-control form-control-sm mb-1" placeholder="Nombre (ej: Repisa)" required>
+                            <input type="number" name="precio" class="form-control form-control-sm" placeholder="Precio Extra (S/)" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-secondary w-100">Agregar Componente</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
