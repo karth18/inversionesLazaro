@@ -4,72 +4,369 @@
       layout:decorate="~{master.html}">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Mi Cuenta | Inversiones Lázaro</title>
+    <style>
+        /* --- ESTILOS DEL MENÚ LATERAL --- */
+        .list-group-item { border: none; padding: 15px 20px; color: #555; transition: all 0.2s; border-left: 4px solid transparent; }
+        .list-group-item:hover { background-color: #f8f9fa; color: #0d6efd; }
 
+        /* Pestaña Activa (Estilo Visual) */
+        .list-group-item.active {
+            background-color: #e7f1ff; color: #0d6efd; font-weight: 700;
+            border-left-color: #0d6efd; border-radius: 0 5px 5px 0;
+            border-top: none; border-bottom: none; border-right: none;
+        }
+
+        /* --- ESTILOS INPUTS EDITABLES --- */
+        .form-control[readonly] {
+            background-color: #fff; border-color: transparent; border-bottom: 1px solid #dee2e6;
+            border-radius: 0; font-weight: 500; color: #495057; padding-left: 0;
+        }
+        .form-control:not([readonly]) {
+            background-color: #fff; border: 1px solid #86b7fe; border-radius: 5px;
+            padding-left: 10px; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+        }
+        .btn-editar { border: none; background: transparent; color: #6c757d; transition: color 0.2s; }
+        .btn-editar:hover { color: #0d6efd; }
+
+        /* --- TARJETAS DE DIRECCIÓN --- */
+        .address-card {
+            border: 2px solid #f0f0f0; border-radius: 12px; padding: 15px;
+            transition: all 0.2s; background: white; position: relative; height: 100%;
+        }
+        .address-card.principal { border-color: #0d6efd; background-color: #f8fbff; }
+        .address-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .form-check-input-lg { width: 1.4em; height: 1.4em; cursor: pointer; }
+    </style>
 </head>
 
-
 <body>
-<div class="container mt-5" layout:fragment="content" >
+<div class="container py-5" layout:fragment="content">
 
-    <form id="form-usuario" class="row g-3" th:action="@{/cliente/account/editar}" th:object="${usuario}" method="post">
-        <div th:if="${mensaje}" class="alert alert-success" role="alert">
-            <span th:text="${mensaje}"></span>
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body d-flex align-items-center p-3">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px; font-size:1.5rem;">
+                        <span th:text="${#strings.substring(usuario.nombres,0,1)}">U</span>
+                    </div>
+                    <div>
+                        <small class="text-muted">Bienvenido,</small>
+                        <h6 class="mb-0 fw-bold text-truncate" style="max-width: 150px;" th:text="${usuario.nombres}">Usuario</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="list-group shadow-sm rounded" id="list-tab" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="list-datos-list" data-bs-toggle="list" href="#list-datos" role="tab">
+                    <i class="fas fa-user-circle me-2"></i> Mis Datos Personales
+                </a>
+                <a class="list-group-item list-group-item-action" id="list-direcciones-list" data-bs-toggle="list" href="#list-direcciones" role="tab">
+                    <i class="fas fa-map-marker-alt me-2"></i> Mis Direcciones
+                </a>
+                <a th:href="@{/misPedidos}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-box-open me-2"></i> Mis Pedidos
+                </a>
+            </div>
         </div>
-        <input type="hidden" th:field="*{id}">
 
-        <div class="col-md-4">
-            <label for="nombres" class="form-label">Nombres</label>
-            <div class="d-flex align-items-center">
-                <input type="text" class="form-control form-underline me-2" id="nombres" th:field="*{nombres}" readonly required>
-                <small class="text-primary editar-link" style="cursor:pointer" data-target="nombres">Editar</small>
+        <div class="col-lg-9">
+
+            <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="tab-content" id="nav-tabContent">
+
+                <div class="tab-pane fade show active" id="list-datos" role="tabpanel">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold text-primary">Información Personal</h5>
+                            <small class="text-muted"><i class="fas fa-lock"></i> Datos protegidos</small>
+                        </div>
+                        <div class="card-body p-4">
+
+                            <form id="form-usuario" th:action="@{/cliente/account/update}" th:object="${usuario}" method="post">
+                                <input type="hidden" th:field="*{id}">
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="small text-muted fw-bold">DNI / DOCUMENTO</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0"><i class="fas fa-id-card text-secondary"></i></span>
+                                            <input type="text" class="form-control bg-light border-0" th:field="*{dni}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="small text-muted fw-bold">CORREO ELECTRÓNICO</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0"><i class="fas fa-envelope text-secondary"></i></span>
+                                            <input type="text" class="form-control bg-light border-0" th:field="*{email}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="text-muted opacity-25">
+
+                                <div class="row g-4 mt-1">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted fw-bold mb-1">NOMBRES</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="nombres" th:field="*{nombres}" readonly required>
+                                            <button class="btn btn-editar" type="button" data-target="nombres" title="Editar"><i class="fas fa-pen"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="small text-muted fw-bold mb-1">APELLIDOS</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}" readonly required>
+                                            <button class="btn btn-editar" type="button" data-target="apellidos" title="Editar"><i class="fas fa-pen"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="small text-muted fw-bold mb-1">CELULAR</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-0 border-bottom"><i class="fas fa-phone text-muted"></i></span>
+                                            <input type="tel" class="form-control ps-1" id="celular" th:field="*{celular}" readonly required pattern="[0-9]{9}" maxlength="9">
+                                            <button class="btn btn-editar" type="button" data-target="celular" title="Editar"><i class="fas fa-pen"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-direcciones" role="tabpanel">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold text-primary">Libreta de Direcciones</h5>
+                            <button class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalDireccion">
+                                <i class="fas fa-plus me-1"></i> Nueva Dirección
+                            </button>
+                        </div>
+
+                        <div class="card-body bg-light p-4">
+
+                            <div th:if="${#lists.isEmpty(direcciones)}" class="text-center py-5">
+                                <i class="fas fa-map-marked-alt fa-3x text-muted mb-3 opacity-50"></i>
+                                <p class="text-muted">No tienes direcciones registradas.</p>
+                            </div>
+
+                            <div class="row g-3" th:unless="${#lists.isEmpty(direcciones)}">
+                                <div th:each="dir : ${direcciones}" class="col-md-6">
+                                    <div class="address-card h-100" th:classappend="${dir.esPrincipal} ? 'principal'">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3 pt-1">
+                                                <input type="radio"
+                                                       class="form-check-input form-check-input-lg"
+                                                       name="radioPrincipal"
+                                                       th:checked="${dir.esPrincipal}"
+                                                       th:onclick="'window.location.href=\'' + @{/cliente/direccion/set-principal/{id}(id=${dir.id})} + '\''">
+                                            </div>
+
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <span class="badge bg-primary mb-1" th:if="${dir.esPrincipal}">Principal</span>
+                                                    <span class="badge bg-secondary mb-1" th:if="${!dir.esPrincipal}">Secundaria</span>
+
+                                                    <a th:href="@{/cliente/direccion/eliminar/{id}(id=${dir.id})}"
+                                                       class="text-danger small ms-2" onclick="return confirm('¿Eliminar esta dirección?')">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </div>
+
+                                                <h6 class="fw-bold text-dark mb-1" th:text="${dir.calleAvenida} + ' ' + ${dir.numeroCalle}">Dirección</h6>
+                                                <p class="small text-muted mb-1">
+                                                    <span th:if="${dir.dptoInterior}" th:text="'Int: ' + ${dir.dptoInterior} + ' | '"></span>
+                                                    <span th:text="${dir.distrito.nombre} + ', ' + ${dir.departamento.nombre}">Lima</span>
+                                                </p>
+                                                <p class="small text-secondary fst-italic mb-0 text-truncate" th:if="${dir.referencia}">
+                                                    Ref: <span th:text="${dir.referencia}"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
-        <div class="col-md-4">
-            <label for="lastName" class="form-label">Apellidos</label>
-            <div class="d-flex align-items-center">
-            <input type="text" class="form-control form-underline me-2" id="lastName" th:field="*{apellidos}" readonly required>
-            <small class="text-primary editar-link" style="cursor:pointer" data-target="lastName">Editar</small>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Email</label>
-            <span class="form-control form-underline readonly-span" th:text="*{email}"></span>
-        </div>
-        <div class="col-md-4">
-            <label for="celphone" class="form-label">Celular</label>
-            <div class="d-flex align-items-center">
-            <input type="text" class="form-control form-underline me-2" id="celphone" th:field="*{celular}" readonly required>
-            <small class="text-primary editar-link" style="cursor:pointer" data-target="celphone">Editar</small>
-            </div>
-        </div>
-    </form>
+    </div>
+    <div class="modal fade" id="modalDireccion" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" th:action="@{/cliente/direccion/guardar}" method="post" th:object="${nuevaDireccion}">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">Nueva Dirección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
 
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Departamento</label>
+                            <select class="form-select" id="cboDepartamento" th:field="*{departamento}" required>
+                                <option value="">Seleccione</option>
+                                <option th:each="d : ${listaDepartamentos}"
+                                        th:value="${d.id}"
+                                        th:text="${d.nombre}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Provincia</label>
+                            <select class="form-select" id="cboProvincia" th:field="*{provincia}" disabled required>
+                                <option value="">Seleccione Dpto</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Distrito</label>
+                            <select class="form-select" id="cboDistrito" th:field="*{distrito}" disabled required>
+                                <option value="">Seleccione Prov</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Dirección (Calle/Av)</label>
+                        <input type="text" class="form-control" th:field="*{calleAvenida}" placeholder="Ej: Av. Arequipa" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Número</label>
+                            <input type="text" class="form-control" th:field="*{numeroCalle}" placeholder="Ej: 123" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold">Int / Dpto</label>
+                            <input type="text" class="form-control" th:field="*{dptoInterior}" placeholder="(Opcional)">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Referencia (Opcional)</label>
+                        <input type="text" class="form-control" name="referencia" placeholder="Ej: Frente al parque...">
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const form = document.getElementById("form-usuario");
+               const cboDep = document.getElementById("cboDepartamento");
+               const cboProv = document.getElementById("cboProvincia");
+               const cboDist = document.getElementById("cboDistrito");
 
-            document.querySelectorAll(".editar-link").forEach(link => {
-                link.addEventListener("click", function (e) {
+               // 1. Al cambiar Departamento -> Cargar Provincias
+        cboDep.addEventListener("change", function() {
+            const depId = this.value;
+
+            // Resetear combos hijos
+            cboProv.innerHTML = '<option value="">Cargando...</option>';
+            cboDist.innerHTML = '<option value="">Seleccione Prov</option>';
+            cboProv.disabled = true;
+            cboDist.disabled = true;
+
+            if (depId) {
+                // IMPORTANTE: Ajusta la URL '/api/direccion/provincias/' si tu API es diferente
+                fetch('/api/direccion/provincias/' + depId)
+                    .then(response => response.json())
+                    .then(data => {
+                        cboProv.innerHTML = '<option value="">Seleccione Provincia</option>';
+                        data.forEach(p => {
+                            const option = document.createElement("option");
+                            option.value = p.id; // O el ID de la provincia
+                            option.text = p.nombre;
+                            cboProv.appendChild(option);
+                        });
+                        cboProv.disabled = false;
+                    })
+                    .catch(err => console.error("Error cargando provincias:", err));
+            } else {
+                cboProv.innerHTML = '<option value="">Seleccione Dpto</option>';
+            }
+        });
+
+
+        cboProv.addEventListener("change", function() {
+            const provId = this.value;
+
+            cboDist.innerHTML = '<option value="">Cargando...</option>';
+            cboDist.disabled = true;
+
+            if (provId) {
+
+                fetch('/api/direccion/distritos/' + provId)
+                    .then(response => response.json())
+                    .then(data => {
+                        cboDist.innerHTML = '<option value="">Seleccione Distrito</option>';
+                        data.forEach(d => {
+                            const option = document.createElement("option");
+                            option.value = d.id;
+                            option.text = d.nombre;
+                            cboDist.appendChild(option);
+                        });
+                        cboDist.disabled = false;
+                    });
+            } else {
+                cboDist.innerHTML = '<option value="">Seleccione Prov</option>';
+            }
+        });
+
+
+            // 1. Lógica de Edición (Lápiz -> Check)
+            const form = document.getElementById("form-usuario");
+            document.querySelectorAll(".btn-editar").forEach(btn => {
+                btn.addEventListener("click", function (e) {
                     e.preventDefault();
                     const targetId = this.dataset.target;
                     const input = document.getElementById(targetId);
+                    const icon = this.querySelector("i");
 
                     if (!input) return;
 
-                    if (this.textContent === "Editar") {
-                        // Desbloquear campo
+                    if (input.hasAttribute("readonly")) {
                         input.removeAttribute("readonly");
                         input.focus();
-                        this.textContent = "Guardar";
-                        this.classList.remove("text-primary");
-                        this.classList.add("text-success");
-                    } else if (this.textContent === "Guardar") {
-                        // Enviar formulario directamente
+                        this.classList.remove("btn-outline-secondary");
+                        this.classList.add("btn-success");
+                        icon.classList.remove("fa-pen");
+                        icon.classList.add("fa-check");
+                    } else {
+                        // Guardar
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
                         form.submit();
+                    }
+                });
+            });
+
+            // 2. Lógica de Pestañas (Recordar selección al recargar)
+            if (window.location.hash === '#v-direcciones') {
+                var triggerEl = document.querySelector('#list-direcciones-list');
+                var tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+
+            var tabLinks = document.querySelectorAll('[data-bs-toggle="list"]');
+            tabLinks.forEach(function(tab) {
+                tab.addEventListener('shown.bs.tab', function (event) {
+                    if(event.target.id === 'list-direcciones-list') {
+                        history.replaceState(null, null, '#v-direcciones');
+                    } else {
+                        history.replaceState(null, null, ' ');
                     }
                 });
             });
@@ -77,6 +374,5 @@
     </script>
 
 </div>
-
 </body>
 </html>

@@ -199,7 +199,6 @@
 
                 <!--                resources -->
                 <div class="d-flex align-items-center gap-3" sec:authorize="isAuthenticated()">
-
                     <div class="dropdown" sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MARKETING', 'ROLE_DESPACHO')">
 
                         <a class="resource-menu-link" href="#" role="button" id="recursosDropdown"
@@ -211,6 +210,7 @@
                             <li><h6 class="dropdown-header">Administración de Datos</h6></li>
                             <th:block sec:authorize="hasRole('ROLE_ADMIN')">
                                 <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/admin/dashboard}">Panel Admin</a></li>
                                 <li><a class="dropdown-item" th:href="@{/admin/categoria}">Categoría</a></li>
                                 <li><a class="dropdown-item" th:href="@{/admin/marca}">Marca</a></li>
                                 <li><a class="dropdown-item" th:href="@{/admin/tproducto}">Tipo de Producto</a></li>
@@ -246,7 +246,7 @@
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
-                            <li><a class="dropdown-item" href="/cliente/account/editar">Mi cuenta</a></li>
+                            <li><a class="dropdown-item" href="/cliente/account">Mi cuenta</a></li>
                             <li><a class="dropdown-item" th:href="@{/misPedidos}">Mis Compras</a></li>
                             <li>
                                 <hr class="dropdown-divider">

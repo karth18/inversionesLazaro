@@ -36,20 +36,42 @@
                     </button>
                 </div>
                 <div class="card-body" id="selectedAddressDisplay">
-                    <div th:if="${direccionSeleccionada != null}">
-                        <p class="mb-1">
-                            <strong><span th:if="${direccionSeleccionada.esPrincipal}">(Principal) </span></strong>
-                            <span th:text="${direccionSeleccionada.calleAvenida} + ' ' + ${direccionSeleccionada.numeroCalle}"></span>
-                        </p>
-                        <p class="mb-1" th:text="${direccionSeleccionada.distrito} + ', ' + ${direccionSeleccionada.provincia} + ', ' + ${direccionSeleccionada.departamento}"></p>
-                        <small th:if="${direccionSeleccionada.dptoInterior}" th:text="'Detalles: ' + ${direccionSeleccionada.dptoInterior}"></small>
+
+                    <div th:if="${direccionSeleccionada != null}" class="lh-sm"> <div class="mb-1 align-items-center">
+            <span th:if="${direccionSeleccionada.esPrincipal}"
+                  class="badge bg-primary me-1"
+                  style="font-size: 0.7em; vertical-align: text-bottom;">PRINCIPAL</span>
+
+                        <span class="fw-bold text-dark fs-6"
+                              th:text="${direccionSeleccionada.calleAvenida} + ' ' + ${direccionSeleccionada.numeroCalle}">
+            </span>
                     </div>
-                    <div th:if="${direccionSeleccionada == null}">
-                        <div class="alert alert-warning" role="alert">
-                            No tienes una dirección de envío.
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#newAddressModal">Agrega una aquí</a>.
+
+                        <div class="text-muted small mb-1">
+                            <i class="fas fa-map-marker-alt fa-xs me-1"></i>
+                            <span th:text="${direccionSeleccionada.distrito} + ', ' + ${direccionSeleccionada.provincia} + ', ' + ${direccionSeleccionada.departamento}"></span>
+                        </div>
+
+                        <div th:if="${direccionSeleccionada.dptoInterior != null and direccionSeleccionada.dptoInterior != ''}"
+                             class="text-secondary small mb-0">
+                            <i class="fas fa-door-open fa-xs me-1"></i>
+                            <span th:text="'Interior/Dpto: ' + ${direccionSeleccionada.dptoInterior}"></span>
+                        </div>
+
+                        <div th:if="${direccionSeleccionada.referencia != null and direccionSeleccionada.referencia != ''}"
+                             class="small mt-2 pt-2 border-top text-secondary fst-italic">
+                            <i class="fas fa-comment-dots fa-xs me-1 text-primary"></i>
+                            Ref: <span th:text="${direccionSeleccionada.referencia}"></span>
                         </div>
                     </div>
+
+                    <div th:if="${direccionSeleccionada == null}">
+                        <div class="alert alert-warning p-2 small mb-0" role="alert">
+                            <i class="fas fa-exclamation-circle me-1"></i> No tienes una dirección seleccionada.
+                            <a href="#" class="fw-bold text-dark text-decoration-underline" data-bs-toggle="modal" data-bs-target="#newAddressModal">Agrega una aquí</a>.
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="modal fade" id="newAddressModal" tabindex="-1" aria-labelledby="newAddressModalLabel" aria-hidden="true">
@@ -96,6 +118,12 @@
                                         <label for="dptoInterior" class="form-label">Dpto./ Interior/ Piso (Opcional)</label>
                                         <input type="text" class="form-control" id="dptoInterior" name="dptoInterior">
                                     </div>
+
+                                    <div class="col-12">
+                                        <label for="referencia" class="form-label">Referencia (Opcional)</label>
+                                        <input type="text" class="form-control" id="referencia" name="referencia" placeholder="Ej: Casa verde, frente al parque...">
+                                    </div>
+
                                     <div class="col-12" id="esPrincipalWrapper">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="esPrincipalNew" name="esPrincipal">
@@ -407,25 +435,61 @@
                 if (cardElementDiv) cardElementDiv.style.display = 'none';
             }
 
-            // --- LÓGICA DE GESTIÓN DE DIRECCIONES (DE TU SCRIPT ORIGINAL) ---
+            // --- LÓGICA DE GESTIÓN DE DIRECCIONES
+
             function updateSelectedAddressUI(address) {
                  currentSelectedAddress = address;
                  console.log("Dirección seleccionada actualizada:", address);
+
+                 const displayDiv = document.getElementById('selectedAddressDisplay');
+
                  if (address) {
-                     let addressHTML = `<p class="mb-1"><strong>${address.esPrincipal ? '(Principal) ' : ''}</strong></p>
-                                        <p>${address.calleAvenida || ''} ${address.numeroCalle || ''}</p>
-                                        <p>${address.distrito || ''}, ${address.provincia || ''}, ${address.departamento || ''}</p>`;
-                     if (address.dptoInterior) {
-                        addressHTML += `<small>Detalles: ${address.dptoInterior}</small>`;
-                     }
-                     selectedAddressDisplay.innerHTML = addressHTML;
-                     if (changeAddressBtn) {
+                     // AQUI ESTA EL CAMBIO: Usamos el nuevo diseño compacto y bonito
+                     let addressHTML = `
+                        <div class="lh-sm">
+                            <div class="mb-1">
+                                ${address.esPrincipal ? '<span class="badge bg-primary me-1" style="font-size: 0.7em; vertical-align: text-top;">PRINCIPAL</span>' : ''}
+                                <span class="fw-bold text-dark fs-6">
+                                    ${address.calleAvenida || ''} ${address.numeroCalle || ''}
+                                </span>
+                            </div>
+
+                            <div class="text-muted small mb-1">
+                                ${address.distrito || ''}, ${address.provincia || ''}, ${address.departamento || ''}
+                            </div>
+                    `;
+
+                    // Interior (si existe)
+                    if (address.dptoInterior) {
+                        addressHTML += `
+                            <div class="text-secondary small mb-0">
+                                <i class="fas fa-door-open fa-xs me-1 text-muted"></i>
+                                Int/Piso: ${address.dptoInterior}
+                            </div>`;
+                    }
+
+                    // Referencia (si existe) -> ¡AQUÍ ESTÁ LO QUE FALTABA!
+                    if (address.referencia) {
+                        addressHTML += `
+                            <div class="text-secondary small fst-italic mt-1 border-top pt-1">
+                                <i class="fas fa-map-pin fa-xs me-1 text-danger"></i>
+                                Ref: ${address.referencia}
+                            </div>`;
+                    }
+
+                    addressHTML += `</div>`; // Cerrar el div lh-sm
+
+                    displayDiv.innerHTML = addressHTML;
+
+                    if (changeAddressBtn) {
                         changeAddressBtn.disabled = false;
-                     }
+                    }
                  } else {
-                     selectedAddressDisplay.innerHTML = `<div class="alert alert-warning" role="alert">
-                         No has seleccionado ninguna dirección de envío.
-                         <a href="#" data-bs-toggle="modal" data-bs-target="#newAddressModal">Agrega una aquí</a>.
+                     // Caso sin dirección
+                     displayDiv.innerHTML = `
+                         <div class="alert alert-warning p-2 small mb-0" role="alert">
+                             <i class="fas fa-exclamation-circle me-1"></i> No tienes una dirección seleccionada.
+                             <a href="#" class="fw-bold text-dark text-decoration-underline" data-bs-toggle="modal" data-bs-target="#newAddressModal">Agrega una aquí</a>.
                          </div>`;
                      if (changeAddressBtn) {
                         changeAddressBtn.disabled = true;
@@ -445,18 +509,29 @@
                          const dirElement = document.createElement('div');
                          dirElement.className = 'list-group-item list-group-item-action';
                          dirElement.innerHTML = `
-                            <div class="address-content">
-                                <input class="form-check-input me-2" type="radio" name="selectedAddressRadio" value="${dir.id}" ${currentSelectedAddress && dir.id === currentSelectedAddress.id ? 'checked' : ''}>
-                                <strong>
-                                    ${dir.esPrincipal ? '(Principal) ' : ''}
-                                    ${dir.calleAvenida || ''} ${dir.numeroCalle || ''}
-                                </strong><br>
-                                <small>${dir.distrito || ''}, ${dir.provincia || ''}, ${dir.departamento || ''}</small>
-                                ${dir.dptoInterior ? `<br><small>Detalles: ${dir.dptoInterior}</small>` : ''}
+                            <div class="address-content w-100">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <div>
+                                        <input class="form-check-input me-2" type="radio" name="selectedAddressRadio" value="${dir.id}" ${currentSelectedAddress && dir.id === currentSelectedAddress.id ? 'checked' : ''}>
+                                        <span class="fw-bold">
+                                            ${dir.esPrincipal ? '<span class="badge bg-primary me-1" style="font-size:0.6em">PRINCIPAL</span>' : ''}
+                                            ${dir.calleAvenida || ''} ${dir.numeroCalle || ''}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="ms-4 ps-1">
+                                    <small class="d-block text-muted">${dir.distrito || ''}, ${dir.provincia || ''}, ${dir.departamento || ''}</small>
+
+                                    ${dir.dptoInterior ? `<small class="d-block text-secondary"><i class="fas fa-door-open fa-xs"></i> Int: ${dir.dptoInterior}</small>` : ''}
+
+                                    ${dir.referencia ? `<small class="d-block text-secondary fst-italic mt-1"><i class="fas fa-map-pin fa-xs text-danger"></i> ${dir.referencia}</small>` : ''}
+                                </div>
                             </div>
-                            <div class="address-actions">
-                                <button class="btn btn-sm btn-outline-secondary me-2" onclick="handleEdit(${dir.id})"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="handleDelete(${dir.id})"><i class="fas fa-trash-alt"></i></button>
+
+                            <div class="address-actions ms-2">
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="handleEdit(${dir.id})" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="handleDelete(${dir.id})" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
                             </div>
                          `;
                          dirElement.querySelector('.address-content').addEventListener('click', () => {
@@ -509,6 +584,7 @@
                     calleAvenida:calleInput.value,
                     numeroCalle:numeroInput.value,
                     dptoInterior:dptoInput.value || null,
+                    referencia: document.getElementById('referencia').value || null,
                     esPrincipal: esPrincipalValue
                 };
                 const url = isUpdating ? `/api/direccion/${direccionId}` : '/api/direccion/nueva';
@@ -560,6 +636,7 @@
                     calleInput.value = dir.calleAvenida;
                     numeroInput.value = dir.numeroCalle;
                     dptoInput.value = dir.dptoInterior;
+                    document.getElementById('referencia').value = dir.referencia || '';
                     principalCheckbox.checked = dir.esPrincipal;
                     depSelect.value = dir.departamentoId;
                     await cargarProvincias(dir.departamentoId);

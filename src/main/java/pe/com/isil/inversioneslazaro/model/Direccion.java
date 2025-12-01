@@ -45,5 +45,8 @@ public class Direccion {
     @Column(length = 100)
     private String dptoInterior; // Opcional
 
+    @Column(length = 255)
+    private String referencia; //opional
+
     private boolean esPrincipal = false;
 }

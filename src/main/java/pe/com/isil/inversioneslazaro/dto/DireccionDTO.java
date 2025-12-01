@@ -10,6 +10,7 @@ public class DireccionDTO {
     private String calleAvenida;
     private String numeroCalle;
     private String dptoInterior;
+    private String referencia;
     private boolean esPrincipal;
 
     // Campos simples (String) para mostrar en la vista
@@ -29,6 +30,7 @@ public class DireccionDTO {
         this.numeroCalle = direccion.getNumeroCalle();
         this.dptoInterior = direccion.getDptoInterior();
         this.esPrincipal = direccion.isEsPrincipal();
+        this.referencia = direccion.getReferencia();
 
         // Evita errores si alguna relación es nula (aunque no debería)
         if (direccion.getDepartamento() != null) {

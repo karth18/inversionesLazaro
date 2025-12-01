@@ -163,6 +163,7 @@ public class DireccionController {
         direccionExistente.setCalleAvenida(direccionRequest.getCalleAvenida());
         direccionExistente.setNumeroCalle(direccionRequest.getNumeroCalle());
         direccionExistente.setDptoInterior(direccionRequest.getDptoInterior());
+        direccionExistente.setReferencia(direccionRequest.getReferencia());
         direccionExistente.setEsPrincipal(direccionRequest.isEsPrincipal());
 
         // Asignar nuevas entidades de Ubigeo
