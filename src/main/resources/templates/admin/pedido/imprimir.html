@@ -20,8 +20,10 @@
         Detalle del Pedido: <span class="text-primary" th:text="${pedido.codigoPedido}"></span>
     </h2>
 
-    <a th:href="@{/admin/pedidos}" class="btn btn-secondary mb-3 no-print">
-        <i class="fas fa-arrow-left"></i> Volver a la lista
+    <a th:href="${origen == 'almacen'} ? @{/logistica/almacen} :
+            (${origen == 'despacho'} ? @{/logistica/despacho} : @{/admin/pedidos})"
+       class="btn btn-secondary mb-3 rounded-pill px-4">
+        <i class="fas fa-arrow-left me-2"></i> Volver
     </a>
     <button onclick="window.print()" class="btn btn-primary mb-3 no-print">
         Imprimir

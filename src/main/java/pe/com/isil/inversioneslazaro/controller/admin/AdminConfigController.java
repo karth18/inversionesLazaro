@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

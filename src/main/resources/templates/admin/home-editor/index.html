@@ -19,6 +19,62 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-images me-2"></i> Banner Principal (Carrusel)</h5>
+
+            <a th:href="@{/admin/banners/nuevo}" class="btn btn-light btn-sm text-primary fw-bold">
+                <i class="fas fa-plus"></i> Nuevo Banner
+            </a>
+        </div>
+        <div class="card-body">
+            <p class="small text-muted">Estos son los banners grandes que se deslizan al inicio.</p>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>Orden</th>
+                    <th>Imagen</th>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="banner : ${listaBanners}">
+                    <td class="fw-bold" th:text="${banner.orden}">1</td>
+                    <td>
+                        <img th:src="@{${banner.imagenFondoUrl}}" style="width: 120px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    </td>
+                    <td th:text="${banner.titulo}">Título</td>
+                    <td>
+                        <span th:if="${banner.estaActivo}" class="badge bg-success">Visible</span>
+                        <span th:unless="${banner.estaActivo}" class="badge bg-secondary">Oculto</span>
+                    </td>
+                    <td class="text-end">
+                        <a th:href="@{/admin/banners/editar/{id}(id=${banner.id})}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-pen"></i>
+                        </a>
+
+                        <a th:if="${banner.estaActivo}"
+                           th:href="@{/admin/banners/eliminar/{id}(id=${banner.id})}"
+                           class="btn btn-sm btn-outline-danger" title="Ocultar">
+                            <i class="fas fa-eye-slash"></i>
+                        </a>
+                        <a th:unless="${banner.estaActivo}"
+                           th:href="@{/admin/banners/habilitar/{id}(id=${banner.id})}"
+                           class="btn btn-sm btn-outline-success" title="Mostrar">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(listaBanners)}">
+                    <td colspan="5" class="text-center text-muted py-3">No hay banners registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <div class="card shadow-sm mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Sección: Ofertas (4 Cuadros Flotantes)</h5>

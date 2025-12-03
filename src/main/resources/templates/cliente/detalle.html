@@ -100,6 +100,12 @@
                     <p class="mb-1" th:text="${pedido.direccion.dptoInterior}"></p>
                     <p class="mb-1" th:text="${pedido.direccion.distrito.nombre} + ', ' + ${pedido.direccion.provincia.nombre}"></p>
                     <p class="mb-0" th:text="${pedido.direccion.departamento.nombre}"></p>
+                    <div th:if="${pedido.direccion.referencia != null and !pedido.direccion.referencia.isEmpty()}"
+                         class="mt-2 pt-2 border-top small text-secondary">
+                        <i class="fas fa-map-pin text-danger me-1"></i>
+                        <strong>Ref:</strong>
+                        <span class="fst-italic" th:text="${pedido.direccion.referencia}"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,7 +161,13 @@
                              th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>
                         <div class="timeline-content">
                             <h6 class="fw-bold mb-0"
-                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Pedido Recibido (Validando)' : log.estado.name().replace('_', ' ')}">
+                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Solicitud Recibida' :
+             (log.estado.name() == 'ORDEN_RECIBIDA' ? 'Pago Validado / En Cola' :
+             (log.estado.name() == 'EN_PREPARACION' ? 'En Fabricación / Preparación' :
+             (log.estado.name() == 'EMPAQUETADO' ? '📦 Listo para Envío' :
+             (log.estado.name() == 'EN_CAMINO' ? '🚚 En Ruta de Entrega' :
+             (log.estado.name() == 'ENTREGADO' ? '✅ Entregado' :
+             log.estado.name().replace('_', ' '))))))}">
                             </h6>
 
                             <small class="text-muted" th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>

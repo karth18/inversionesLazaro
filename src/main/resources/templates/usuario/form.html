@@ -94,9 +94,29 @@
                                class="form-control form-underline"
                                th:errorClass="is-invalid">
                         <div class="invalid-feedback"
-                             th:errors="*{password1}" th:if="${#fields.hasErrors('password1')}"
-                        >
+                             th:errors="*{password1}" th:if="${#fields.hasErrors('password1')}">
                         </div>
+                        <div id="password-rules" class="mt-2 p-2 rounded border bg-light" style="display:none; font-size: 0.85rem;">
+                            <p class="mb-1 fw-bold text-muted">La contraseña debe contener:</p>
+                            <ul class="list-unstyled mb-0">
+                                <li id="rule-length" class="text-danger">
+                                    <i class="fas fa-times"></i> Mínimo 8 caracteres
+                                </li>
+                                <li id="rule-upper" class="text-danger">
+                                    <i class="fas fa-times"></i> Una letra mayúscula
+                                </li>
+                                <li id="rule-lower" class="text-danger">
+                                    <i class="fas fa-times"></i> Una letra minúscula
+                                </li>
+                                <li id="rule-number" class="text-danger">
+                                    <i class="fas fa-times"></i> Un número
+                                </li>
+                                <li id="rule-special" class="text-danger">
+                                    <i class="fas fa-times"></i> Sin espacios ni símbolos prohibidos (=, /, *, etc.)
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
 
                     <div class="mb-2">
@@ -166,6 +186,50 @@
                         }
                     });
                 }
+            });
+            // --- NUEVO CÓDIGO: VALIDACIÓN DE PASSWORD ---
+            const $pwdInput = $("#password1");
+            const $rulesBox = $("#password-rules");
+
+            // Mostrar la cajita de reglas cuando el usuario entra al campo
+            $pwdInput.on('focus', function() {
+                $rulesBox.slideDown();
+            });
+
+            // Validar en tiempo real mientras escribe
+            $pwdInput.on('input', function() {
+                const val = $(this).val();
+
+                // Función helper para cambiar el estado visual (Rojo/Verde)
+                function updateRule(id, isValid) {
+                    const $el = $(id);
+                    const $icon = $el.find("i");
+
+                    if (isValid) {
+                        $el.removeClass("text-danger").addClass("text-success"); // Texto Verde
+                        $icon.removeClass("fa-times").addClass("fa-check");      // Icono Check
+                    } else {
+                        $el.removeClass("text-success").addClass("text-danger"); // Texto Rojo
+                        $icon.removeClass("fa-check").addClass("fa-times");      // Icono X
+                    }
+                }
+
+                // 1. Mínimo 8 caracteres
+                updateRule("#rule-length", val.length >= 8);
+
+                // 2. Al menos una Mayúscula
+                updateRule("#rule-upper", /[A-Z]/.test(val));
+
+                // 3. Al menos una Minúscula
+                updateRule("#rule-lower", /[a-z]/.test(val));
+
+                // 4. Al menos un Número
+                updateRule("#rule-number", /[0-9]/.test(val));
+
+                // 5. Sin caracteres prohibidos (Espacios, =, (, ), /, *, \)
+                // Esta regex busca si existe alguno de los prohibidos. Si existe, isValid es false.
+                const forbiddenChars = /[=\s\(\)\/\\*]/;
+                updateRule("#rule-special", !forbiddenChars.test(val));
             });
         });
     </script>

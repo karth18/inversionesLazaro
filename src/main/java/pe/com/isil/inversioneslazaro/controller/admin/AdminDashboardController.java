@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

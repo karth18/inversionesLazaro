@@ -68,7 +68,12 @@ public class WebSecurityConfig  {
                                 "/api/v1/consulta/dni/**","/cotizador/**","/media/**").permitAll()
                         // URLs privadas
                         .requestMatchers("/admin/banners/**","/admin/home-editor/**").hasAnyRole("ADMIN","MARKETING")
-                        .requestMatchers("admin/pedidos/**").hasAnyRole("ADMIN","DESPACHO")
+                        .requestMatchers("admin/pedidos/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/logistica/almacen/**").hasAnyRole("ADMIN", "ALMACEN")
+                        .requestMatchers("/logistica/despacho/**").hasAnyRole("ADMIN", "DESPACHO")
+                        .requestMatchers("/logistica/chofer/**").hasAnyRole("ADMIN","CHOFER")
+                        .requestMatchers("/admin/dashboard").hasAnyRole("ADMIN", "ALMACEN", "DESPACHO", "CHOFER", "MARKETING", "VENTAS")
+                        .requestMatchers("/admin/pedidos/detalle/**", "/admin/pedidos/imprimir/**").hasAnyRole("ADMIN", "ALMACEN", "DESPACHO")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers( "/usuario/**","/api/direccion/**","/compra/**").authenticated()
                         .anyRequest().authenticated()

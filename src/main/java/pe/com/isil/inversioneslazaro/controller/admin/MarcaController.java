@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import pe.com.isil.inversioneslazaro.repository.MarcaRepository;
 import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 @SuppressWarnings("unused")
 @Controller

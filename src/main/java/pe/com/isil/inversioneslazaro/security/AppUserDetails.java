@@ -9,6 +9,8 @@ import pe.com.isil.inversioneslazaro.model.Usuario;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+
 @SuppressWarnings("unused")
 
 @Getter
@@ -26,7 +28,10 @@ public class AppUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()));
+        //return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()));
+        return usuario.getRoles().stream()
+                .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.name()))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -64,7 +64,7 @@ public class RegistroUsuarioController {
 
         //asignamos el password encryptado
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword1()));
-        usuario.setRol(Usuario.Rol.ADMIN);
+        usuario.agregarRol(Usuario.Rol.CLIENTE);
 
 
         //cambios para poder validar con correo

@@ -1,12 +1,10 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -171,7 +169,7 @@ public class UsuarioAdminController {
         existente.setCelular(usuario.getCelular());
         existente.setFechaCreacion(usuario.getFechaCreacion());
         existente.setEmail(usuario.getEmail());
-        existente.setRol(usuario.getRol());
+        existente.setRoles(usuario.getRoles());
         existente.setPolitica(usuario.getPolitica());
 
         if (password != null && !password.isBlank()) {

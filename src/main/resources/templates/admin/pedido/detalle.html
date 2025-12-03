@@ -11,8 +11,10 @@
         Detalle del Pedido: <span class="text-primary" th:text="${pedido.codigoPedido}"></span>
     </h2>
 
-    <a th:href="@{/admin/pedidos}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left"></i> Volver a la lista
+    <a th:href="${origen == 'almacen'} ? @{/logistica/almacen} :
+            (${origen == 'despacho'} ? @{/logistica/despacho} : @{/admin/pedidos})"
+       class="btn btn-secondary mb-3 rounded-pill px-4">
+        <i class="fas fa-arrow-left me-2"></i> Volver
     </a>
 
     <div class="row g-4">
@@ -63,6 +65,13 @@
                     <p class="mb-1" th:text="${pedido.direccion.dptoInterior}"></p>
                     <p class="mb-1" th:text="${pedido.direccion.distrito.nombre} + ', ' + ${pedido.direccion.provincia.nombre}"></p>
                     <p class="mb-0" th:text="${pedido.direccion.departamento.nombre}"></p>
+                    <div th:if="${pedido.direccion.referencia != null and !pedido.direccion.referencia.isEmpty()}"
+                         class="mt-2 pt-2 border-top small text-secondary">
+                        <i class="fas fa-map-pin text-danger me-1"></i>
+                        <strong>Ref:</strong>
+                        <span class="fst-italic" th:text="${pedido.direccion.referencia}"></span>
+                    </div>
+
                 </div>
             </div>
         </div>

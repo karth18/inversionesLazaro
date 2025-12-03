@@ -1,13 +1,13 @@
 package pe.com.isil.inversioneslazaro.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @SuppressWarnings("unused")
 @Data
 @Entity
@@ -33,7 +33,7 @@ public class Usuario {
     private String apellidos;
 
     @NotBlank
-    @Column(length = 10)
+    @Column(length = 9)
     private String celular;
 
     private boolean estado;
@@ -58,22 +58,40 @@ public class Usuario {
     private String password;
 
     @Transient
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[^=\\(\\)/\\\\*\\s]{8,}$",
+            message = "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número. No se permiten espacios ni los símbolos: = ( ) / \\ *"
+    )
     private String password1;
 
     @Transient
     private String password2;
 
 
+    @ElementCollection(fetch = FetchType.EAGER) // EAGER para que cargue los roles al iniciar sesión
+    @CollectionTable(
+            name = "usuario_roles", // Nombre de la nueva tabla en BD
+            joinColumns = @JoinColumn(name = "usuario_id") // Llave foránea
+    )
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private Rol rol;
+    @Column(name = "rol") // Nombre de la columna en la tabla nueva
+    private Set<Rol> roles = new HashSet<>();
 
     public enum Rol {
         ADMIN,
         CLIENTE,
-        DESPACHO,
-        MARKETING
+        MARKETING,
+        VENTAS,
+        TALLER,
+        ALMACEN,    // Nuevo: El que empaqueta
+        DESPACHO,   // Nuevo: El jefe que asigna rutas
+        CHOFER      // Nuevo: El que entrega
 
+
+    }
+    // Helper para agregar roles fácilmente
+    public void agregarRol(Rol rol) {
+        this.roles.add(rol);
     }
 
     @PrePersist

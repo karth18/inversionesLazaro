@@ -34,7 +34,7 @@
         <p class="text-muted">Bienvenido, selecciona el módulo que deseas gestionar.</p>
     </div>
 
-    <div sec:authorize="hasAnyRole('ROLE_ADMIN')" class="mb-5">
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN',  'ROLE_VENTAS')" class="mb-5">
         <h5 class="border-bottom pb-2 mb-3 text-primary"><i class="fas fa-box-open"></i> Catálogo de Productos</h5>
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
@@ -46,7 +46,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                 <a th:href="@{/admin/cotizador}" class="card dashboard-card bg-light">
                     <div class="card-body text-center p-4">
                         <div class="icon-box text-primary"><i class="fas fa-calculator"></i></div>
@@ -55,7 +55,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN')">
                 <div class="dropdown h-100">
                     <a href="#" class="card dashboard-card bg-light" data-bs-toggle="dropdown">
                         <div class="card-body text-center p-4">
@@ -74,15 +74,44 @@
         </div>
     </div>
 
-    <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_DESPACHO')" class="mb-5">
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_DESPACHO', 'ROLE_ALMACEN', 'ROLE_CHOFER', 'ROLE_VENTAS')" class="mb-5">
         <h5 class="border-bottom pb-2 mb-3 text-success"><i class="fas fa-shopping-cart"></i> Ventas y Operaciones</h5>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <a th:href="@{/admin/pedidos}" class="card dashboard-card border-success border-opacity-25">
+            <div class="col-md-6 col-lg-4" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                <a th:href="@{/admin/pedidos}"  class="card dashboard-card border-success border-opacity-25">
                     <div class="card-body text-center p-4">
                         <div class="icon-box text-success"><i class="fas fa-truck-fast"></i></div>
                         <h5 class="card-title">Gestión de Pedidos</h5>
                         <p class="card-text">Ver pedidos, despachar, reagendar y finalizar.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_ALMACEN')">
+                <a th:href="@{/logistica/almacen}" class="card dashboard-card bg-white border shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box text-warning"><i class="fas fa-box-open"></i></div>
+                        <h5 class="card-title">Módulo Almacén</h5>
+                        <p class="card-text small">Bandeja de preparación y empaquetado.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_DESPACHO')">
+                <a th:href="@{/logistica/despacho}" class="card dashboard-card bg-white border shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box text-primary"><i class="fas fa-route"></i></div>
+                        <h5 class="card-title">Asignar Rutas</h5>
+                        <p class="card-text small">Gestión de choferes y salidas a ruta.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_CHOFER')">
+                <a th:href="@{/logistica/chofer}" class="card dashboard-card bg-dark text-white">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box text-white"><i class="fas fa-truck"></i></div>
+                        <h5 class="card-title">App Reparto</h5>
+                        <p class="card-text small text-white-50">Confirmación de entregas y fotos.</p>
                     </div>
                 </a>
             </div>
@@ -94,7 +123,7 @@
         <div class="row g-4">
 
             <div class="col-md-6 col-lg-3">
-                <a th:href="@{/admin/banners}" class="card dashboard-card bg-light">
+                <a th:href="@{/admin/home-editor}" class="card dashboard-card bg-light">
                     <div class="card-body text-center p-4">
                         <div class="icon-box text-info"><i class="far fa-images"></i></div>
                         <h5 class="card-title">Banners Publicitarios</h5>

@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,12 +29,12 @@ public class BannerController {
     private StorageService storageService;
 
     // (index, nuevo, editar, y guardar se quedan EXACTAMENTE IGUAL)
-    @GetMapping("")
-    public String index(Model model) {
-        List<BannerHome> banners = bannerHomeRepository.findAll();
-        model.addAttribute("banners", banners);
-        return "admin/banner/index";
-    }
+//    @GetMapping("")
+//    public String index(Model model) {
+//        List<BannerHome> banners = bannerHomeRepository.findAll();
+//        model.addAttribute("banners", banners);
+//        return "admin/home-editor/index";
+//    }
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
 
@@ -59,7 +59,7 @@ public class BannerController {
             return "admin/banner/form";
         } else {
             ra.addFlashAttribute("msgError", "El banner no fue encontrado.");
-            return "redirect:/admin/banners";
+            return "redirect:/admin/home-editor";
         }
     }
     @PostMapping("/guardar")
@@ -114,7 +114,7 @@ public class BannerController {
         BannerHome bannerGuardado = bannerHomeRepository.save(banner);
         registrarAuditoria("BannerHome", bannerGuardado.getId(), accion);
         ra.addFlashAttribute("msgExito", "Banner guardado con éxito.");
-        return "redirect:/admin/banners";
+        return "redirect:/admin/home-editor";
     }
 
 
@@ -141,7 +141,7 @@ public class BannerController {
         } else {
             ra.addFlashAttribute("msgError", "Banner no encontrado.");
         }
-        return "redirect:/admin/banners";
+        return "redirect:/admin/home-editor";
     }
 
     /**
@@ -167,7 +167,7 @@ public class BannerController {
         } else {
             ra.addFlashAttribute("msgError", "Banner no encontrado.");
         }
-        return "redirect:/admin/banners";
+        return "redirect:/admin/home-editor";
     }
 
 

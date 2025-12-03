@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,10 +61,13 @@ public class AdminPedidoController {
     }
 
     @GetMapping("/detalle/{id}")
-    public String verDetallePedido(@PathVariable Long id, Model model, RedirectAttributes ra) {
+    public String verDetallePedido(@PathVariable Long id,
+                                   @RequestParam(required = false) String origen,
+                                   Model model, RedirectAttributes ra) {
         return pedidoRepository.findById(id)
                 .map(pedido -> {
                     model.addAttribute("pedido", pedido);
+                    model.addAttribute("origen", origen);
                     return "admin/pedido/detalle";
                 })
                 .orElseGet(() -> {
@@ -227,10 +230,13 @@ public class AdminPedidoController {
     }
 
     @GetMapping("/imprimir/{id}")
-    public String imprimirPedido(@PathVariable Long id, Model model, RedirectAttributes ra) {
+    public String imprimirPedido(@PathVariable Long id,
+                                 @RequestParam(required = false) String origen,
+                                 Model model, RedirectAttributes ra) {
         return pedidoRepository.findById(id)
                 .map(pedido -> {
                     model.addAttribute("pedido", pedido);
+                    model.addAttribute("origen", origen);
                     return "admin/pedido/imprimir";
                 })
                 .orElseGet(() -> {

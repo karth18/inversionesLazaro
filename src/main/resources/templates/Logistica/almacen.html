@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{master.html}">
+<head><title>Almacén</title></head>
+<body>
+<div class="container mt-4" layout:fragment="content">
+
+    <div class="card mb-5 border-warning shadow-sm" th:unless="${#lists.isEmpty(misPedidos)}">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="fas fa-tools"></i> En Preparación (Mis Asignaciones)
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4" th:each="p : ${misPedidos}">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary" th:text="${p.codigoPedido}"></h5>
+                            <p class="small">Empaquetando productos...</p>
+
+                            <p class="small text-muted mb-3">
+                                Cliente: <span th:text="${p.usuario.nombres}"></span><br>
+                                <i class="fas fa-cubes"></i> Items: <span th:text="${p.detalles.size()}"></span>
+                            </p>
+
+                            <div class="btn-group w-100 mb-3" role="group">
+                                <a th:href="@{/admin/pedidos/detalle/{id}(id=${p.id}, origen='almacen')}"
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-list"></i> Ver Items
+                                </a>
+                                <a th:href="@{/admin/pedidos/imprimir/{id}(id=${p.id}, origen='almacen')}"
+                                   target="_blank" class="btn btn-outline-dark btn-sm">
+                                    <i class="fas fa-print"></i> Imprimir Hoja
+                                </a>
+                            </div>
+
+                            <form th:action="@{/logistica/almacen/listo}" method="post">
+                                <input type="hidden" name="id" th:value="${p.id}">
+                                <button class="btn btn-success w-100">
+                                    <i class="fas fa-check"></i> Terminar y Pasar a Despacho
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="text-primary"><i class="fas fa-box-open"></i> Pedidos Nuevos (Por Tomar)</h3>
+    <p class="text-muted">Toma un pedido para empezar a prepararlo.</p>
+
+    <div class="row g-3">
+        <div class="col-md-4" th:each="p : ${pedidosPorTomar}">
+            <div class="card shadow-sm h-100 opacity-75">
+                <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold" th:text="${p.codigoPedido}"></span>
+                    <span class="badge bg-secondary">Nuevo</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Cliente:</strong> <span th:text="${p.usuario.nombres}"></span></p>
+                    <form th:action="@{/logistica/almacen/tomar}" method="post">
+                        <input type="hidden" name="id" th:value="${p.id}">
+                        <button class="btn btn-outline-primary w-100">
+                            <i class="fas fa-hand-paper"></i> YO LO HAGO
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12" th:if="${#lists.isEmpty(pedidosPorTomar)}">
+            <div class="alert alert-secondary">No hay pedidos nuevos por ahora.</div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

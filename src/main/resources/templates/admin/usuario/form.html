@@ -69,32 +69,20 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Roles Asignados</label>
+                        <label class="form-label fw-bold">Asignar Roles:</label>
+                        <div class="d-flex gap-3 flex-wrap">
 
-                        <div class="card p-3 bg-light border-0">
-                            <div class="d-flex flex-wrap gap-3">
-
-                                <div th:each="opcionRol : ${T(pe.com.isil.inversioneslazaro.model.Usuario.Rol).values()}"
-                                     class="form-check">
-
-                                    <input type="checkbox"
-                                           class="form-check-input"
-                                           th:field="*{roles}"
-                                           th:value="${opcionRol}"
-                                           th:id="${'chk_' + opcionRol}">
-
-                                    <label class="form-check-label"
-                                           th:for="${'chk_' + opcionRol}"
-                                           th:text="${opcionRol}">
-                                    </label>
-                                </div>
-
+                            <div class="form-check" th:each="rol : ${T(pe.com.isil.inversioneslazaro.model.Usuario.Rol).values()}">
+                                <th:block th:if="${rol.name() != 'CLIENTE'}">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="roles"
+                                           th:value="${rol}"
+                                           th:id="${'chk_' + rol}">
+                                    <label class="form-check-label" th:for="${'chk_' + rol}"
+                                           th:text="${rol}"></label>
+                                </th:block>
                             </div>
-                        </div>
 
-                        <div class="text-danger small mt-1"
-                             th:if="${#fields.hasErrors('roles')}"
-                             th:errors="*{roles}">
                         </div>
                     </div>
 

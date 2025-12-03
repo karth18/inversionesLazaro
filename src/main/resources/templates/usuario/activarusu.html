@@ -53,7 +53,12 @@
             <td th:text="${usuario.apellidos}"></td>
             <td th:text="${usuario.celular}"></td>
             <td th:text="${usuario.email}"></td>
-            <td th:text="${usuario.rol}"></td>
+            <td>
+                <span th:each="r : ${usuario.roles}"
+                      class="badge bg-secondary me-1"
+                      th:text="${r}">
+                </span>
+            </td>
             <td th:text="${usuario.estado ? 'Habilitado': 'Deshabilitado'}"></td>
             <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/habilitar/{id}(id=*{usuario.id})}">Activar</a></td>
 

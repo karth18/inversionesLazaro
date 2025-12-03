@@ -1,4 +1,4 @@
-package pe.com.isil.inversioneslazaro.controller;
+package pe.com.isil.inversioneslazaro.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,7 +9,6 @@ import pe.com.isil.inversioneslazaro.model.*;
 import pe.com.isil.inversioneslazaro.repository.*;
 import pe.com.isil.inversioneslazaro.service.StorageService; // Tu servicio de guardar fotos
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin/cotizador")

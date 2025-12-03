@@ -5,7 +5,6 @@
       layout:decorate="~{master.html}">
 <head>
     <title>Gestión de Pedidos</title>
-
     <th:block th:if="${_csrf != null}">
         <meta name="_csrf" th:content="${_csrf.token}"/>
         <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -55,13 +54,13 @@
 
                         <select name="estado" class="form-select form-select-sm me-2 fw-bold"
                                 th:classappend="${pedido.estado.name() == 'PENDIENTE' ? 'text-secondary border-secondary' :
-                         (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'text-info-emphasis border-info' :
-                         (pedido.estado.name() == 'EN_PREPARACION' ? 'text-warning-emphasis border-warning' :
-                         (pedido.estado.name() == 'EN_CAMINO' ? 'text-primary-emphasis border-primary' :
-                         (pedido.estado.name() == 'REAGENDADO' ? 'text-warning border-warning bg-light' :
-                         (pedido.estado.name() == 'ENTREGADO' ? 'text-success border-success' :
-                         (pedido.estado.name() == 'FINALIZADO' ? 'text-dark border-dark bg-light' :
-                         (pedido.estado.name() == 'CANCELADO' ? 'text-danger border-danger' : '')))))))}"
+                                                 (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'text-info-emphasis border-info' :
+                                                 (pedido.estado.name() == 'EN_PREPARACION' ? 'text-warning-emphasis border-warning' :
+                                                 (pedido.estado.name() == 'EN_CAMINO' ? 'text-primary-emphasis border-primary' :
+                                                 (pedido.estado.name() == 'REAGENDADO' ? 'text-warning border-warning bg-light' :
+                                                 (pedido.estado.name() == 'ENTREGADO' ? 'text-success border-success' :
+                                                 (pedido.estado.name() == 'FINALIZADO' ? 'text-dark border-dark bg-light' :
+                                                 (pedido.estado.name() == 'CANCELADO' ? 'text-danger border-danger' : '')))))))}"
 
                                 th:disabled="${isCanceladoPorCliente or (isCancelado and !isAdmin)}"
                                 th:id="'select-estado-' + ${pedido.id}">
@@ -70,20 +69,18 @@
                                     th:value="${est}"
                                     th:text="${est.name().replace('_', ' ')}"
                                     th:selected="${est == pedido.estado}"
-
                                     th:disabled="${!isAdmin
-                and est.name() != 'CANCELADO'
-                and est != pedido.estado
-                and !(
-
-                    (pedido.estado.name() == 'PENDIENTE'      and est.name() == 'ORDEN_RECIBIDA') or
-                    (pedido.estado.name() == 'ORDEN_RECIBIDA' and est.name() == 'EN_PREPARACION') or
-                    (pedido.estado.name() == 'EN_PREPARACION' and est.name() == 'EN_CAMINO') or
-                    (pedido.estado.name() == 'EN_CAMINO'      and (est.name() == 'ENTREGADO' or est.name() == 'REAGENDADO')) or
-                    (pedido.estado.name() == 'REAGENDADO'     and (est.name() == 'ENTREGADO' or est.name() == 'EN_CAMINO')) or
-                    (pedido.estado.name() == 'ENTREGADO'      and est.name() == 'FINALIZADO')
-                )
-            }">
+                                        and est.name() != 'CANCELADO'
+                                        and est != pedido.estado
+                                        and !(
+                                            (pedido.estado.name() == 'PENDIENTE'      and est.name() == 'ORDEN_RECIBIDA') or
+                                            (pedido.estado.name() == 'ORDEN_RECIBIDA' and est.name() == 'EN_PREPARACION') or
+                                            (pedido.estado.name() == 'EN_PREPARACION' and est.name() == 'EN_CAMINO') or
+                                            (pedido.estado.name() == 'EN_CAMINO'      and (est.name() == 'ENTREGADO' or est.name() == 'REAGENDADO')) or
+                                            (pedido.estado.name() == 'REAGENDADO'     and (est.name() == 'ENTREGADO' or est.name() == 'EN_CAMINO')) or
+                                            (pedido.estado.name() == 'ENTREGADO'      and est.name() == 'FINALIZADO')
+                                        )
+                                    }">
                             </option>
                         </select>
 
@@ -133,26 +130,27 @@
                 </div>
 
                 <div class="modal-body p-4">
-                    <p class="fw-bold text-secondary" id="modalDesc">Descripción de la acción.</p>
+                    <p class="fw-bold text-secondary" id="modalDesc">Descripción.</p>
 
                     <div id="bloqueMotivo" class="d-none">
                         <label for="txtMotivo" class="form-label fw-bold">Motivo de cancelación:</label>
-                        <textarea id="txtMotivo" class="form-control" rows="3" placeholder="Ej: Stock agotado, error en precio..."></textarea>
+                        <textarea id="txtMotivo" class="form-control border-danger" rows="3"
+                                  placeholder="Ej: Stock agotado, error en precio..."></textarea>
                         <div id="errMotivo" class="text-danger mt-1 small d-none">
                             <i class="fas fa-exclamation-circle"></i> Debes ingresar un motivo.
                         </div>
                     </div>
 
                     <div id="bloqueReagendar" class="d-none">
-                        <label for="inputFecha" class="form-label fw-bold">Nueva Fecha de Entrega:</label>
-                        <input type="date" id="inputFecha" class="form-control mb-3">
+                        <label for="inputFecha" class="form-label fw-bold text-primary">Nueva Fecha Estimada:</label>
+                        <input type="date" id="inputFecha" class="form-control mb-3 border-primary">
                         <div id="errFecha" class="text-danger mt-1 small d-none mb-2">
                             <i class="fas fa-exclamation-circle"></i> Fecha obligatoria.
                         </div>
 
-                        <label for="txtMotivoReagendar" class="form-label fw-bold">Motivo del cambio:</label>
-                        <textarea id="txtMotivoReagendar" class="form-control" rows="2"
-                                  placeholder="Ej: Cliente no encontrado, Camión averiado..."></textarea>
+                        <label for="txtMotivoReagendar" class="form-label fw-bold text-primary">Motivo del cambio (Para el cliente):</label>
+                        <textarea id="txtMotivoReagendar" class="form-control border-primary" rows="2"
+                                  placeholder="Ej: El camión tuvo un retraso, no ubicamos la dirección..."></textarea>
                         <div id="errMotivoReagendar" class="text-danger mt-1 small d-none">
                             <i class="fas fa-exclamation-circle"></i> Indica el motivo.
                         </div>
@@ -168,73 +166,6 @@
             </div>
         </div>
     </div>
-<!--    <div class="modal fade" id="accionModal" tabindex="-1" aria-hidden="true">-->
-<!--        <div class="modal-dialog modal-dialog-centered">-->
-<!--            <div class="modal-content border-0 shadow">-->
-
-<!--                <div class="modal-header text-white" id="modalHeader">-->
-<!--                    <h5 class="modal-title" id="modalTitle">Confirmar Acción</h5>-->
-<!--                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>-->
-<!--                </div>-->
-
-<!--                <div class="modal-body p-4">-->
-<!--                    <p class="fw-bold text-secondary" id="modalDesc">Descripción de la acción.</p>-->
-
-<!--                    <div id="bloqueMotivo" class="d-none">-->
-<!--                        <label for="txtMotivo" class="form-label fw-bold">Motivo:</label>-->
-<!--                        <textarea id="txtMotivo" class="form-control" rows="3" placeholder="Ej: Stock agotado..."></textarea>-->
-<!--                        <div id="errMotivo" class="text-danger mt-1 small d-none">Motivo obligatorio.</div>-->
-<!--                    </div>-->
-
-<!--                    <div id="bloqueFecha" class="d-none">-->
-<!--                        <label for="inputFecha" class="form-label fw-bold">Nueva Fecha de Entrega:</label>-->
-<!--                        <input type="date" id="inputFecha" class="form-control">-->
-<!--                        <div id="errFecha" class="text-danger mt-1 small d-none">Fecha obligatoria.</div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="modal-footer bg-light">-->
-<!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>-->
-<!--                    <button type="button" class="btn" id="btnConfirmarAccion" onclick="ejecutarAjaxAccion()">-->
-<!--                        Confirmar-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">-->
-<!--        <div class="modal-dialog modal-dialog-centered">-->
-<!--            <div class="modal-content border-0 shadow">-->
-
-<!--                <div class="modal-header bg-danger text-white">-->
-<!--                    <h5 class="modal-title">-->
-<!--                        <i class="fas fa-exclamation-triangle me-2"></i> Cancelar Pedido-->
-<!--                    </h5>-->
-<!--                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>-->
-<!--                </div>-->
-
-<!--                <div class="modal-body p-4">-->
-<!--                    <p class="fw-bold text-secondary">Estás a punto de cancelar este pedido.</p>-->
-<!--                    <p class="small text-muted mb-3">Por favor, indica el motivo para informar al cliente (Ej: Stock agotado, error en precio, etc).</p>-->
-
-<!--                    <label for="txtMotivo" class="form-label fw-bold">Motivo de cancelación:</label>-->
-<!--                    <textarea id="txtMotivo" class="form-control border-danger" rows="3" placeholder="Escribe el motivo aquí..."></textarea>-->
-
-<!--                    <div id="msgErrorMotivo" class="text-danger mt-2 fw-bold small" style="display:none;">-->
-<!--                        <i class="fas fa-times-circle"></i> Debes ingresar un motivo obligatorio.-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="modal-footer bg-light">-->
-<!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>-->
-<!--                    <button type="button" class="btn btn-danger px-4" onclick="ejecutarAjaxCancelacion()">-->
-<!--                        Confirmar Cancelación-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
 
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -261,7 +192,7 @@
         // 2. Detectar Admin
         const esAdmin = !document.querySelector('option[disabled]');
 
-        // --- FUNCIÓN PRINCIPAL: PREPARAR EL MODAL O ENVIAR ---
+        // --- PREPARAR EL MODAL ---
         function prepararEnvio(pedidoId) {
             const select = document.getElementById('select-estado-' + pedidoId);
             const estadoSeleccionado = select.value;
@@ -269,47 +200,42 @@
             pedidoIdEnProceso = pedidoId;
             estadoEnProceso = estadoSeleccionado;
 
-            // Elementos del Modal
             const modalEl = new bootstrap.Modal(document.getElementById('accionModal'));
+
+            // Referencias DOM
             const header = document.getElementById('modalHeader');
             const title = document.getElementById('modalTitle');
             const desc = document.getElementById('modalDesc');
             const btn = document.getElementById('btnConfirmarAccion');
-
-            // Bloques
             const bloqueMotivo = document.getElementById('bloqueMotivo');
             const bloqueReagendar = document.getElementById('bloqueReagendar');
 
-            // Limpiar Inputs y Errores
+            // Limpieza
             document.getElementById('txtMotivo').value = '';
             document.getElementById('txtMotivoReagendar').value = '';
             document.getElementById('inputFecha').value = '';
-
             document.querySelectorAll('.text-danger').forEach(el => el.classList.add('d-none'));
 
-            // Lógica de visualización
             if (estadoSeleccionado === 'CANCELADO') {
-                // MODO CANCELAR
+                // CONFIGURACIÓN PARA CANCELAR
                 header.className = 'modal-header bg-danger text-white';
                 title.innerText = 'Cancelar Pedido';
                 desc.innerText = 'Estás a punto de cancelar este pedido. Por favor indica el motivo:';
-
                 bloqueMotivo.classList.remove('d-none');
                 bloqueReagendar.classList.add('d-none');
-
                 btn.className = 'btn btn-danger';
+                btn.innerText = 'Confirmar Cancelación';
                 modalEl.show();
 
             } else if (estadoSeleccionado === 'REAGENDADO') {
-                // MODO REAGENDAR (Con Fecha y Motivo)
+                // CONFIGURACIÓN PARA REAGENDAR
                 header.className = 'modal-header bg-warning text-dark';
                 title.innerText = 'Reprogramar Entrega';
-                desc.innerText = 'Indica la nueva fecha y el motivo del cambio para informar al cliente:';
-
+                desc.innerText = 'Se notificará al cliente la nueva fecha y el motivo.';
                 bloqueMotivo.classList.add('d-none');
                 bloqueReagendar.classList.remove('d-none');
-
                 btn.className = 'btn btn-warning fw-bold';
+                btn.innerText = 'Confirmar Nueva Fecha';
                 modalEl.show();
 
             } else {
@@ -318,7 +244,7 @@
             }
         }
 
-        // --- FUNCIÓN AL CONFIRMAR ---
+        // --- EJECUTAR ACCIÓN ---
         function ejecutarAjaxAccion() {
             const motivoCancel = document.getElementById('txtMotivo').value.trim();
             const fecha = document.getElementById('inputFecha').value;
@@ -343,14 +269,13 @@
 
             if (!esValido) return;
 
-            // Ocultar modal y enviar
             const modal = bootstrap.Modal.getInstance(document.getElementById('accionModal'));
             modal.hide();
 
             enviarAjax(pedidoIdEnProceso, estadoEnProceso, motivoCancel, fecha, motivoReag);
         }
 
-        // --- FUNCIÓN FETCH AL SERVIDOR ---
+        // --- ENVÍO AL SERVIDOR ---
         function enviarAjax(pedidoId, estado, motivoCancel, fecha, motivoReag) {
             const formData = new FormData();
             formData.append('pedidoId', pedidoId);
@@ -358,7 +283,7 @@
 
             if (motivoCancel) formData.append('motivoCancelacion', motivoCancel);
             if (fecha) formData.append('nuevaFecha', fecha);
-            if (motivoReag) formData.append('motivoReagendacion', motivoReag); // <--- NUEVO DATO
+            if (motivoReag) formData.append('motivoReagendacion', motivoReag);
 
             const headers = {};
             if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
@@ -392,7 +317,7 @@
             });
         }
 
-        // --- UI HELPERS ---
+        // --- UTILIDADES VISUALES ---
         function mostrarToast(mensaje, claseBg) {
             const toastEl = document.getElementById('liveToast');
             const toastBody = document.getElementById('toastMessage');
@@ -405,14 +330,18 @@
             const select = document.getElementById('select-estado-' + id);
             select.className = "form-select form-select-sm me-2 fw-bold";
 
-            if(nuevoEstado === 'PENDIENTE') select.classList.add('text-secondary', 'border-secondary');
-            else if(nuevoEstado === 'ORDEN_RECIBIDA') select.classList.add('text-info-emphasis', 'border-info');
-            else if(nuevoEstado === 'EN_PREPARACION') select.classList.add('text-warning-emphasis', 'border-warning');
-            else if(nuevoEstado === 'EN_CAMINO') select.classList.add('text-primary-emphasis', 'border-primary');
-            else if(nuevoEstado === 'REAGENDADO') select.classList.add('text-warning', 'border-warning', 'bg-light');
-            else if(nuevoEstado === 'ENTREGADO') select.classList.add('text-success', 'border-success');
-            else if(nuevoEstado === 'FINALIZADO') select.classList.add('text-dark', 'border-dark', 'bg-light');
-            else if(nuevoEstado === 'CANCELADO') select.classList.add('text-danger', 'border-danger');
+            const colores = {
+                'PENDIENTE': 'text-secondary border-secondary',
+                'ORDEN_RECIBIDA': 'text-info-emphasis border-info',
+                'EN_PREPARACION': 'text-warning-emphasis border-warning',
+                'EN_CAMINO': 'text-primary-emphasis border-primary',
+                'REAGENDADO': 'text-warning border-warning bg-light',
+                'ENTREGADO': 'text-success border-success',
+                'FINALIZADO': 'text-dark border-dark bg-light',
+                'CANCELADO': 'text-danger border-danger'
+            };
+
+            if(colores[nuevoEstado]) select.className += " " + colores[nuevoEstado];
         }
 
         function actualizarReglasDeNegocio(id, estadoActual) {
@@ -438,6 +367,5 @@
         }
     </script>
 </div>
-
 </body>
 </html>

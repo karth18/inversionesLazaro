@@ -1,6 +1,7 @@
 package pe.com.isil.inversioneslazaro.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils; // <-- IMPORTAR ESTO
@@ -14,6 +15,8 @@ import pe.com.isil.inversioneslazaro.service.StorageService;
 import pe.com.isil.inversioneslazaro.service.AuditoriaService;
 import pe.com.isil.inversioneslazaro.model.Auditoria;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pe.com.isil.inversioneslazaro.repository.BannerHomeRepository;
+
 
 import java.util.Optional;
 
@@ -24,10 +27,12 @@ public class HomeComponenteController {
     @Autowired private HomeComponenteRepository homeRepo;
     @Autowired private StorageService storageService;
     @Autowired private AuditoriaService auditoriaService;
+    @Autowired private BannerHomeRepository bannerHomeRepository;
 
     // (El método editorHome se queda igual)
     @GetMapping("")
     public String editorHome(Model model) {
+        model.addAttribute("listaBanners", bannerHomeRepository.findAll(Sort.by("orden").ascending()));
         model.addAttribute("seccionOfertas",
                 homeRepo.findBySeccionOrderByOrdenAsc(HomeComponente.Seccion.OFERTA));
         model.addAttribute("seccionAnuncio",

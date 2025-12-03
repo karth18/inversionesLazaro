@@ -58,7 +58,12 @@
             <td th:text="${usuario.apellidos}"></td>
             <td th:text="${usuario.celular}"></td>
             <td th:text="${usuario.email}"></td>
-            <td th:text="${usuario.rol}"></td>
+            <td>
+                <span th:each="rol : ${usuario.roles}"
+                      class="badge bg-secondary me-1"
+                      th:text="${rol}">
+                </span>
+            </td>
             <td th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
             <td th:text="${#temporals.format(usuario.fechaActualizacion, 'dd/MM/yyyy HH:mm')}"></td>
             <td ><a th:each="newUsu : ${usuario}" th:href="@{/admin/usuarios/editar/{id}(id=*{usuario.id})}">Editar</a></td>

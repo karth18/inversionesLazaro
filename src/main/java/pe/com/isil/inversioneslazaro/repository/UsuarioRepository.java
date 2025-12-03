@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 
 
+import java.util.List;
 import java.util.Optional;
 @SuppressWarnings("unused")
 @Repository
@@ -22,5 +23,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     boolean existsByDni(String dni);
     boolean existsByEmail(String email);
+
+    List<Usuario> findByRolesContaining(Usuario.Rol rol);
 
 }

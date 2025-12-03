@@ -50,6 +50,24 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoDetalle> detalles = new ArrayList<>();
 
+    // 1. ¿Quién está preparando el pedido en almacén?
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "almacenero_id")
+    private Usuario almacenero;
+
+    // 2. ¿Qué chofer lo está llevando?
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chofer_id")
+    private Usuario chofer;
+
+    // 3. Prueba de entrega (nombre del archivo de la foto)
+    @Column(name = "foto_entrega")
+    private String fotoEntrega;
+
+    // Control de concurrencia (Evita que dos personas editen al mismo tiempo)
+    @Version
+    private Long version;
+
     @PrePersist
     protected void onCreate() {
         // 1. Fecha de creación
@@ -126,6 +144,7 @@ public class Pedido {
         PENDIENTE,
         ORDEN_RECIBIDA, // (Estado inicial después de PENDIENTE)
         EN_PREPARACION,
+        EMPAQUETADO,
         EN_CAMINO,
         REAGENDADO,
         ENTREGADO,

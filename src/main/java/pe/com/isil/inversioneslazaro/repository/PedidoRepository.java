@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import pe.com.isil.inversioneslazaro.model.Pedido;
 import pe.com.isil.inversioneslazaro.model.Usuario;
 
+import java.util.List;
+
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
@@ -21,4 +23,11 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     // Busca por código (ignorando mayúsculas/minúsculas) y filtra por usuario
     Page<Pedido> findByUsuarioAndCodigoPedidoContainingIgnoreCase(Usuario usuario, String codigo, Pageable pageable);
+
+    // NUEVO: Para que Almacén vea solo los "ORDEN_RECIBIDA"
+    List<Pedido> findByEstado(Pedido.EstadoPedido estado);
+
+    // NUEVO: Para que el Chofer vea solo SUS pedidos que están "EN_CAMINO"
+    List<Pedido> findByChoferAndEstado(Usuario chofer, Pedido.EstadoPedido estado);
+    List<Pedido> findByAlmaceneroAndEstado(Usuario a, Pedido.EstadoPedido e);
 }
