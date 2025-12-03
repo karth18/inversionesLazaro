@@ -6,6 +6,168 @@
     <title th:text="'Detalle Pedido ' + ${pedido.codigoPedido}">Detalle de Pedido</title>
 
     <style>
+        /* Contenedor de la barra de progreso */
+
+        /* Estado Cancelado (Rojo) */
+.stepper-item.cancelled .step-counter {
+    background-color: #dc3545; /* Rojo Bootstrap */
+    border-color: #dc3545;
+}
+.stepper-item.cancelled .step-name {
+    color: #dc3545;
+    font-weight: bold;
+}
+/* Línea roja si se cancela */
+.stepper-item.cancelled::after {
+    background-color: #dc3545;
+}
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    position: relative;
+}
+
+/* Línea gris de fondo (conecta todo) */
+.stepper-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+/* Cada paso */
+.stepper-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    z-index: 2;
+}
+
+/* La Bolita (Círculo) */
+.step-counter {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #e9ecef; /* Gris por defecto */
+    margin-bottom: 6px;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Título del paso */
+.step-name {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+    background: #fff; /* Para tapar la línea si es necesario */
+    padding: 0 5px;
+}
+
+/* --- ESTADOS --- */
+
+/* Completado (Verde) */
+.stepper-item.completed .step-counter {
+    background-color: #198754; /* Verde */
+    border-color: #198754;
+}
+.stepper-item.completed::after { /* Línea verde de progreso */
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 3px;
+    background-color: #198754;
+    z-index: -1;
+}
+.stepper-item:first-child::after { content: none; } /* El primero no tiene línea atrás */
+
+/* Activo (Azul - Donde está ahora) */
+.stepper-item.active .step-counter {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+.stepper-item.active .step-name {
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+/* Reagendado / Problema (Amarillo) */
+.stepper-item.warning .step-counter {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+
+
+        /* Contenedor principal con scroll horizontal para móviles */
+.horizontal-timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    padding: 20px 0;
+    overflow-x: auto; /* Permite deslizar en celulares */
+}
+
+/* Cada paso individual */
+.step-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    min-width: 100px; /* Ancho mínimo para que no se aplasten */
+}
+
+/* El punto (Círculo) */
+.step-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 3px solid #0d6efd; /* Azul por defecto */
+    margin: 0 auto 10px auto; /* Centrado */
+    position: relative;
+    z-index: 2; /* Encima de la línea */
+}
+
+/* Estado Finalizado/Entregado (Verde) */
+.step-item.completed .step-marker {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* La línea conectora gris */
+.step-connector {
+    position: absolute;
+    top: 30px; /* Ajustar según altura del título */
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background-color: #e9ecef;
+    z-index: 1; /* Detrás del punto */
+}
+
+/* Ocultar conector del último elemento */
+.step-item:last-child .step-connector {
+    display: none;
+}
+
+/* Textos */
+.step-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; display: block; }
+.step-date { font-size: 0.75rem; color: #6c757d; display: block; }
+
+
         /* CSS para el Timeline Vertical */
         .tracking-timeline {
             border-left: 3px solid #e9ecef;
@@ -143,41 +305,198 @@
             </div>
         </div>
         <!--        trasabilidad-->
+
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0">Seguimiento del Pedido</h5>
-                <small class="text-muted">
-                    Entrega estimada:
+                <h5 class="mb-0">Estado del Pedido</h5>
+                <small class="text-muted" th:unless="${pedido.estado.name() == 'ENTREGADO' or pedido.estado.name() == 'FINALIZADO'}">
+                    Llegada estimada:
                     <span class="text-primary fw-bold text-capitalize"
-                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es', 'ES'))}">
+                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM')}">
             </span>
                 </small>
             </div>
-            <div class="card-body">
-                <div class="tracking-timeline">
 
-                    <div th:each="log : ${pedido.historialEstados}" class="timeline-item">
-                        <div class="timeline-marker"
-                             th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>
-                        <div class="timeline-content">
-                            <h6 class="fw-bold mb-0"
-                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Solicitud Recibida' :
-             (log.estado.name() == 'ORDEN_RECIBIDA' ? 'Pago Validado / En Cola' :
-             (log.estado.name() == 'EN_PREPARACION' ? 'En Fabricación / Preparación' :
-             (log.estado.name() == 'EMPAQUETADO' ? '📦 Listo para Envío' :
-             (log.estado.name() == 'EN_CAMINO' ? '🚚 En Ruta de Entrega' :
-             (log.estado.name() == 'ENTREGADO' ? '✅ Entregado' :
-             log.estado.name().replace('_', ' '))))))}">
-                            </h6>
+            <div class="card-body pt-4">
 
-                            <small class="text-muted" th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>
-                            <p class="mb-0 small text-secondary" th:if="${log.comentario}" th:text="${log.comentario}"></p>
+                <div class="stepper-wrapper">
+
+                    <div class="stepper-item completed">
+                        <div class="step-counter"><i class="fas fa-file-alt"></i></div>
+                        <div class="step-name">Solicitud<br>Recibida</div>
+                        <div class="step-date mt-1 small text-muted fw-bold"
+                             th:text="${#temporals.format(pedido.fechaCreacion, 'dd/MM HH:mm')}">
                         </div>
                     </div>
 
+                    <div class="stepper-item"
+                         th:with="logConfirmada=${pedido.historialEstados.?[estado.name() == 'ORDEN_RECIBIDA']}"
+                         th:classappend="${(not #lists.isEmpty(logConfirmada) or pedido.estado.name() == 'EN_PREPARACION' or pedido.estado.name() == 'EMPAQUETADO' or pedido.estado.name() == 'EN_CAMINO' or pedido.estado.name() == 'ENTREGADO' or pedido.estado.name() == 'FINALIZADO') ? 'completed' :
+                             ((pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logConfirmada)) ? 'cancelled' : '')}">
+
+                        <div class="step-counter">
+                            <i class="fas" th:classappend="${pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logConfirmada)} ? 'fa-times' : 'fa-check-circle'"></i>
+                        </div>
+                        <div class="step-name">Solicitud<br>Confirmada</div>
+
+                        <div class="step-date mt-1 small text-muted fw-bold"
+                             th:if="${not #lists.isEmpty(logConfirmada)}"
+                             th:text="${#temporals.format(logConfirmada[0].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                        <div class="step-date mt-1 small text-danger fw-bold"
+                             th:if="${pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logConfirmada)}"
+                             th:text="${#temporals.format(pedido.historialEstados[pedido.historialEstados.size()-1].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                    </div>
+
+                    <div class="stepper-item"
+                         th:with="logPrep=${pedido.historialEstados.?[estado.name() == 'EN_PREPARACION']}"
+                         th:classappend="${(not #lists.isEmpty(logPrep) or pedido.estado.name() == 'EMPAQUETADO' or pedido.estado.name() == 'EN_CAMINO' or pedido.estado.name() == 'ENTREGADO' or pedido.estado.name() == 'FINALIZADO') ? 'completed' :
+                             ((pedido.estado.name() == 'CANCELADO' and not #lists.isEmpty(pedido.historialEstados.?[estado.name() == 'ORDEN_RECIBIDA']) and #lists.isEmpty(logPrep)) ? 'cancelled' :
+                             (pedido.estado.name() == 'ORDEN_RECIBIDA' ? 'active' : ''))}">
+
+                        <div class="step-counter">
+                            <i class="fas" th:classappend="${pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logPrep) and not #lists.isEmpty(pedido.historialEstados.?[estado.name() == 'ORDEN_RECIBIDA'])} ? 'fa-times' : 'fa-tools'"></i>
+                        </div>
+                        <div class="step-name">En<br>Preparación</div>
+
+                        <div class="step-date mt-1 small text-muted fw-bold"
+                             th:if="${not #lists.isEmpty(logPrep)}"
+                             th:text="${#temporals.format(logPrep[0].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                        <div class="step-date mt-1 small text-danger fw-bold"
+                             th:if="${pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logPrep) and not #lists.isEmpty(pedido.historialEstados.?[estado.name() == 'ORDEN_RECIBIDA'])}"
+                             th:text="${#temporals.format(pedido.historialEstados[pedido.historialEstados.size()-1].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                    </div>
+
+                    <div class="stepper-item"
+                         th:with="logRuta=${pedido.historialEstados.?[estado.name() == 'EN_CAMINO']}"
+                         th:classappend="${(not #lists.isEmpty(logRuta) or pedido.estado.name() == 'ENTREGADO' or pedido.estado.name() == 'FINALIZADO') ? 'completed' :
+                             ((pedido.estado.name() == 'REAGENDADO') ? 'warning' :
+                             ((pedido.estado.name() == 'CANCELADO' and not #lists.isEmpty(pedido.historialEstados.?[estado.name() == 'EN_PREPARACION']) and #lists.isEmpty(logRuta)) ? 'cancelled' :
+                             ((pedido.estado.name() == 'EN_CAMINO' or pedido.estado.name() == 'EMPAQUETADO') ? 'active' : '')))}">
+
+                        <div class="step-counter">
+                            <i class="fas" th:classappend="${pedido.estado.name() == 'REAGENDADO'} ? 'fa-exclamation' :
+                                             (${pedido.estado.name() == 'CANCELADO' and #lists.isEmpty(logRuta)} ? 'fa-times' : 'fa-truck')"></i>
+                        </div>
+                        <div class="step-name">
+                            <span th:if="${pedido.estado.name() == 'REAGENDADO'}">Reagendado</span>
+                            <span th:unless="${pedido.estado.name() == 'REAGENDADO'}">En Ruta</span>
+                        </div>
+
+                        <div class="step-date mt-1 small text-muted fw-bold"
+                             th:if="${not #lists.isEmpty(logRuta)}"
+                             th:text="${#temporals.format(logRuta[logRuta.size()-1].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                        <div class="step-date mt-1 small text-warning fw-bold"
+                             th:if="${pedido.estado.name() == 'REAGENDADO'}"
+                             th:text="${#temporals.format(pedido.historialEstados[pedido.historialEstados.size()-1].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                        <div class="step-date mt-1 small text-danger fw-bold"
+                             th:if="${pedido.estado.name() == 'CANCELADO' and not #lists.isEmpty(pedido.historialEstados.?[estado.name() == 'EN_PREPARACION']) and #lists.isEmpty(logRuta)}"
+                             th:text="${#temporals.format(pedido.historialEstados[pedido.historialEstados.size()-1].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                    </div>
+
+                    <div class="stepper-item"
+                         th:with="logEntrega=${pedido.historialEstados.?[estado.name() == 'ENTREGADO']}"
+                         th:classappend="${not #lists.isEmpty(logEntrega) or pedido.estado.name() == 'FINALIZADO'} ? 'completed' : ''">
+                        <div class="step-counter"><i class="fas fa-home"></i></div>
+                        <div class="step-name">Entregado</div>
+                        <div class="step-date mt-1 small text-muted fw-bold"
+                             th:if="${not #lists.isEmpty(logEntrega)}"
+                             th:text="${#temporals.format(logEntrega[0].fechaCambio, 'dd/MM HH:mm')}">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+<!--        <div class="card shadow-sm mt-4">-->
+<!--            <div class="card-header bg-white">-->
+<!--                <h5 class="mb-0">Seguimiento del Pedido</h5>-->
+<!--                <small class="text-muted">-->
+<!--                    Entrega estimada:-->
+<!--                    <span class="text-primary fw-bold text-capitalize"-->
+<!--                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es', 'ES'))}">-->
+<!--            </span>-->
+<!--                </small>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+
+<!--                <div class="horizontal-timeline">-->
+
+<!--                    <div th:each="log, iterStat : ${pedido.historialEstados}"-->
+<!--                         class="step-item"-->
+<!--                         th:classappend="${log.estado.name() == 'ENTREGADO' or log.estado.name() == 'FINALIZADO'} ? 'completed'">-->
+
+<!--                <span class="step-title text-primary"-->
+<!--                      th:text="${log.estado.name() == 'PENDIENTE' ? 'Solicitud Recibida' :-->
+<!--                             (log.estado.name() == 'ORDEN_RECIBIDA' ? 'Solicitud Confirmada' :-->
+<!--                             (log.estado.name() == 'EN_PREPARACION' ? 'En Fabricación/Preparación' :-->
+<!--                             (log.estado.name() == 'EMPAQUETADO' ? 'Listo para Envío' :-->
+<!--                             (log.estado.name() == 'EN_CAMINO' ? 'En Ruta' :-->
+<!--                             (log.estado.name() == 'ENTREGADO' ? 'Entregado' :-->
+<!--                             log.estado.name().replace('_', ' '))))))}">-->
+<!--                </span>-->
+
+<!--                        <div class="step-marker"></div>-->
+
+<!--                        <div class="step-connector" th:unless="${iterStat.last}"></div>-->
+
+<!--                        <span class="step-date"-->
+<!--                              th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}">-->
+<!--                </span>-->
+
+<!--&lt;!&ndash;                        <p class="small text-danger mt-1 mb-0 fst-italic"&ndash;&gt;-->
+<!--&lt;!&ndash;                           style="font-size: 0.7rem;"&ndash;&gt;-->
+<!--&lt;!&ndash;                           th:if="${log.comentario != null&ndash;&gt;-->
+<!--&lt;!&ndash;                            and !#strings.startsWith(log.comentario, 'El estado cambió a')&ndash;&gt;-->
+<!--&lt;!&ndash;                            and !#strings.startsWith(log.comentario, 'Orden creada')}"&ndash;&gt;-->
+<!--&lt;!&ndash;                           th:text="${log.comentario}">&ndash;&gt;-->
+<!--&lt;!&ndash;                        </p>&ndash;&gt;-->
+
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="card shadow-sm mt-4">-->
+<!--            <div class="card-header bg-white">-->
+<!--                <h5 class="mb-0">Seguimiento del Pedido</h5>-->
+<!--                <small class="text-muted">-->
+<!--                    Entrega estimada:-->
+<!--                    <span class="text-primary fw-bold text-capitalize"-->
+<!--                          th:text="${#temporals.format(pedido.fechaEntregaEstimada, 'dd ''de'' MMMM', new java.util.Locale('es', 'ES'))}">-->
+<!--            </span>-->
+<!--                </small>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--                <div class="tracking-timeline">-->
+
+<!--                    <div th:each="log : ${pedido.historialEstados}" class="timeline-item">-->
+<!--                        <div class="timeline-marker"-->
+<!--                             th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>-->
+<!--                        <div class="timeline-content">-->
+<!--                            <h6 class="fw-bold mb-0"-->
+<!--                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Solicitud Recibida' :-->
+<!--             (log.estado.name() == 'ORDEN_RECIBIDA' ? 'Pago Validado / En Cola' :-->
+<!--             (log.estado.name() == 'EN_PREPARACION' ? 'En Fabricación / Preparación' :-->
+<!--             (log.estado.name() == 'EMPAQUETADO' ? '📦 Listo para Envío' :-->
+<!--             (log.estado.name() == 'EN_CAMINO' ? '🚚 En Ruta de Entrega' :-->
+<!--             (log.estado.name() == 'ENTREGADO' ? '✅ Entregado' :-->
+<!--             log.estado.name().replace('_', ' '))))))}">-->
+<!--                            </h6>-->
+
+<!--                            <small class="text-muted" th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>-->
+<!--                            <p class="mb-0 small text-secondary" th:if="${log.comentario}" th:text="${log.comentario}"></p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
     </div>
 </div>

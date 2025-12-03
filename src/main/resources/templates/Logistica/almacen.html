@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{master.html}">
-<head><title>Almacén</title></head>
+<head><title>Almacén</title>
+    <th:block th:if="${_csrf != null}">
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </th:block>
+</head>
 <body>
 <div class="container mt-4" layout:fragment="content">
 
@@ -11,14 +16,17 @@
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4" th:each="p : ${misPedidos}">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary" th:text="${p.codigoPedido}"></h5>
-                            <p class="small">Empaquetando productos...</p>
+                    <div class="card h-100 border-warning">
+                        <div class="card-body d-flex flex-column">
 
-                            <p class="small text-muted mb-3">
-                                Cliente: <span th:text="${p.usuario.nombres}"></span><br>
-                                <i class="fas fa-cubes"></i> Items: <span th:text="${p.detalles.size()}"></span>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title text-primary fw-bold mb-0" th:text="${p.codigoPedido}"></h5>
+                                <span class="badge bg-warning text-dark">En Proceso</span>
+                            </div>
+
+                            <p class="small text-muted mb-3 flex-grow-1">
+                                Cliente: <strong th:text="${p.usuario.nombres}"></strong><br>
+                                Items: <strong th:text="${p.detalles.size()}"></strong>
                             </p>
 
                             <div class="btn-group w-100 mb-3" role="group">
@@ -28,20 +36,61 @@
                                 </a>
                                 <a th:href="@{/admin/pedidos/imprimir/{id}(id=${p.id}, origen='almacen')}"
                                    target="_blank" class="btn btn-outline-dark btn-sm">
-                                    <i class="fas fa-print"></i> Imprimir Hoja
+                                    <i class="fas fa-print"></i> Guía
                                 </a>
                             </div>
 
-                            <form th:action="@{/logistica/almacen/listo}" method="post">
-                                <input type="hidden" name="id" th:value="${p.id}">
-                                <button class="btn btn-success w-100">
-                                    <i class="fas fa-check"></i> Terminar y Pasar a Despacho
+                            <div class="d-grid gap-2">
+
+                                <form th:action="@{/logistica/almacen/listo}" method="post"
+                                      onsubmit="return confirm('¿Confirmas que el paquete está LISTO y CERRADO para despacho?');">
+                                    <input type="hidden" name="id" th:value="${p.id}">
+                                    <button class="btn btn-success w-100 fw-bold">
+                                        <i class="fas fa-check-double"></i> Listo para Despacho
+                                    </button>
+                                </form>
+
+                                <button type="button" class="btn btn-outline-danger w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cancelarAlmacenModal"
+                                        th:data-id="${p.id}"
+                                        th:data-codigo="${p.codigoPedido}">
+                                    <i class="fas fa-times-circle"></i> Reportar Problema / Cancelar
                                 </button>
-                            </form>
+
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cancelarAlmacenModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content border-danger" th:action="@{/logistica/almacen/cancelar}" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Cancelar Pedido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="pedidoId" id="modalPedidoId">
+
+                    <p class="fw-bold">Vas a cancelar el pedido <span id="modalPedidoCodigo" class="text-danger"></span>.</p>
+                    <p class="small text-muted">Esta acción notificará a administración y ventas.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Motivo (Obligatorio):</label>
+                        <textarea name="motivo" class="form-control" rows="3" required
+                                  placeholder="Ej: Producto dañado en almacén, Stock fantasma, Error de sistema..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Cancelación</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -70,7 +119,20 @@
             <div class="alert alert-secondary">No hay pedidos nuevos por ahora.</div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var cancelarModal = document.getElementById('cancelarAlmacenModal');
+            cancelarModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute('data-id');
+                var codigo = button.getAttribute('data-codigo');
 
+                document.getElementById('modalPedidoId').value = id;
+                document.getElementById('modalPedidoCodigo').textContent = codigo;
+            });
+        });
+    </script>
 </div>
+
 </body>
 </html>

@@ -168,15 +168,23 @@
                 <li class="nav-item"><a class="nav-link" href="/cotizador">Personaliza</a></li>
             </ul>
 
+<!--            <form action="/catalogo" method="get" class="d-flex my-2 my-lg-0 mx-lg-auto w-50 search-input-group">-->
+<!--                <div class="input-group">-->
+<!--                    <input type="search" name="busqueda" class="form-control"-->
+<!--                           placeholder="Buscar productos en el catálogo"-->
+<!--                           aria-label="Buscar productos">-->
+<!--                    <button class="btn btn-search px-4" type="submit">-->
+<!--                        <i class="fas fa-search"></i>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </form>-->
             <form action="/catalogo" method="get" class="d-flex my-2 my-lg-0 mx-lg-auto w-50 search-input-group">
-                <div class="input-group">
-                    <input type="search" name="busqueda" class="form-control"
-                           placeholder="Buscar productos en el catálogo"
-                           aria-label="Buscar productos">
-                    <button class="btn btn-search px-4" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <input type="search" name="q" class="form-control"
+                       placeholder="Buscar productos"
+                       th:value="${param.q}">
+                <button class="btn btn-search" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
             </form>
 
             <div class="d-flex align-items-center ms-auto gap-3 user-actions">

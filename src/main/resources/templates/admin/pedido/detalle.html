@@ -108,6 +108,7 @@
                 </div>
             </div>
         </div>
+
         <!--        trasabilidad-->
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-white">
@@ -123,13 +124,51 @@
                 <div class="tracking-timeline">
 
                     <div th:each="log : ${pedido.historialEstados}" class="timeline-item">
+
                         <div class="timeline-marker"
-                             th:classappend="${log.estado.name() == 'FINALIZADO'} ? 'bg-success' : 'bg-primary'"></div>
+                             th:classappend="${log.estado.name() == 'FINALIZADO' or log.estado.name() == 'ENTREGADO'} ? 'bg-success' :
+                             (${log.estado.name() == 'CANCELADO'} ? 'bg-danger' : 'bg-primary')">
+                        </div>
+
                         <div class="timeline-content">
-                            <h6 class="fw-bold mb-0" th:text="${log.estado.name().replace('_', ' ')}"></h6>
-                            <small class="text-muted"
-                                   th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>
-                            <p class="mb-0 small text-secondary" th:if="${log.comentario}" th:text="${log.comentario}"></p>
+
+                            <h6 class="fw-bold mb-0"
+                                th:text="${log.estado.name() == 'PENDIENTE' ? 'Solicitud Recibida' :
+                         (log.estado.name() == 'ORDEN_RECIBIDA' ? 'Pago Validado / Confirmado' :
+                         (log.estado.name() == 'EN_PREPARACION' ? 'En Taller (Fabricación)' :
+                         (log.estado.name() == 'EMPAQUETADO' ? 'Empaquetado (Listo)' :
+                         (log.estado.name() == 'EN_CAMINO' ? 'En Ruta de Entrega' :
+                         (log.estado.name() == 'ENTREGADO' ? 'Entregado al Cliente' :
+                         log.estado.name().replace('_', ' '))))))}">
+                            </h6>
+
+                            <small class="text-muted d-block" th:text="${#temporals.format(log.fechaCambio, 'dd/MM/yyyy HH:mm')}"></small>
+
+                            <div th:if="${log.estado.name() == 'EN_CAMINO'}"
+                                 class="mt-2 p-2 bg-light border rounded small text-secondary" style="font-size: 0.8rem;">
+
+                                <div class="mb-1">
+                                    <i class="fas fa-user-tie me-1 text-primary"></i>
+                                    Asignado por: <span class="fw-bold" th:text="${log.usuarioResponsable}"></span>
+                                </div>
+
+                                <div th:if="${pedido.chofer != null}">
+                                    <i class="fas fa-truck me-1 text-success"></i>
+                                    Al Chofer: <strong class="text-dark" th:text="${pedido.chofer.nombres} + ' ' + ${pedido.chofer.apellidos}"></strong>
+                                </div>
+                            </div>
+
+                            <div th:if="${log.estado.name() != 'PENDIENTE' and log.estado.name() != 'EN_CAMINO' and log.usuarioResponsable != null}"
+                                 class="text-secondary x-small mt-1 border-start ps-2" style="font-size: 0.75rem;">
+                                <i class="fas fa-user-edit me-1"></i>
+                                <span th:text="'Gestión: ' + ${log.usuarioResponsable}"></span>
+                            </div>
+
+                            <p class="mb-0 small text-danger mt-1 fst-italic"
+                               th:if="${log.comentario != null
+                        and !#strings.startsWith(log.comentario, 'El estado cambió a')
+                        and !#strings.startsWith(log.comentario, 'Orden creada')}"
+                               th:text="${log.comentario}"></p>
                         </div>
                     </div>
 

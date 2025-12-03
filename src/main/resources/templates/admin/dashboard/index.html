@@ -115,6 +115,16 @@
                     </div>
                 </a>
             </div>
+
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_FINANZAS')">
+                <a th:href="@{/admin/finanzas/validacion}" class="card dashboard-card bg-white border shadow-sm border-info border-start border-5">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box text-info"><i class="fas fa-comments-dollar"></i></div>
+                        <h5 class="card-title">Tesorería</h5>
+                        <p class="card-text small">Validar ingresos y liberar pedidos a almacén.</p>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 

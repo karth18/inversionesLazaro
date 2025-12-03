@@ -147,6 +147,41 @@ public class LogisticaController {
         return "redirect:/logistica/chofer";
     }
 
+    // --- NUEVO: Cancelar desde Almacén ---
+    @PostMapping("/almacen/cancelar")
+    public String cancelarDesdeAlmacen(@RequestParam Long pedidoId,
+                                       @RequestParam String motivo,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       RedirectAttributes ra) {
+
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow();
+        Usuario almacenero = usuarioRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+
+        // 1. Cambiar estado
+        pedido.setEstado(Pedido.EstadoPedido.CANCELADO);
+
+        // 2. Guardar motivo específico
+        String motivoCompleto = "Cancelado en Almacén por " + almacenero.getNombres() + ": " + motivo;
+        pedido.setMotivoCancelacion(motivoCompleto);
+
+        // 3. Devolver Stock (¡Muy importante en almacén!)
+        // Aquí deberías recorrer los detalles y sumar el stock nuevamente a los productos
+        // for (PedidoDetalle d : pedido.getDetalles()) { ... devolver stock ... }
+
+        pedidoRepository.save(pedido);
+
+        // 4. Registrar en Historial
+        PedidoSeguimiento log = new PedidoSeguimiento();
+        log.setPedido(pedido);
+        log.setEstado(Pedido.EstadoPedido.CANCELADO);
+        log.setFechaCambio(LocalDateTime.now());
+        log.setUsuarioResponsable(almacenero.getEmail());
+        log.setComentario(motivoCompleto);
+        seguimientoRepository.save(log);
+
+        ra.addFlashAttribute("error", "El pedido " + pedido.getCodigoPedido() + " ha sido cancelado.");
+        return "redirect:/logistica/almacen";
+    }
     // --- Helper ---
     private void registrarSeguimiento(Pedido p, Pedido.EstadoPedido e, String comentario) {
         PedidoSeguimiento ps = new PedidoSeguimiento();
@@ -154,6 +189,10 @@ public class LogisticaController {
         ps.setEstado(e);
         ps.setFechaCambio(LocalDateTime.now());
         ps.setComentario(comentario);
+        String usuarioActual = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+
+        ps.setUsuarioResponsable(usuarioActual);
         seguimientoRepository.save(ps);
     }
 }

@@ -7,17 +7,19 @@
     <title>Catálogo de Productos | Inversiones Lázaro</title>
     <th:block layout:fragment="styles">
         <style>
+            /* Estilos Tarjeta de Producto */
             .product-card {
-                border: 1px solid #ddd;
+                border: 1px solid #eee;
                 border-radius: 8px;
                 transition: transform 0.2s, box-shadow 0.2s;
                 overflow: hidden;
                 height: 100%;
+                background: #fff;
             }
-            /* Efecto hover solo en la tarjeta, no en el botón */
             .product-card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+                border-color: #0d6efd;
             }
             .product-image-container {
                 height: 200px;
@@ -25,128 +27,218 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #f7f7f7;
+                background-color: #f9f9f9;
+                border-bottom: 1px solid #f0f0f0;
             }
             .product-image {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
+                object-fit: cover; /* Ajusta la imagen sin deformarla */
+                transition: transform 0.3s;
             }
-            .price-offer { color: #dc3545; font-weight: bold; }
+            .product-card:hover .product-image {
+                transform: scale(1.05);
+            }
+
+            /* Precios */
+            .price-offer { color: #dc3545; font-weight: bold; font-size: 1.2rem; }
             .price-regular-offer { text-decoration: line-through; color: #6c757d; font-size: 0.9em; }
             .product-price-normal { font-size: 1.2rem; font-weight: bold; color: #212529; }
 
-            /* Estilos para botón y link */
-            .add-to-cart-btn { position: relative; z-index: 2; }
-            .product-card-link { text-decoration: none; color: inherit; flex-grow: 1; display: block;}
-            .card-img-top { height: 180px; object-fit: cover; }
+            /* Sidebar de Filtros */
+            .filter-sidebar {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid #eee;
+            }
+            .filter-title {
+                font-weight: 700;
+                color: #333;
+                margin-top: 15px;
+                margin-bottom: 10px;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .filter-link {
+                display: block;
+                color: #555;
+                text-decoration: none;
+                padding: 4px 0;
+                font-size: 0.95rem;
+                transition: color 0.2s;
+            }
+            .filter-link:hover { color: #0d6efd; margin-left: 3px; }
+            .filter-link.active { color: #0d6efd; font-weight: bold; }
+            .filter-link.active::before { content: '● '; font-size: 0.8em; margin-right: 5px; }
+
+            /* Link de la tarjeta */
+            .product-card-link { text-decoration: none; color: inherit; flex-grow: 1; display: block; }
         </style>
     </th:block>
 </head>
 <body>
 <div class="container py-5" layout:fragment="content">
-    <h1 class="mb-4 text-center text-primary">Nuestros Productos Destacados</h1>
 
-    <form class="d-flex mb-4" th:action="@{/catalogo}" method="get">
-        <input type="search" name="q" class="form-control me-2" placeholder="Buscar por nombre o código" th:value="${param.q}">
-        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-    </form>
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="filter-sidebar shadow-sm">
+                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-filter text-primary"></i> Filtros</h5>
 
-    <div th:if="${productos == null or productos.isEmpty()}" class="alert alert-warning text-center">
-        Actualmente no hay productos disponibles en el catálogo.
-    </div>
+                <form action="/catalogo" method="get" id="formFiltros">
+                    <input type="hidden" name="q" th:value="${busquedaActual}">
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
-         th:unless="${productos == null or productos.isEmpty()}">
-
-        <div class="col" th:each="p : ${productos}">
-
-            <div class="card product-card h-100" th:if="${p != null}">
-
-                <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="product-card-link" style="text-decoration: none; color: inherit; flex-grow: 1; display: block;">
-
-                    <div class="product-image-container">
-                        <img th:src="@{${p.getImagenPrincipalUrl()}}"
-                             alt="Imagen de Producto"
-                             class="product-image card-img-top">
+                    <div class="filter-title">Categoría</div>
+                    <div class="list-group list-group-flush">
+                        <a th:href="@{/catalogo(q=${busquedaActual})}"
+                           class="filter-link"
+                           th:classappend="${catActual == null} ? 'active'">
+                            Todas
+                        </a>
+                        <th:block th:each="cat : ${categorias}">
+                            <a th:href="@{/catalogo(q=${busquedaActual}, categoria=${cat.id})}"
+                               class="filter-link"
+                               th:classappend="${catActual == cat.id} ? 'active'"
+                               th:text="${cat.nombre}">
+                            </a>
+                        </th:block>
                     </div>
 
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title text-truncate" th:text="${p.nomPro}">Nombre del Producto</h5>
+                    <input type="hidden" name="categoria" th:value="${catActual}" th:if="${catActual != null}">
 
-                        <p class="card-text mb-1 text-muted small">
-                            Marca: <span th:text="${p.idMarca != null ? p.idMarca.nombre : 'General'}">Marca</span>
-                        </p>
+                    <hr class="text-muted opacity-25 my-3">
 
-                        <div class="mt-auto pt-2">
+                    <div class="filter-title">Tipo de Equipo</div>
+                    <select class="form-select form-select-sm mb-3" name="tipo" onchange="document.getElementById('formFiltros').submit()">
+                        <option value="">Todos los tipos</option>
+                        <option th:each="t : ${tipos}"
+                                th:value="${t.id}"
+                                th:text="${t.nombre}"
+                                th:selected="${tipoActual == t.id}">
+                        </option>
+                    </select>
 
-                            <th:block th:if="${p.precio != null}">
-                                <div th:if="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
-                                    <p class="mb-0 price-regular-offer">
-                                        S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
-                                    </p>
-                                    <p class="mb-1 fw-bold price-offer" style="font-size: 1.2rem;">
-                                        S/ [[${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}]]
-                                    </p>
-                                </div>
+                    <hr class="text-muted opacity-25 my-3">
 
-                                <div th:unless="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
-                                    <p class="mb-1 product-price-normal">
-                                        S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]
-                                    </p>
-                                </div>
-                            </th:block>
-
-                            <small th:if="${p.stock != null and p.stock > 0}" class="text-muted">
-                                Stock: [[${p.stock}]]
-                            </small>
-                            <small th:if="${p.stock == null or p.stock <= 0}" class="text-danger fw-bold">
-                                <i class="fas fa-times-circle"></i> Agotado
-                            </small>
+                    <div class="filter-title">Precio (S/)</div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <input type="number" class="form-control form-control-sm" name="min" placeholder="Min" th:value="${minActual}">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" class="form-control form-control-sm" name="max" placeholder="Max" th:value="${maxActual}">
                         </div>
                     </div>
-                </a>
-                <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
-
-                    <button th:if="${p.stock != null and p.stock > 0}"
-                            type="button"
-                            class="btn btn-sm btn-danger w-100 add-to-cart-btn"
-                            th:data-product-id="${p.id}">
-                        <i class="fas fa-cart-plus me-1"></i> Agregar
+                    <button type="submit" class="btn btn-sm btn-outline-primary w-100 fw-bold">
+                        <i class="fas fa-play fa-xs"></i> Aplicar
                     </button>
 
-                    <button th:if="${p.stock == null or p.stock <= 0}"
-                            type="button"
-                            class="btn btn-sm btn-secondary w-100"
-                            disabled
-                            style="cursor: not-allowed; background-color: #e9ecef; border-color: #dee2e6; color: #6c757d;">
-                        Agotado
-                    </button>
-                </div>
-
+                    <div class="mt-4 d-grid">
+                        <a href="/catalogo" class="btn btn-light btn-sm text-secondary border">Limpiar Todo</a>
+                    </div>
+                </form>
             </div>
+        </div>
+
+        <div class="col-lg-9">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded border">
+                <h1 class="h5 mb-0 text-dark">
+                    <span th:if="${busquedaActual}" th:text="'Resultados para: ' + ${busquedaActual}">Catálogo</span>
+                    <span th:unless="${busquedaActual}">Catálogo Completo</span>
+                </h1>
+                <span class="badge bg-white text-dark border shadow-sm">
+                    <span th:text="${productos != null ? productos.size() : 0}">0</span> equipos
+                </span>
+            </div>
+
+            <div th:if="${productos == null or productos.isEmpty()}" class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted opacity-25 mb-3"></i>
+                <h4 class="text-muted">No encontramos productos.</h4>
+                <p class="text-secondary">Intenta ajustar los filtros o buscar con otro término.</p>
+                <a href="/catalogo" class="btn btn-primary btn-sm mt-2">Ver todo el catálogo</a>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4"
+                 th:unless="${productos == null or productos.isEmpty()}">
+
+                <div class="col" th:each="p : ${productos}">
+                    <div class="card product-card h-100" th:if="${p != null}">
+
+                        <a th:href="@{/catalogo/detalle/{id}(id=${p.id})}" class="product-card-link">
+                            <div class="product-image-container">
+                                <img th:src="@{${p.getImagenPrincipalUrl()}}" alt="Producto" class="product-image">
+                            </div>
+
+                            <div class="card-body d-flex flex-column pb-0">
+
+
+                                <h5 class="card-title text-truncate text-dark" style="font-size: 1rem;" th:text="${p.nomPro}">Nombre</h5>
+                                <p class="card-text text-muted small mb-2"
+                                   style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em;"
+                                   th:text="${p.descripcionCorta}">
+                                    Descripción corta del producto...
+                                </p>
+                                <small class="text-muted text-uppercase mb-1" style="font-size: 0.7rem;">
+                                    <i class="fas fa-tag me-1"></i> <span th:text="${p.idMarca != null ? p.idMarca.nombre : 'General'}">Marca</span>
+                                </small>
+                                <div class="mt-auto pt-2 mb-3">
+                                    <th:block th:if="${p.precio != null}">
+                                        <div th:if="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                            <span class="price-regular-offer me-2">S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]</span>
+                                            <div class="price-offer">S/ [[${#numbers.formatDecimal(p.precioOferta, 1, 'COMMA', 2, 'POINT')}]]</div>
+                                        </div>
+                                        <div th:unless="${p.precioOferta != null and p.precioOferta.compareTo(T(java.math.BigDecimal).ZERO) > 0 and p.precioOferta.compareTo(p.precio) < 0}">
+                                            <div class="product-price-normal">S/ [[${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}]]</div>
+                                        </div>
+                                    </th:block>
+
+                                    <div class="mt-1">
+                                        <small th:if="${p.stock != null and p.stock > 0}" class="text-success">
+                                            <i class="fas fa-check-circle"></i> Disponible
+                                        </small>
+                                        <small th:if="${p.stock == null or p.stock <= 0}" class="text-danger fw-bold">
+                                            <i class="fas fa-times-circle"></i> Agotado
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                            <button th:if="${p.stock != null and p.stock > 0}"
+                                    type="button"
+                                    class="btn btn-danger w-100 add-to-cart-btn shadow-sm"
+                                    th:data-product-id="${p.id}">
+                                <i class="fas fa-cart-plus me-2"></i> Agregar
+                            </button>
+
+                            <button th:if="${p.stock == null or p.stock <= 0}"
+                                    type="button"
+                                    class="btn btn-light text-secondary w-100 border"
+                                    disabled>
+                                Sin Stock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addToCartModalLabel">
-                        <i class="fas fa-check-circle text-success me-2"></i>Producto Agregado
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ¡El producto se ha añadido a tu carrito!
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-shopping-bag me-1"></i> Seguir comprando
-                    </button>
-                    <a th:href="@{/carrito}" class="btn btn-primary">
-                        <i class="fas fa-shopping-cart me-1"></i> Ir al carrito
-                    </a>
+    <div class="modal fade" id="addToCartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                    <h5 class="mb-3">¡Agregado!</h5>
+                    <p class="text-muted small mb-4">El producto ya está en tu carrito.</p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/carrito}" class="btn btn-primary">Ir al Carrito</a>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Seguir comprando</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,11 +256,9 @@
                  cartModalInstance = new bootstrap.Modal(cartModalElement);
             }
 
-            const csrfToken = /*[[${_csrf?.token}]]*/ null;
-            const csrfHeader = /*[[${_csrf?.headerName}]]*/ null;
+            const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
 
-            // IMPORTANTE: Este selector '.add-to-cart-btn' SOLO encuentra los botones rojos
-            // Los botones de "Agotado" no tienen esa clase, así que el JS no intentará agregar nada.
             document.querySelectorAll('.add-to-cart-btn').forEach(button => {
                 button.addEventListener('click', function (event) {
                     event.preventDefault();
@@ -176,9 +266,10 @@
 
                     const productId = this.dataset.productId;
                     const addButton = this;
+                    const originalContent = addButton.innerHTML;
 
                     addButton.disabled = true;
-                    addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    addButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
                     const formData = new FormData();
                     formData.append('id', productId);
@@ -196,6 +287,10 @@
                         headers: fetchHeaders
                     })
                     .then(response => {
+                        if (response.status === 401) {
+                            window.location.href = '/login'; // Redirigir si no está logueado
+                            throw new Error('Login requerido');
+                        }
                         if (!response.ok) throw new Error('Error');
                         return response.json();
                     })
@@ -210,14 +305,15 @@
                         console.error('Error:', error);
                     })
                     .finally(() => {
-                        addButton.disabled = false;
-                        addButton.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Agregar';
+                        if(addButton) {
+                            addButton.disabled = false;
+                            addButton.innerHTML = originalContent;
+                        }
                     });
                 });
             });
         });
     </script>
 </div>
-
 </body>
 </html>

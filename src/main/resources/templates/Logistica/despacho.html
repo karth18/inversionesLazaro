@@ -12,6 +12,7 @@
                 <th>Pedido</th>
                 <th>Dirección</th>
                 <th>Empaquetado por</th>
+                <th>Detalle</th>
                 <th>Asignar Chofer</th>
             </tr>
             </thead>
@@ -21,6 +22,18 @@
                 <td class="small" th:text="${p.direccion.calleAvenida}"></td>
                 <td>
                     <span class="badge bg-secondary" th:text="${p.almacenero != null ? p.almacenero.nombres : 'N/A'}"></span>
+                </td>
+                <td class="text-center">
+                    <a th:href="@{/admin/pedidos/detalle/{id}(id=${p.id}, origen='despacho')}"
+                       class="btn btn-sm btn-outline-info"
+                       title="Ver Detalle e Imprimir">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a th:href="@{/admin/pedidos/imprimir/{id}(id=${p.id}, origen='despacho')}"
+                       class="btn btn-sm btn-outline-info"
+                       title="Ver Detalle e Imprimir">
+                        <i class="fas fa-print"></i>
+                    </a>
                 </td>
                 <td>
                     <form th:action="@{/logistica/despacho/asignar}" method="post" class="d-flex gap-2">

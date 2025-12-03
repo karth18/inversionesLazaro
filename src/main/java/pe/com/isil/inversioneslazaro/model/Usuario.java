@@ -85,7 +85,8 @@ public class Usuario {
         TALLER,
         ALMACEN,    // Nuevo: El que empaqueta
         DESPACHO,   // Nuevo: El jefe que asigna rutas
-        CHOFER      // Nuevo: El que entrega
+        CHOFER,      // Nuevo: El que entrega
+        FINANZAS
 
 
     }
