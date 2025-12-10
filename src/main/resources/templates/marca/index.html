@@ -5,14 +5,18 @@
       layout:decorate="~{master.html}">
 <head>
     <meta charset="UTF-8">
-    <title>Categoría</title>
+    <title>Marca</title>
 </head>
 <body>
 <div class="container" layout:fragment="content">
-    <h1>Listado de Categoría</h1>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/dashboard" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h1>Listado de Marca</h1>
+    </div>
 
-    <a th:href="@{/admin/marca/nuevo}">Nuevo</a>
-    <a th:href="@{/admin/marca/habilitar}">Habilitar</a>
+
+    <a th:href="@{/admin/marca/nuevo}" class="btn btn-primary">Nuevo</a>
+    <a th:href="@{/admin/marca/habilitar}" class="btn btn-secondary">Habilitar</a>
     <table class="table table-striped table-hover">
         <thead>
         <tr>

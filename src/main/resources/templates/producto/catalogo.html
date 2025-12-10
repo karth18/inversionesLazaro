@@ -87,17 +87,17 @@
                 <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-filter text-primary"></i> Filtros</h5>
 
                 <form action="/catalogo" method="get" id="formFiltros">
-                    <input type="hidden" name="q" th:value="${busquedaActual}">
+<!--                    <input type="hidden" name="q" th:value="${busquedaActual}">-->
 
                     <div class="filter-title">Categoría</div>
                     <div class="list-group list-group-flush">
-                        <a th:href="@{/catalogo(q=${busquedaActual})}"
+                        <a th:href="@{/catalogo}"
                            class="filter-link"
                            th:classappend="${catActual == null} ? 'active'">
                             Todas
                         </a>
                         <th:block th:each="cat : ${categorias}">
-                            <a th:href="@{/catalogo(q=${busquedaActual}, categoria=${cat.id})}"
+                            <a th:href="@{/catalogo(categoria=${cat.id})}"
                                class="filter-link"
                                th:classappend="${catActual == cat.id} ? 'active'"
                                th:text="${cat.nombre}">

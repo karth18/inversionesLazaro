@@ -9,7 +9,10 @@
 </head>
 <body>
 <div class="container" layout:fragment="content">
-    <h1>Listado de Tipos de Producto Activos</h1>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/dashboard" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h1>Listado de Tipos de Producto Activos</h1>
+    </div>
 
     <a th:href="@{/admin/tproducto/nuevo}" class="btn btn-primary">Nuevo Tipo</a>
     <a th:href="@{/admin/tproducto/habilitar}" class="btn btn-secondary">Ver Desactivados</a>

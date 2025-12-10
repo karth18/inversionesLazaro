@@ -7,7 +7,11 @@
 </head>
 <body>
 <div class="container" layout:fragment="content">
-    <h2 class="mb-3">Editor de Componentes de Inicio</h2>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/dashboard" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h2 class="mb-3">Editor de Componentes de Inicio</h2>
+    </div>
+
     <p class="text-muted">Administra los bloques de contenido que aparecen en tu página principal.</p>
 
     <div th:if="${msgExito != null}" class="alert alert-success alert-dismissible fade show" role="alert">
