@@ -10,6 +10,11 @@
 <body>
 <div class="container mt-5" layout:fragment="content" >
 
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/dashboard" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h1>Listado de Usuarios</h1>
+    </div>
+
     <div th:if="${mensajeExito}" class="alert alert-success" role="alert">
         <span th:text="${mensajeExito}"></span>
     </div>

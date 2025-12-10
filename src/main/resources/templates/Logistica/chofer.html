@@ -3,7 +3,11 @@
 <head><title>Mis Rutas</title></head>
 <body>
 <div class="container mt-3" layout:fragment="content">
-    <h3 class="mb-3 text-center">🚚 Mis Entregas Hoy</h3>
+    <div class="d-flex align-items-center mb-4">
+        <a href="/admin/dashboard" class="btn btn-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+        <h3 class="mb-3 text-center">🚚 Mis Entregas Hoy</h3>
+    </div>
+
 
     <div th:if="${msg}" class="alert alert-success alert-dismissible fade show">
         <span th:text="${msg}"></span>
