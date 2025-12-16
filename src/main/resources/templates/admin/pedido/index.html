@@ -244,7 +244,22 @@
 
             } else {
                 // OTROS ESTADOS (Directo)
-                enviarAjax(pedidoId, estadoSeleccionado, null, null, null);
+<!--                enviarAjax(pedidoId, estadoSeleccionado, null, null, null);-->
+// CONFIGURACIÓN PARA OTROS ESTADOS (CONFIRMACIÓN GENERAL)
+        const estadoLimpio = estadoSeleccionado.replace('_', ' ');
+
+        header.className = 'modal-header bg-primary text-white'; // Color primario para estados normales
+        title.innerText = 'Confirmar Cambio de Estado';
+        desc.innerText = `¿Estás seguro de cambiar el estado a **${estadoLimpio}**?`; // Mensaje de confirmación
+
+        // Ocultar bloques que no aplican
+        bloqueMotivo.classList.add('d-none');
+        bloqueReagendar.classList.add('d-none');
+
+        btn.className = 'btn btn-primary';
+        btn.innerText = 'Confirmar Cambio';
+
+        modalEl.show(); // Mostrar el modal
             }
         }
 
@@ -270,6 +285,13 @@
                     esValido = false;
                 }
             }
+
+            // Agregado recientemente 12/15/2025
+    else {
+        // Para todos los demás estados, no necesitamos validación extra, se asume válido.
+        // Asegúrate de limpiar las alertas por si acaso.
+        document.querySelectorAll('.text-danger').forEach(el => el.classList.add('d-none'));
+    }
 
             if (!esValido) return;
 
